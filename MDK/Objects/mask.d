@@ -1,10 +1,2 @@
 .\objects\mask.o: ..\qrcode\mask.c
 .\objects\mask.o: ..\Code\macros.h
-.\objects\mask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\mask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-.\objects\mask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\errno.h
-.\objects\mask.o: ..\MALLOC\malloc.h
-.\objects\mask.o: ..\qrcode\qrencode.h
-.\objects\mask.o: ..\qrcode\qrspec.h
-.\objects\mask.o: ..\qrcode\mask.h
-.\objects\mask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

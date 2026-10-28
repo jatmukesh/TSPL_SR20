@@ -36,7 +36,12 @@
 .\objects\printcore.o: ..\Code\PrinterParType.h
 .\objects\printcore.o: ..\Code\BarCode.h
 .\objects\printcore.o: ..\qrcode\qrencode.h
+.\objects\printcore.o: ..\Code\TsplFirmware.h
+.\objects\printcore.o: ..\Code\TsplJob.h
+.\objects\printcore.o: ..\Code\TsplParser.h
+.\objects\printcore.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\printcore.o: ..\Code\TsplNative.h
+.\objects\printcore.o: ..\Code\TsplRaster.h
 .\objects\printcore.o: ..\Code\HP12832_01_SSD1306_I2C.h
 .\objects\printcore.o: ..\Source\Audio_Indication.h
-.\objects\printcore.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\printcore.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

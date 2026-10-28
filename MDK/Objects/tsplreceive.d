@@ -6,3 +6,12 @@
 .\objects\tsplreceive.o: ..\Code\TsplParser.h
 .\objects\tsplreceive.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\tsplreceive.o: ..\Code\macros.h
+.\objects\tsplreceive.o: ..\Code\TsplFirmware.h
+.\objects\tsplreceive.o: ..\Code\PrinterParType.h
+.\objects\tsplreceive.o: ..\Librarier\core\yc3121.h
+.\objects\tsplreceive.o: ..\Librarier\core\type.h
+.\objects\tsplreceive.o: ..\Librarier\core\system.h
+.\objects\tsplreceive.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\tsplreceive.o: ..\Librarier\sdk\yc_uart.h
+.\objects\tsplreceive.o: ..\Librarier\core\yc3121.h
+.\objects\tsplreceive.o: ..\Librarier\core\rom_api.h

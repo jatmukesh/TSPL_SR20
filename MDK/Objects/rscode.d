@@ -1,5 +1,2 @@
 .\objects\rscode.o: ..\qrcode\rscode.c
 .\objects\rscode.o: ..\Code\macros.h
-.\objects\rscode.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\rscode.o: ..\MALLOC\malloc.h
-.\objects\rscode.o: ..\qrcode\rscode.h

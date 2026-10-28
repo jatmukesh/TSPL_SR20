@@ -2,3 +2,11 @@
 .\objects\tsplshared.o: ..\Code\TsplShared.h
 .\objects\tsplshared.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\tsplshared.o: ..\Code\macros.h
+.\objects\tsplshared.o: ..\Code\PrinterParType.h
+.\objects\tsplshared.o: ..\Librarier\core\yc3121.h
+.\objects\tsplshared.o: ..\Librarier\core\type.h
+.\objects\tsplshared.o: ..\Librarier\core\system.h
+.\objects\tsplshared.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\tsplshared.o: ..\Librarier\sdk\yc_uart.h
+.\objects\tsplshared.o: ..\Librarier\core\yc3121.h
+.\objects\tsplshared.o: ..\Librarier\core\rom_api.h

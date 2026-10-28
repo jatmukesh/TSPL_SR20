@@ -10,15 +10,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'TSPL host compilation failed' }
     & "$tsplBuild/test_tspl.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL host tests failed' }
-    & gcc -std=c99 -Wall -Wextra -Werror -pedantic -ICode tests/tspl/test_job.c Code/TsplJob.c -o "$tsplBuild/test_job.exe"
+    & gcc @tsplFlags tests/tspl/test_job.c Code/TsplJob.c -o "$tsplBuild/test_job.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL job compilation failed' }
     & "$tsplBuild/test_job.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL job tests failed' }
-    & gcc -std=c99 -Wall -Wextra -Werror -pedantic -ICode tests/tspl/test_raster.c Code/TsplRaster.c Code/TsplJob.c -o "$tsplBuild/test_raster.exe"
+    & gcc @tsplFlags tests/tspl/test_raster.c Code/TsplRaster.c Code/TsplJob.c -o "$tsplBuild/test_raster.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL raster compilation failed' }
     & "$tsplBuild/test_raster.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL raster tests failed' }
-    & gcc -std=c99 -Wall -Wextra -Werror -pedantic -ICode tests/tspl/test_firmware.c Code/TsplFirmware.c Code/TsplParser.c Code/TsplJob.c -o "$tsplBuild/test_firmware.exe"
+    & gcc @tsplFlags tests/tspl/test_firmware.c Code/TsplFirmware.c Code/TsplParser.c Code/TsplJob.c -o "$tsplBuild/test_firmware.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL firmware integration compilation failed' }
     & "$tsplBuild/test_firmware.exe"
     if ($LASTEXITCODE -ne 0) { throw 'TSPL firmware integration tests failed' }

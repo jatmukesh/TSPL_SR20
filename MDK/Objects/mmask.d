@@ -1,9 +1,2 @@
 .\objects\mmask.o: ..\qrcode\mmask.c
 .\objects\mmask.o: ..\Code\macros.h
-.\objects\mmask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\mmask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-.\objects\mmask.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\errno.h
-.\objects\mmask.o: ..\MALLOC\malloc.h
-.\objects\mmask.o: ..\qrcode\qrencode.h
-.\objects\mmask.o: ..\qrcode\mqrspec.h
-.\objects\mmask.o: ..\qrcode\mmask.h

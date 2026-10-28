@@ -10502,8 +10502,6 @@ void TsplCore_Service(void)
         return;
     }
     if (inputs.readiness == TSPL_MEDIA) {
-        TsplFirmware_ReceiveError();
-        PrinterLPS();
         s_feedWasDown = feedDown;
         return;
     }

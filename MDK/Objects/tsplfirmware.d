@@ -4,3 +4,6 @@
 .\objects\tsplfirmware.o: ..\Code\TsplParser.h
 .\objects\tsplfirmware.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\tsplfirmware.o: ..\Code\macros.h
+.\objects\tsplfirmware.o: ..\Code\TsplNative.h
+.\objects\tsplfirmware.o: ..\Code\TsplRaster.h
+.\objects\tsplfirmware.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

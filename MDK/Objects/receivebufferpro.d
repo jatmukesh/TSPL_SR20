@@ -32,6 +32,11 @@
 .\objects\receivebufferpro.o: ..\Librarier\sdk\yc_wdt.h
 .\objects\receivebufferpro.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\receivebufferpro.o: ..\Code\HP12832_01_SSD1306_I2C.h
-.\objects\receivebufferpro.o: ..\Source\Audio_Indication.h
+.\objects\receivebufferpro.o: ..\Code\TsplNative.h
+.\objects\receivebufferpro.o: ..\Code\TsplRaster.h
+.\objects\receivebufferpro.o: ..\Code\TsplJob.h
+.\objects\receivebufferpro.o: ..\Code\TsplParser.h
 .\objects\receivebufferpro.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\receivebufferpro.o: ..\Code\TsplFirmware.h
+.\objects\receivebufferpro.o: ..\Source\Audio_Indication.h
 .\objects\receivebufferpro.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

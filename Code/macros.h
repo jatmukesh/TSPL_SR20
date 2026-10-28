@@ -3,10 +3,10 @@
 
 /* Exactly one incoming printer language must be selected. */
 #ifndef TSPL_PROTOCOL
-#define TSPL_PROTOCOL                         0
+#define TSPL_PROTOCOL                         1
 #endif
 #ifndef ESC_POS_PROTOCOL
-#define ESC_POS_PROTOCOL                      1
+#define ESC_POS_PROTOCOL                      0
 #endif
 #if ((TSPL_PROTOCOL != 0) && (TSPL_PROTOCOL != 1)) || ((ESC_POS_PROTOCOL != 0) && (ESC_POS_PROTOCOL != 1))
 #error Protocol switches must be 0 or 1

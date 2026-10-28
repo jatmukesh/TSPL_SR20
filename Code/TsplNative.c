@@ -20,6 +20,7 @@ extern PrintrConfig s_PrintrConfig;
 extern PrintListPar s_ListParmeter_A, s_ListParmeter_B;
 extern unsigned short g_BufferSwitch, g_PrintStatusReg, g_PrinterDip, g_SpeedChoice;
 extern unsigned short g_LPSStatus, g_PE_Standard, g_PaperWide, g_HorShift, g_RunFlag;
+extern unsigned short g_PaperOutAD;
 extern unsigned int Receive_count, g_Order_count, g_Receive_count, g_PowerOffCount;
 extern unsigned char receive_bufer[BUFFERSIZE];
 extern unsigned short GetPaper(void);
@@ -66,6 +67,7 @@ void TsplNative_Read(TsplInputs_t *inputs)
 {
     uint16_t fault, width, shift, left = 0U, right = 0U;
     memset(inputs, 0, sizeof(*inputs));
+    g_PaperOutAD = PRINTER_PDL.SYS._PaperOutDet();
     g_LPSStatus = GetPaper();
     fault = (uint16_t)((g_LPSStatus < g_PE_Standard) || PRINTER_PDL.SYS._GetHSStatus());
     if (fault && !s_previousFault) { ++s_mediaGeneration; s_calibrated = 0U; }
