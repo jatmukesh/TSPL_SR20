@@ -44,10 +44,10 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
 I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AD5AC39)
-F (..\Code\macros.h)(0x6AE1E5DC)()
+F (..\Code\macros.h)(0x6AE1EFE1)()
 F (..\Librarier\sdk\yc_gpio.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_gpio.o --omf_browse .\objects\yc_gpio.crf --depend .\objects\yc_gpio.d)
 I (..\Librarier\sdk\yc_gpio.h)(0x6AD5AC39)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
@@ -191,7 +191,7 @@ I (..\Librarier\core\bt_code.h)(0x6AD5AC39)
 I (..\Librarier\core\misc.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_lpm.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_sysctrl.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\Librarier\sdk\yc_wdt.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_wdt.o --omf_browse .\objects\yc_wdt.crf --depend .\objects\yc_wdt.d)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
@@ -225,7 +225,7 @@ I (..\Librarier\sdk\yc_bt.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_systick.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\Code\HP12832_01_SSD1306_I2C.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\hp12832_01_ssd1306_i2c.o --omf_browse .\objects\hp12832_01_ssd1306_i2c.crf --depend .\objects\hp12832_01_ssd1306_i2c.d)
 I (..\BSP\RD_V2_DeviceBSP.h)(0x6AD5AC38)
 I (..\Librarier\sdk\yc_gpio.h)(0x6AD5AC39)
@@ -251,7 +251,7 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AD5AC39)
 I (..\PDL\PDL.h)(0x6AD5AC3A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
@@ -282,7 +282,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
 I (..\BSP\RD_V2_DeviceBSP.h)(0x6AD5AC38)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\PDL\PDL.h)(0x6AD5AC3A)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
 F (..\USB\usb.c)(0x6AD5AC3A)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O2 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\usb.o --omf_browse .\objects\usb.crf --depend .\objects\usb.d)
@@ -325,9 +325,9 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
-F (..\Code\PrintCore.C)(0x6AE1E567)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\printcore.o --omf_browse .\objects\printcore.crf --depend .\objects\printcore.d)
+F (..\Code\PrintCore.C)(0x6AE1EFAF)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\printcore.o --omf_browse .\objects\printcore.crf --depend .\objects\printcore.d)
 I (..\PDL\PDL.h)(0x6AD5AC3A)
 I (..\BSP\RD_V2_DeviceBSP.h)(0x6AD5AC38)
 I (..\Librarier\sdk\yc_gpio.h)(0x6AD5AC39)
@@ -353,7 +353,7 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
 I (..\Code\LabelPro.h)(0x6AD5AC39)
 I (..\Code\flash.h)(0x6AD5AC39)
@@ -375,38 +375,38 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E8E5FEA)
 F (..\Code\TsplParser.c)(0x6AD5E83A)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplparser.o --omf_browse .\objects\tsplparser.crf --depend .\objects\tsplparser.d)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
 I (C:\Keil_v5\ARM\ARMCC\include\limits.h)(0x5E8E5FEA)
 F (..\Code\TsplJob.c)(0x6AD5E83A)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tspljob.o --omf_browse .\objects\tspljob.crf --depend .\objects\tspljob.d)
 I (..\Code\TsplJob.h)(0x6AD5E45C)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
 F (..\Code\TsplRaster.c)(0x6AD5E4D9)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplraster.o --omf_browse .\objects\tsplraster.crf --depend .\objects\tsplraster.d)
 I (..\Code\TsplRaster.h)(0x6AD5E4D1)
 I (..\Code\TsplJob.h)(0x6AD5E45C)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
 F (..\Code\TsplFirmware.c)(0x6AD5E594)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplfirmware.o --omf_browse .\objects\tsplfirmware.crf --depend .\objects\tsplfirmware.d)
 I (..\Code\TsplFirmware.h)(0x6AD5E594)
 I (..\Code\TsplJob.h)(0x6AD5E45C)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\TsplNative.h)(0x6AD5E621)
 I (..\Code\TsplRaster.h)(0x6AD5E4D1)
 I (C:\Keil_v5\ARM\ARMCC\include\stddef.h)(0x5E8E5FEA)
-F (..\Code\TsplNative.c)(0x6AE1E52E)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplnative.o --omf_browse .\objects\tsplnative.crf --depend .\objects\tsplnative.d)
+F (..\Code\TsplNative.c)(0x6AE1EF52)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplnative.o --omf_browse .\objects\tsplnative.crf --depend .\objects\tsplnative.d)
 I (..\Code\TsplNative.h)(0x6AD5E621)
 I (..\Code\TsplRaster.h)(0x6AD5E4D1)
 I (..\Code\TsplJob.h)(0x6AD5E45C)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\TsplFirmware.h)(0x6AD5E594)
 I (..\Code\TsplReceive.h)(0x6AD5E6A4)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
@@ -446,7 +446,7 @@ I (..\Code\TsplRaster.h)(0x6AD5E4D1)
 I (..\Code\TsplJob.h)(0x6AD5E45C)
 I (..\Code\TsplParser.h)(0x6AD5E45C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\TsplFirmware.h)(0x6AD5E594)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
@@ -458,7 +458,7 @@ I (..\Librarier\core\rom_api.h)(0x6AD5AC39)
 F (..\Code\TsplShared.c)(0x6AD5E73A)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\tsplshared.o --omf_browse .\objects\tsplshared.crf --depend .\objects\tsplshared.d)
 I (..\Code\TsplShared.h)(0x6AD5E6A4)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
 I (..\Librarier\core\type.h)(0x6AD5AC39)
@@ -467,12 +467,12 @@ I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
 I (..\Librarier\sdk\yc_uart.h)(0x6AD5AC39)
 I (..\Librarier\core\rom_api.h)(0x6AD5AC39)
 F (..\Code\ParseESC.c)(0x6AD5E672)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\parseesc.o --omf_browse .\objects\parseesc.crf --depend .\objects\parseesc.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\Code\ParseMatrix.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\parsematrix.o --omf_browse .\objects\parsematrix.crf --depend .\objects\parsematrix.d)
 I (..\Code\ParseMatrix.h)(0x6AD5AC39)
 I (..\Code\ReceiveBufferPro.h)(0x6AD5E6F9)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
 I (..\Librarier\core\type.h)(0x6AD5AC39)
 I (..\Librarier\core\system.h)(0x6AD5AC39)
@@ -503,7 +503,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
 F (..\Code\ReceiveBufferPro.c)(0x6AD5E6A5)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\receivebufferpro.o --omf_browse .\objects\receivebufferpro.crf --depend .\objects\receivebufferpro.d)
 I (..\Code\ReceiveBufferPro.h)(0x6AD5E6F9)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
 I (..\Librarier\core\type.h)(0x6AD5AC39)
 I (..\Librarier\core\system.h)(0x6AD5AC39)
@@ -567,14 +567,14 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
 I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AD5AC39)
 F (..\Code\LabelPro.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\labelpro.o --omf_browse .\objects\labelpro.crf --depend .\objects\labelpro.d)
 I (..\Code\LabelPro.h)(0x6AD5AC39)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Librarier\core\yc3121.h)(0x6AD5AC39)
 I (..\Librarier\core\type.h)(0x6AD5AC39)
 I (..\Librarier\core\system.h)(0x6AD5AC39)
@@ -600,7 +600,7 @@ I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
 F (..\Code\BarCode.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\barcode.o --omf_browse .\objects\barcode.crf --depend .\objects\barcode.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\Code\OLED_Menu.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\oled_menu.o --omf_browse .\objects\oled_menu.crf --depend .\objects\oled_menu.d)
 I (..\BSP\RD_V2_DeviceBSP.h)(0x6AD5AC38)
 I (..\Librarier\sdk\yc_gpio.h)(0x6AD5AC39)
@@ -626,7 +626,7 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AD5AC39)
 I (..\PDL\PDL.h)(0x6AD5AC3A)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
@@ -664,25 +664,25 @@ I (..\Librarier\sdk\yc_qspi.h)(0x6AD5AC39)
 I (..\Librarier\sdk\yc_power.h)(0x6AD5AC39)
 I (..\USB\usb.h)(0x6AD5AC3A)
 I (..\Librarier\sdk\yc_wdt.h)(0x6AD5AC39)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 I (..\Code\PrinterParType.h)(0x6AD5AC39)
 F (..\qrcode\bitstream.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\bitstream.o --omf_browse .\objects\bitstream.crf --depend .\objects\bitstream.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\mask.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mask.o --omf_browse .\objects\mask.crf --depend .\objects\mask.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\mmask.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mmask.o --omf_browse .\objects\mmask.crf --depend .\objects\mmask.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\mqrspec.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mqrspec.o --omf_browse .\objects\mqrspec.crf --depend .\objects\mqrspec.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\qrencode.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrencode.o --omf_browse .\objects\qrencode.crf --depend .\objects\qrencode.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\qrinput.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrinput.o --omf_browse .\objects\qrinput.crf --depend .\objects\qrinput.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\qrspec.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrspec.o --omf_browse .\objects\qrspec.crf --depend .\objects\qrspec.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\rscode.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\rscode.o --omf_browse .\objects\rscode.crf --depend .\objects\rscode.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\qrcode\split.c)(0x6AD5E73B)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\split.o --omf_browse .\objects\split.crf --depend .\objects\split.d)
-I (..\Code\macros.h)(0x6AE1E5DC)
+I (..\Code\macros.h)(0x6AE1EFE1)
 F (..\MALLOC\malloc.c)(0x6AD5AC39)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\malloc.o --omf_browse .\objects\malloc.crf --depend .\objects\malloc.d)
 I (..\MALLOC\malloc.h)(0x6AD5AC39)

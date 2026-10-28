@@ -201,8 +201,8 @@ TsplResult_t TsplNative_Publish(const TsplLabel_t *label, uint16_t row, uint16_t
 
 /* Function name: TsplNative_Service; Description: Observe engine claim/completion.
  * Parameters: None; Returns: None; Global vars: copy/publication flags.
- * Remarks: Existing sensor-based feed aligns the next label after physical completion.
- * The feed routine is synchronous; overflow confirmation never calls it. */
+ * Remarks: A TSPL PRINT ends at its final raster row. Legacy label alignment is not
+ * called here because it can advance a second blank label. */
 void TsplNative_Service(void)
 {
     if (s_published && (g_BufferSwitch != s_nextSwitch)) s_published = 0U;
@@ -215,7 +215,6 @@ void TsplNative_Service(void)
             return;
         }
         TsplCore_LabelFinished();
-        if ((GetPaper() >= g_PE_Standard) && !PRINTER_PDL.SYS._GetHSStatus()) RunFeedLabPaper();
         if ((GetPaper() < g_PE_Standard) || PRINTER_PDL.SYS._GetHSStatus()) s_engineFailed = 1U;
         s_copyComplete = 1U;
     }

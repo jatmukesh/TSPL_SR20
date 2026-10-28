@@ -10480,8 +10480,9 @@ void TsplCore_LabelAborted(void)
 void TsplCore_Service(void)
 {
     static uint32_t s_lastDisplay;
-    static uint8_t s_feedWasDown;
+    static uint8_t s_feedWasDown, s_menuWasActive;
     uint8_t feedDown = (uint8_t)(PRINTER_PDL.SYS._GetKey_LF() == 0U);
+    uint8_t wasMenu;
     TsplInputs_t inputs;
     PRINTER_PDL.SYS._WDG_ReloadCounter();
 #ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
@@ -10496,18 +10497,17 @@ void TsplCore_Service(void)
     }
 #endif
     TsplNative_Read(&inputs);
-    if (TsplFirmware_Busy() || TsplFirmware_OwnsFeed()) {
-        s_feedWasDown = feedDown;
-        g_PowerOffCount = 0U;
-        return;
+    if (s_menuWasActive && !g_OptionStatus) OLED_RestoreHomeScreen();
+    wasMenu = (uint8_t)(g_OptionStatus != 0U);
+    if (!TsplFirmware_Busy() && !TsplFirmware_OwnsFeed()) {
+        ReadKeyMenu();
+        if (wasMenu && !g_OptionStatus) OLED_RestoreHomeScreen();
+        if ((inputs.readiness != TSPL_MEDIA) && !g_OptionStatus && s_feedWasDown && !feedDown)
+            RunFeedLabPaper();
     }
-    if (inputs.readiness == TSPL_MEDIA) {
-        s_feedWasDown = feedDown;
-        return;
-    }
-    ReadKeyMenu();
-    if (!g_OptionStatus && s_feedWasDown && !feedDown) RunFeedLabPaper();
+    s_menuWasActive = (uint8_t)(g_OptionStatus != 0U);
     s_feedWasDown = feedDown;
+    if (TsplFirmware_Busy() || TsplFirmware_OwnsFeed()) g_PowerOffCount = 0U;
     if ((uint32_t)(g_tsplMilliseconds - s_lastDisplay) >= 500U) {
         s_lastDisplay = g_tsplMilliseconds;
         g_pinrtStb = CalStbTime();

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\SR20.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\SR20.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Oct 28 18:00:22 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Oct 28 18:24:16 2026
 <BR><P>
 <H3>Maximum Stack Usage =       4312 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -2116,7 +2116,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> yc_sysctrl.o(i.SYSCTRL_HCLKConfig)
 </UL>
 <P><STRONG><a name="[1f3]"></a>Handler_main</STRONG> (Thumb, 2794 bytes, Stack size 96 bytes, printcore.o(i.Handler_main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 784 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 792 + Unknown Stack Size
 <LI>Call Chain = Handler_main &rArr; TsplCore_Service &rArr; ReadKeyMenu &rArr; DisplayOption &rArr; Get_Darkness_Speed_cmd &rArr; MyPrintf &rArr; printfsend &rArr; UART_SendBuf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;oled_init
@@ -2279,6 +2279,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplNative_Restore
 <LI><a href="#[22d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadKeyMenu
 <LI><a href="#[234]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lid_mediacal
+<LI><a href="#[1ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplCore_Service
 </UL>
 
 <P><STRONG><a name="[12a]"></a>OneLinePrintDataSend</STRONG> (Thumb, 2828 bytes, Stack size 80 bytes, printcore.o(i.OneLinePrintDataSend))
@@ -3467,8 +3468,7 @@ Global Symbols
 <LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetDETPaper
 <LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Delay1ms
 </UL>
-<BR>[Called By]<UL><LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplNative_Service
-<LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PrinterCore_RAM
+<BR>[Called By]<UL><LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PrinterCore_RAM
 <LI><a href="#[1ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplCore_Service
 </UL>
 
@@ -3958,8 +3958,8 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplNative_Read
 </UL>
 
-<P><STRONG><a name="[1ff]"></a>TsplCore_Service</STRONG> (Thumb, 218 bytes, Stack size 32 bytes, printcore.o(i.TsplCore_Service))
-<BR><BR>[Stack]<UL><LI>Max Depth = 688 + Unknown Stack Size
+<P><STRONG><a name="[1ff]"></a>TsplCore_Service</STRONG> (Thumb, 290 bytes, Stack size 40 bytes, printcore.o(i.TsplCore_Service))
+<BR><BR>[Stack]<UL><LI>Max Depth = 696 + Unknown Stack Size
 <LI>Call Chain = TsplCore_Service &rArr; ReadKeyMenu &rArr; DisplayOption &rArr; Get_Darkness_Speed_cmd &rArr; MyPrintf &rArr; printfsend &rArr; UART_SendBuf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplNative_Read
@@ -3968,6 +3968,7 @@ Global Symbols
 <LI><a href="#[22d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ReadKeyMenu
 <LI><a href="#[1ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CalStbTime
 <LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RunFeedLabPaper
+<LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_RestoreHomeScreen
 <LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DisplayTemp
 <LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DisplayBatty
 <LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DisplayBTPro
@@ -4207,13 +4208,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplFirmware_Service
 </UL>
 
-<P><STRONG><a name="[200]"></a>TsplNative_Service</STRONG> (Thumb, 172 bytes, Stack size 8 bytes, tsplnative.o(i.TsplNative_Service))
-<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = TsplNative_Service &rArr; RunFeedLabPaper &rArr; linearRegression_32 &rArr; __aeabi_drsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[200]"></a>TsplNative_Service</STRONG> (Thumb, 146 bytes, Stack size 8 bytes, tsplnative.o(i.TsplNative_Service))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = TsplNative_Service &rArr; TsplCore_LabelFinished &rArr; BatteryLowCharge_LabelFinished &rArr; BatteryLowCharge_LabelMediaPresent &rArr; BatteryLowCharge_LabelAborted &rArr; BatteryLowCharge_DebugLog &rArr; BatteryVoltageDebug_GetSnapshot
 </UL>
 <BR>[Calls]<UL><LI><a href="#[26f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplNative_Kick
 <LI><a href="#[256]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplCore_LabelFinished
 <LI><a href="#[253]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TsplCore_LabelAborted
-<LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RunFeedLabPaper
 <LI><a href="#[1b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetPaper
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Handler_main
@@ -4720,7 +4720,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[11c]"></a>main</STRONG> (Thumb, 186 bytes, Stack size 8 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 792 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 800 + Unknown Stack Size
 <LI>Call Chain = main &rArr; Handler_main &rArr; TsplCore_Service &rArr; ReadKeyMenu &rArr; DisplayOption &rArr; Get_Darkness_Speed_cmd &rArr; MyPrintf &rArr; printfsend &rArr; UART_SendBuf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[28a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;enable_gpio_32

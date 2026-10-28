@@ -99,7 +99,7 @@ int main(void)
     CHECK(TsplNative_Publish(&label,216,24)==TSPL_OK);
     g_BufferSwitch=(unsigned short)~g_BufferSwitch; g_PrintStatusReg=0; g_PrintLineCount=24;
     s_PrinterMOTOPar.m_StopPrint=ENABLE_VAR; TsplNative_Service();
-    CHECK(feeds==1 && finishes==1);
+    CHECK(feeds==0 && finishes==1); /* TSPL PRINT ends at its final raster row; do not advance a blank label. */
     TsplNative_Read(&input); CHECK(input.copyComplete && !input.engineFailed);
     lid=1; TsplNative_Read(&input); CHECK(!input.calibrated);
     lid=0; TsplNative_Read(&input); CHECK(!input.calibrated); /* Stale height is insufficient. */
