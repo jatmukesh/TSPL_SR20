@@ -1,0 +1,244 @@
+#ifndef MACROS_H
+#define MACROS_H
+
+/* Exactly one incoming printer language must be selected. */
+#ifndef TSPL_PROTOCOL
+#define TSPL_PROTOCOL                         0
+#endif
+#ifndef ESC_POS_PROTOCOL
+#define ESC_POS_PROTOCOL                      1
+#endif
+#if ((TSPL_PROTOCOL != 0) && (TSPL_PROTOCOL != 1)) || ((ESC_POS_PROTOCOL != 0) && (ESC_POS_PROTOCOL != 1))
+#error Protocol switches must be 0 or 1
+#endif
+#if (TSPL_PROTOCOL + ESC_POS_PROTOCOL) != 1
+#error Select exactly one printer protocol
+#endif
+#if TSPL_PROTOCOL
+#define PSF20_R002_TSPL_PROTOCOL
+#endif
+#if ESC_POS_PROTOCOL
+#define PSF20_R002_ESC_POS_PROTOCOL
+#endif
+
+/***********************Macros Declaration********************/
+#define EMS_VENDOR_TEST_CODE                   0
+#define DOUBLE_TAP_USERBTN_SELFTEST_PRINT      0   //User button double tap selftest print  (Do not given this feature in this first released)
+#define PAPER_FEED_ISSUE_SOLUTION              1   //(Note:Always Disable this)Paper Feed issue does not occure in this firmware because when firmware upload very first time CRC calculated and strore in m_CRC Var and after each power ON-OFF it will tally with the saved configuration
+#define REVERSE_PRINT_ISSUE_SOLUTION           1
+#define DARKNESS_LEVEL_CONFIGURATION           1   //update at the end of code
+#define POSIFLOW_LOGO_NAME                     1
+#define BLUETOOTH_CONNECT_TEXT                 1
+#define POWER_ON_CALIBRATION                   1
+#define KEY_AUDIO                              1
+#define INTELLIGENT_SELFTEST_PRINT             1   //Added (Unit testing pending)
+#define AUDIO_BEEP_REMINDERS_OPTION            1   //Correct
+#define SOUND_SETTING                          1   //Correct
+#define DISPLAY_SETTING_OPTIONS                1
+#define FLASH_CHECKSUM                         0
+#define BT_ACK_NACK                            1
+#define BT_COMMAND_REQUIREMENT                 1    //New requirement: for GET_LABEL_HEIGHT
+
+#define MULTIPLE_TIMES_USER_BUTTON_PRESS       0    //(Note:Always Disable this macro) This is used to comment the multiple time user button pressed does not print baud values
+#define NEW_DISPLAY_UI_OPTIONS                 1    //update at the end of code
+
+#define TEMPERATURE_SAFE_PRINTING  						 1		//New_Feature: Set to 1 to enable temperature-safe printing (Requirement: 07 Sep 2026)
+#define AUTO_CAL_SELECTION                     1    //New_Feature: As per customer review discard auto calibration at power on & LID open-close & provide setting option for manual calibration
+#define BATTERY_INDICATION_ISSUE               1    //Solution: Issue found in PSF20 printer i.e. Sometimes the Battery Shows Full and Sometimes it Shows Low.Even if it shows Full, the Printer Shuts Down
+
+#define AVOID_GARBAGE_PRINT                    1
+#define SPEED_DARKNESS_COMMAND_ACK             1    //Command Addition as per mitesh sir requirement (Modify by: Kajal --> 07 Oct 2026)
+#define SETTING_MENU_FOR_MEDIA_UNKNOWN         1
+#define USB_CHANGING_PRINT_ISSUE               1
+
+#define DISPLAY_FREEZE_ISSUE_AT_PWR_ON         1
+
+#define MY_DEBUG                               0
+
+//---------------------------------------------------------
+
+
+/********************Macros Definition******************/
+#if EMS_VENDOR_TEST_CODE
+#define EMS_TEST_CODE
+#endif
+
+#if DOUBLE_TAP_USERBTN_SELFTEST_PRINT
+#define DOUBLE_TAP_SELFTEST_PRINT
+#endif
+
+#if PAPER_FEED_ISSUE_SOLUTION
+//#define PAPER_FEED_SOLUTION
+#define FOR_PSF20_PAPER_FEED_SOLUTION   //Issue occure after initial release(i.e. PSF20_R001) power on calibration blank feed
+
+//#define TEMP_DEBUG_FOR_PF
+#endif
+
+#if REVERSE_PRINT_ISSUE_SOLUTION
+#define REVERSE_PRINT_SOLUTION
+#endif
+
+#if DARKNESS_LEVEL_CONFIGURATION
+#define FIVE_DARKNESS_LEVEL_CONFIG	// Replaces legacy 10-level scale with simplified 5 level.
+#endif
+
+#if POSIFLOW_LOGO_NAME
+#define POSIFLOW_LOGO_AND_NAME
+#define BT_NAME_CHANGE
+#endif
+
+#if BLUETOOTH_CONNECT_TEXT
+#define BLUETOOTH_PAIRED_TEXT   //"paired" text to display when connected
+#endif
+
+#if POWER_ON_CALIBRATION
+#define POWER_ON_CAL
+#define POWER_ON_CAL_MENU			//Complete Calibration via menu settings
+#endif
+
+#if AUTO_CAL_SELECTION 								//simplify the two step auto calibration into a simple (single yes/ no )
+#define AUTO_CAL_DISCARD_OPTION
+#define DISCARDING_CAL_SET_PREV_SR20_FUNCTIONALITY    //(Enable to save prev state if disable it will work as feature decided by desin team))After power on / Lid open close calibration discarded it will understand itselft and print accordingly as label or paper.(it should be work as previous SR20 printer like baseline code)
+//#define SAFE_PRINTING											// [fix] To prevent Garbage printig
+#endif
+
+#if KEY_AUDIO
+#define PWR_USER_BTN_KEY_AUDIO_EN
+#endif
+
+#if INTELLIGENT_SELFTEST_PRINT
+#define INTELLIGENT_SELFTEST_RECEIPT
+#endif
+
+#if AUDIO_BEEP_REMINDERS_OPTION
+#define AUDIO_BEEP_SEQUENCE
+#endif
+
+#if SOUND_SETTING
+#define SYSTEM_SOUND_SETTING
+#endif
+
+#if DISPLAY_SETTING_OPTIONS
+#define LID_MEDIA_DISPLAY_SETTING
+#endif
+
+#if FLASH_CHECKSUM
+#define CHECKSUM
+#endif
+
+#if BT_ACK_NACK
+#define BT_NACK
+#endif
+
+#if MULTIPLE_TIMES_USER_BUTTON_PRESS
+#define MULTIPLE_USER_BUTTON_PRESS
+#endif
+
+#if BT_COMMAND_REQUIREMENT
+#define BT_CMD_REQ
+#endif
+
+#if NEW_DISPLAY_UI_OPTIONS
+#define NEW_UI_MENU_SETTINGS
+#endif
+
+#if MY_DEBUG
+#define MY_DEBUG_ENABLE
+#define MY_DEBUG_ENABLE_O
+#endif
+
+#if TEMPERATURE_SAFE_PRINTING
+#define PSF20_R002_TEMPERATURE_SAFE_PRINTING
+#define TEMP_STATUS_ACK_TO_SOFTWARE_APP     //No requirement yet in software Application
+#define TM_ENABLE
+#define TEMP_SET_ADC_VALUE_DEFAULT80_ISSUE
+#endif
+
+#if BATTERY_INDICATION_ISSUE
+#define BATTERY_INDICATION_SOLUTION
+#define FIXED_LATE_BATTERY_DISPLAY
+#define AUTO_SHUTDOWN_INDICATION_HANDLING
+
+#define POST_LABEL_LOW_CHARGE_SHUTDOWN         1
+#if POST_LABEL_LOW_CHARGE_SHUTDOWN && BATTERY_INDICATION_ISSUE
+#define BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+#endif
+#define mukesh_DEBUG_BATTERY_IDLE
+#define mukesh_DEBUG_BATTERY_PRINT
+#ifndef BATTERY_LOW_CHARGE_LABEL_LIMIT
+#define BATTERY_LOW_CHARGE_LABEL_LIMIT         3U
+#endif
+//#define DEBUG_BATTERY_INDICATION_FIX
+#endif 
+
+#if AVOID_GARBAGE_PRINT
+//#define LID_OPEN_MEDIA_ABSENT_AVOID_GARBAGE_PRINT
+#define NEW_GARBAGE_PRINT_AVOID_LOGIC
+#define SAFE_PRINTING
+#endif
+
+#if SPEED_DARKNESS_COMMAND_ACK
+#define TEST_SPEED_DARKNESS_ACK_COMMAND_ADDITION
+#endif
+
+#if SETTING_MENU_FOR_MEDIA_UNKNOWN
+#define MEDIA_UNKNOWN_DETECTION_IN_SETTING_MENU
+#endif
+
+#if USB_CHANGING_PRINT_ISSUE
+#define USB_CHANGING_DATALOSS_ISSUE_SOLUTION
+#endif
+
+#if DISPLAY_FREEZE_ISSUE_AT_PWR_ON
+#define DISPLAY_FREEZE_ISSUE_SOLUTION
+//#define DUMMY_FLAGS_SET_TO_CREATE_ISSUE
+#endif
+//***********************************Constant Strings to replace******************************************************/
+
+#define PRODUCT_NAME "PSF20"
+#define LOGO_DISPLAY_TIME  2000    //Duration: 2 Sec
+
+#define PWR_KEY_BEEP_EN_TIME   30   //i.e. 30mSec  (When key pressed buzzer beep for 30msec and then turn off)
+
+
+    /************Intelligent selftest print data***********/
+#define INJECT_STR_TO_PRINTER(str) \
+			{ \
+					int _p_idx = 0; \
+					while(str[_p_idx]) { \
+							receive_bufer[(*p_REAndSAcount)++] = str[_p_idx++]; \
+					} \
+			}
+#define STR_SELFTEST_HEADER      "\r\n\t\t\t     <<< POSIFLOW TEST PRINT >>> \r\n"
+#define STR_PRINT_MODEL          "\t\t\t    MODEL   : PSF20 Thermal Printer\r\n"
+#define STR_PRINT_VERSION_LABEL  "\t\t\t    VERSION : V4.1.0  \r\n	"	  //Release with new features       		
+
+#ifdef BT_NACK			
+typedef enum {
+		BT_NACK_INVALID_CMD = 0,
+		BT_NACK_SIZE_MISMATCH = 1,
+		BT_NACK_BUFFER_OVERFLOW = 2 
+	} BT_NACK_Reason;
+	extern void BT_SendNACK(BT_NACK_Reason reason);			
+#endif			
+
+#if defined(mukesh_DEBUG_BATTERY_IDLE) || defined(mukesh_DEBUG_BATTERY_PRINT)
+/* All fields describe the same existing GetVolteV conversion. Reading this
+ * snapshot never performs ADC work or changes calibration. */
+typedef struct {
+    unsigned short adc_pin_mV;
+    unsigned short raw_pack_mV;
+    unsigned short corrected_pack_mV;
+    unsigned int sample_time_ms;
+    unsigned char valid;
+} BatteryVoltageDebugSample;
+void BatteryVoltageDebug_GetSnapshot(BatteryVoltageDebugSample *sample);
+#endif	
+	
+    /********************Manual Calibration Option setting ************************************/	
+#ifdef AUTO_CAL_DISCARD_OPTION
+#define CAL_MODE_SELECTION_TIME	3000
+#define CONFIRM_CAL_MODE_TIME		3000
+#endif	
+//-------------------------------------------------------
+#endif

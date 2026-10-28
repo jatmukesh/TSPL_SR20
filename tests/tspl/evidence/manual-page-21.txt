@@ -1,0 +1,27 @@
+ 
+ 
+3 
+GAP 
+ 
+Description 
+Defines the gap distance between two labels. 
+ 
+Syntax 
+GAP m,n English system (inch) 
+GAP m mm,n mm Metric system (mm) 
+GAP m dot,n dot Dot measurement 
+This command has been supported since V6.27 EZ and later firmware. 
+ 
+Parameter Description 
+M The gap distance between two labels 
+0 ≤ m ≤1 (inch), 0 ≤ m ≤ 25.4 (mm) 
+0 ≤ m ≤5 (inch), 0 ≤ m ≤ 127 (mm) / since V6.21 EZ and later firmware 
+N The offset distance of the gap 
+n ≤ label length (inch or mm) 
+0, 0 Continuous label 
+  
+      
+ 
+Note : 
+▪ 200 DPI : 1 mm = 8 dots 
+300 DPI : 1mm = 12 dots 

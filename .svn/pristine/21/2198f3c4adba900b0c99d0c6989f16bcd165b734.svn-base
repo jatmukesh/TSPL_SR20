@@ -1,0 +1,17 @@
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_gpio.c
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_gpio.h
+.\objects\yc_gpio.o: ..\Librarier\core\yc3121.h
+.\objects\yc_gpio.o: ..\Librarier\core\type.h
+.\objects\yc_gpio.o: ..\Librarier\core\system.h
+.\objects\yc_gpio.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_gpio.o: ..\Librarier\core\yc3121.h
+.\objects\yc_gpio.o: ..\Librarier\core\rom_api.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_lpm.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_ipc.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_timer.h
+.\objects\yc_gpio.o: ..\Librarier\core\bt_code.h
+.\objects\yc_gpio.o: ..\Librarier\core\misc.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_lpm.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_otp.h
+.\objects\yc_gpio.o: ..\Librarier\sdk\yc_sysctrl.h

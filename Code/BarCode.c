@@ -1,0 +1,1942 @@
+#include "macros.h"
+#ifdef PSF20_R002_ESC_POS_PROTOCOL
+#include "BarCode.h"
+#include "PrinterParType.h"
+#include "flash.h"
+extern CodeBarCon s_CodeBarCon;//条码控制参数
+extern  unsigned int Config_zoom[];
+unsigned short g_DataBuf;
+unsigned short g_Prolen;
+unsigned short g_count;
+extern unsigned short	g_alignType;//??? ????
+extern unsigned short	Buffer_CodeBar[BUFFER_SHORT_LENGTH];//条码缓冲区
+extern unsigned char 	CodeBarStr[40];
+extern  GetOrderPoint	s_PrintOrderstr;//取命令结构
+
+extern unsigned char(*PrinterCore)(void);//外部定义的函数指针
+//extern unsigned char PrinterCore(void);
+//**********CODE128编码*****
+const U16 CODE128_encode[107]={
+							0x6cc,0x66C,0x666,0x498,0x48C,0x44C,0x4C8,0x4C4,0x464,0x648,0x644,0x624,0x59C,0x4DC,0x4CE,0x5CC,0x4EC,0x4E6,0x672,0x65C,0x64E,0x6E4,0x674,0x76E,
+							0x74C,0x72C,0x726,0x764,0x734,0x732,0x6D8,0x6C6,0x636,0x518,0x458,0x446,0x588,0x468,0x462,0x688,0x628,0x622,0x5B8,0x58E,0x46E,0x5D8,0x5C6,0x476,
+							0x776,0x68E,0x62E,0x6E8,0x6E2,0x6EE,0x758,0x746,0x716,0x768,0x762,0x71A,0x77A,0x642,0x78A,0x530,0x50C,0x4B0,0x486,0x42C,0x426,0x590,0x584,0x4D0,
+							0x4C2,0x434,0x432,0x612,0x650,0x7BA,0x614,0x47A,0x53C,0x4BC,0x49E,0x5E4,0x4F4,0x4F2,0x7A4,0x794,0x792,0x6DE,0x6F6,0x7B6,0x578,0x51E,0x45E,0x5E8,
+							0x5E2,0x7A8,0x7A2,0x5DE,0x5EE,0x75E,0x7AE,0x684,0x690,0x69C,0x18EB,
+							};
+
+
+
+  const U16 CODE39_S[]={
+
+0x135A,//;20H SPACE
+0x0000,//;21H
+0x0000,//;22H
+0x0000,//;23H
+0x124A,//;24H $
+0x1492,//;25H %
+0x0000,//;26H
+0x0000,//;27H
+0x0000,//;28H
+0x0000,//;29H
+0x12DA,//;2AH *
+0x1292,//;2BH +
+0x0000,//;2CH
+0x12B6,//;2DH -
+0x195A,//;2EH .
+0x1252,//;2FH /
+
+0x14DA,//;30H 0
+0x1A56,//;31H 1
+0x1656,//;32H 2
+0x1B2A,//;33H 3
+0x14D6,//;34H 4
+0x1A6A,//;35H 5
+0x166A,//;36H 6
+0x14B6,//;37H 7
+0x1A5A,//;38H 8
+0x165A,//;39H 9
+
+0x0000,//;3AH
+0x0000,//;3BH
+0x0000,//;3CH
+0x0000,//;3DH
+0x0000,//;3EH
+0x0000,//;3FH
+0x0000,//;40H
+
+0x1A96,//;41H A
+0x1696,//;42H B
+0x1B4A,//;43H C
+0x1596,//;44H D
+0x1ACA,//;45H E
+0x16CA,//;46H F
+0x1536,//;47H G
+0x1A9A,//;48H H
+0x169A,//;49H I
+0x159A,//;4AH J
+0x1AA6,//;4BH K
+0x16A6,//;4CH L
+0x1B52,//;4DH M
+0x15A6,//;4EH N
+0x1AD2,//;4FH O
+0x16D2,//;50H P
+0x1566,//;51H Q
+0x1AB2,//;52H R
+0x16B2,//;53H S
+0x15B2,//;54H T
+0x1956,//;55H U
+0x1356,//;56H V
+0x19AA,//;57H W
+0x12D6,//;58H X
+0x196A,//;59H Y
+0x136A//;5AH Z
+
+};
+const U16 CODE93[]={
+
+0x1d2,38,//;20H SPACE
+0x000,0,//;21H
+0x000,0,//;22H
+0x000,0,//;23H
+0x1CA,39,//;24H $
+0x1AE,42,//;25H %
+0x000,0,//;26H
+0x000,0,//;27H
+0x000,0,//;28H
+0x000,0,//;29H
+0x15e,0,//;2AH *
+0x176,41,//;2BH +
+0x000,0,//;2CH
+0x12e,36,//;2DH -
+0x1d4,37,//;2EH .
+0x16E,40,//;2FH /
+
+0x114,0,//;30H 0
+0x148,1,//;31H 1
+0x144,2,//;32H 2
+0x142,3,//;33H 3
+0x128,4,//;34H 4
+0x124,5,//;35H 5
+0x122,6,//;36H 6
+0x150,7,//;37H 7
+0x112,8,//;38H 8
+0x10a,9,//;39H 9
+
+0x000,0,//;3AH
+0x000,0,//;3BH
+0x000,0,//;3CH
+0x000,0,//;3DH
+0x000,0,//;3EH
+0x000,0,//;3FH
+0x000,0,//;40H
+
+0x1a8,10,//;41H A
+0x1a4,11,//;42H B
+0x1a2,12,//;43H C
+0x194,13,//;44H D
+0x192,14,//;45H E
+0x18a,15,//;46H F
+0x168,16,//;47H G
+0x164,17,//;48H H
+0x162,18,//;49H I
+0x134,19,//;4AH J
+0x11a,20,//;4BH K
+0x158,21,//;4CH L
+0x14c,22,//;4DH M
+0x146,23,//;4EH N
+0x12c,24,//;4FH O
+0x116,25,//;50H P
+0x1b4,26,//;51H Q
+0x1b2,27,//;52H R
+0x1ac,28,//;53H S
+0x1a6,29,//;54H T
+0x196,30,//;55H U
+0x19a,31,//;56H V
+0x16c,32,//;57H W
+0x166,33,//;58H X
+0x136,34,//;59H Y
+0x13a,35, //;5AH Z
+
+0x126,43,
+0x1da,44,
+0x1d6,45,
+0x132,46
+};
+
+
+const U16 CODE93_T[]={
+0x114,
+0x148,
+0x144,
+0x142,
+0x128,
+0x124,
+0x122,
+0x150,
+0x112,
+0x10a,
+0x1a8,
+0x1a4,
+0x1a2,
+0x194,
+0x192,
+0x18a,
+0x168,
+0x164,
+0x162,
+0x134,
+0x11a,
+0x158,
+0x14c,
+0x146,
+0x12c,
+0x116,
+0x1b4,
+0x1b2,
+0x1ac,
+0x1a6,
+0x196,
+0x19a,
+0x16c,
+0x166,
+0x136,
+0x13a,
+0x12e,
+0x1d4,
+0x1d2,
+0x1CA,
+0x16E,
+0x176,
+0x1AE,
+0x126,
+0x1da,
+0x1d6,
+0x132
+};
+
+const U16 EAN_A[]={
+//Left_CODE_A:
+//0001101 -0
+0x0d,
+//0011001 -1
+0x19,
+//0010011 -2
+0x13,
+//0111101 -3
+0x3D,
+//0100011 -4
+0x23,
+//0110001 -5
+0x31,
+//0101111 -6
+0x2F,
+//0111011 -7
+0x3B,
+//0110111 -8
+0x37,
+//0001011 -9
+0x0B,
+};
+
+const U16 EAN_B[]={
+//	0100111  -0
+0x27,
+//	0110011  -1
+0x33,
+//	0011011  -2
+0x1b,
+//	0100001  -3
+0x21,
+//	0011101  -4
+0x1D,
+//	0111001  -5
+0x39,
+//	0000101  -6
+0x05,
+//	0010001  -7
+0x11,
+//	0001001  -8
+0x09,
+//	0010111  -9
+0x17,
+};
+
+
+const U16 EAN_R[]={
+//	1110010 -0
+0x72,
+//	1100110 -1
+0x66,
+//	1101100 -2
+0x6C,
+//	1000010 -3
+0x42,
+//	1011100 -4
+0x5C,
+//	1001110 -5
+0x4E,
+//	1010000 -6
+0x50,
+//	1000100 -7
+0x44,
+//	1001000 -8
+0x48,
+//	1110100 -9
+0x74,
+};
+const U16 EAN__TYPE[]={
+//000000
+0xff,//填充偏移量
+//111111
+0x34,
+//110100
+0x32,
+//110010
+0x31,
+//101100
+0x2C,
+//100110
+0x26,
+//100011
+0x23,
+//101010
+0x2A,
+//101001
+0x29,
+//100101
+0x25,
+};
+const U16 UPCE__TYPE[]={
+//0
+0x07,//填充偏移量
+//1
+0x0B,
+//2
+0x0D,
+//3
+0x0E,
+//4
+0x13,
+//5
+0x19,
+//6
+0x1C,
+//7
+0x15,
+//8
+0x16,
+//9
+0x1A,
+};
+
+const U8 ITF25_VE[]={
+//0
+0x06,
+//1
+0x11,
+//2
+0x09,
+//3
+0x18,
+//4
+0x05,
+//5
+0x14,
+//6
+0x0c,
+//7
+0x03,
+//8
+0x12,
+//9
+0x0A,
+};
+
+const U16 CODABAR[]={
+
+0x000,//;20H
+0x000,//;21H
+0x000,//;22H
+0x000,//;23H
+0x22,//;24H $
+0x000,//;25H %
+0x000,//;26H
+0x000,//;27H
+0x000,//;28H
+0x000,//;29H
+0x000,//;2AH *
+0x38,//;2BH +
+0x000,//;2CH
+0x12,//;2DH -
+0x70,//;2EH .
+0x68,//;2FH /
+
+0x09,//;30H 0
+0x11,//;31H 1
+0x0A,//;32H 2
+0x44,//;33H 3
+0x21,//;34H 4
+0x41,//;35H 5
+0x0c,//;36H 6
+0x14,//;37H 7
+0x24,//;38H 8
+0x42,//;39H 9
+
+0x58,//;3AH :
+0x000,//;3BH
+0x000,//;3CH
+0x000,//;3DH
+0x000,//;3EH
+0x000,//;3FH
+0x000,//;40H
+
+0x23,//;41H A
+0x0E,//;42H B
+0x0B,//;43H C
+0x13,//;44H D
+
+};
+unsigned short g_BarLen;
+/****************************************************************************
+* 函数名：ProcessCode128()
+* 功  能：主程序
+*
+* 说  明：
+
+****************************************************************************/
+void CodeBarZoom(unsigned short m_len,unsigned short m_BarData)
+{
+	unsigned short m_ZoomLen;
+	unsigned int   m_ZoomData,m_TemData;
+	unsigned short m_format;
+	g_BarLen += m_len * s_CodeBarCon.m_Barwide;
+	m_format = (s_CodeBarCon.m_Barwide -1) << 4;
+	while (m_len > 3)
+	{
+		m_ZoomLen =   m_len - 4;
+		m_ZoomData = (m_BarData >> m_ZoomLen) & 0xf;
+		m_ZoomData = Config_zoom[m_format+m_ZoomData];
+		m_ZoomLen = 4 * s_CodeBarCon.m_Barwide;
+
+		if((g_Prolen + m_ZoomLen) < 16)
+		{
+			g_DataBuf = g_DataBuf << m_ZoomLen;
+			g_DataBuf |= m_ZoomData;
+			g_Prolen += m_ZoomLen;
+		}
+		else
+		{
+			g_DataBuf = g_DataBuf << (16 - g_Prolen);
+			g_Prolen = m_ZoomLen + g_Prolen - 16;
+			m_TemData = m_ZoomData >> g_Prolen;
+			g_DataBuf |= m_TemData;
+			Buffer_CodeBar[g_count++]= g_DataBuf;
+			g_DataBuf = m_ZoomData;
+		}
+		m_len -= 4;
+	}
+	if (m_len > 0)
+	{
+		m_ZoomData = (m_BarData <<(4 - m_len) & 0xf) ;
+		m_ZoomData = m_ZoomData >> (4 - m_len);
+		m_ZoomData = Config_zoom[m_format+m_ZoomData];
+		m_ZoomLen = m_len  * s_CodeBarCon.m_Barwide;
+
+		if((g_Prolen + m_ZoomLen) < 16)
+		{
+			g_DataBuf = g_DataBuf << m_ZoomLen;
+			g_DataBuf |= m_ZoomData;
+			g_Prolen += m_ZoomLen;
+		}
+		else
+		{
+			g_DataBuf = g_DataBuf << (16 - g_Prolen);
+			g_Prolen = m_ZoomLen + g_Prolen - 16;
+			m_TemData = m_ZoomData >> g_Prolen;
+			g_DataBuf |= m_TemData;
+			Buffer_CodeBar[g_count++]= g_DataBuf;
+			g_DataBuf = m_ZoomData;
+		}
+		m_len = 0;
+	}
+
+}
+void CodeBarInp(unsigned short spa)
+{
+	unsigned short m_ZoomLen;
+	unsigned int   m_ZoomData,m_TemData;
+	unsigned short i;
+	unsigned short m_buffer[BUFFER_SHORT_LENGTH*2];
+	g_Prolen = spa & 0xf;
+	g_count = spa >> 4;
+	g_DataBuf = 0;
+	for(i=0;i<BUFFER_SHORT_LENGTH*2;i++)
+	{
+		m_buffer[i] = 0;
+	}	
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		m_ZoomData = Buffer_CodeBar[i];
+		m_ZoomLen = 16;
+		if((g_Prolen + m_ZoomLen) < 16)
+		{
+			g_DataBuf = g_DataBuf << m_ZoomLen;
+			g_DataBuf |= m_ZoomData;
+			g_Prolen += m_ZoomLen;
+		}
+		else
+		{
+			g_DataBuf = g_DataBuf << (16 - g_Prolen);
+			g_Prolen = m_ZoomLen + g_Prolen - 16;
+			m_TemData = m_ZoomData >> g_Prolen;
+			g_DataBuf |= m_TemData;
+			m_buffer[g_count++]= g_DataBuf;
+			g_DataBuf = m_ZoomData;
+		}
+		
+	}
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = m_buffer[i];
+	}
+}
+
+unsigned char BarCodeCharBuffer[48*24];
+unsigned short g_strwide;
+
+void SetCharToBarCodeBuf(void)
+{
+	unsigned int m_DotBuffer[32];
+	unsigned short m_x,i,j,k;
+	unsigned int m_dotlbuf;
+	unsigned char * p_str;
+	memset(BarCodeCharBuffer,0,48*24);
+	p_str = CodeBarStr;
+	g_strwide = 0;
+	m_x = 0;
+	while(*p_str > 0x1F)
+	{
+		ReadFlashAndDeg24x12(*p_str,12,24,m_DotBuffer);
+		for(i=0;i<24;i++)
+		{
+			m_dotlbuf = m_DotBuffer[i];
+			j = m_x * 3;
+			if(j&1)
+			{
+				//上半个字节有数据存储
+				k = j/2;
+				BarCodeCharBuffer[k+i*48] |= (m_dotlbuf >> 28)&0x0F;
+				k++;
+				BarCodeCharBuffer[k+i*48] = (m_dotlbuf >> 20)&0xFF;
+			}
+			else
+			{
+				//可以整个字节存储
+				k = j/2;
+				BarCodeCharBuffer[k+i*48] = (m_dotlbuf >> 24)&0xFF;
+				k++;
+				BarCodeCharBuffer[k+i*48] |= (m_dotlbuf >> 16)&0xF0;
+			}
+		}
+		p_str++;	
+		m_x++;
+		g_strwide += 12;
+	}
+}
+
+unsigned short GetBarcodedot(unsigned short mx,unsigned short my,unsigned short barhigh,unsigned short barlength)
+{
+	unsigned short i,j,k;
+	unsigned short mMask;
+	
+	unsigned short m_y;
+	if(s_CodeBarCon.m_CharSpace == 0)
+	{
+		//取点位置在条码上
+		i = mx/16;
+		j = 15 - (mx &0xF);
+		mMask = 1 <<  j;
+		return (Buffer_CodeBar[i] & mMask);
+	}
+	else if(s_CodeBarCon.m_CharSpace == 2)
+	{
+		if(my < barhigh)
+		{
+			//取点位置在条码上
+			i = mx/16;
+			j = 15 - (mx &0xF);
+			mMask = 1 <<  j;
+			return (Buffer_CodeBar[i] & mMask);
+		}
+
+		if(my < (barhigh + BAR_CHAR_SPACE) )
+		{
+			return 0;
+		}
+		else
+		{
+			if(barlength > g_strwide)
+			{
+				k = (barlength - g_strwide)/2;
+			}
+			if(mx > k)
+			{
+				k = mx - k;
+				m_y = my - (barhigh + BAR_CHAR_SPACE);
+				i = k/8;
+				j = 7 - (k &0x7);
+				mMask = 1 <<  j;
+				return (BarCodeCharBuffer[i+m_y*48] & mMask);
+			}
+			else
+			{
+				return 0;
+			}
+			
+		}
+	}
+	else if(s_CodeBarCon.m_CharSpace == 1)
+	{
+		if(my < 24)
+		{
+			if(barlength > g_strwide)
+			{
+				k = (barlength - g_strwide)/2;
+			}
+			if(mx > k)
+			{
+				k = mx - k;
+				m_y = my ;//- (barhigh + BAR_CHAR_SPACE);
+				i = k/8;
+				j = 7 - (k &0x7);
+				mMask = 1 <<  j;
+				return (BarCodeCharBuffer[i+m_y*48] & mMask);
+			}
+			else
+			{
+				return 0;
+			}
+			
+		}		
+		if(my < (24 + BAR_CHAR_SPACE) )
+		{
+			return 0;
+		}	
+		else
+		{
+			//取点位置在条码上
+			i = mx/16;
+			j = 15 - (mx &0xF);
+			mMask = 1 <<  j;
+			return (Buffer_CodeBar[i] & mMask);
+		}
+	}
+	else
+	{
+		
+		return 0;
+	}
+}
+
+
+
+
+/****************************************************************************
+* 函数名：ProcessCode128()
+* 功  能：主程序
+*
+* 说  明：
+
+****************************************************************************/
+int ProcessCode128(void)
+{
+	unsigned short m_BarData;
+	short m_Barlen;
+	unsigned short m_ReData;
+	unsigned short i,k;
+	unsigned int  sum;
+	unsigned int  mul;
+
+	unsigned short m_BarType;//字符类型
+	g_BarLen = 0;
+	g_count = 0;
+	sum = 0;
+	mul = 1;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i = 0;
+
+	//----处理开头
+	//-------------------------
+	m_Barlen = PrinterCore();//得到条码的长度
+	m_ReData = PrinterCore();//
+	m_Barlen--;
+	if(m_ReData == 0x7B)//判断开头
+	{
+		m_ReData = PrinterCore();//得到字符集
+		m_Barlen--;
+		if (m_ReData < 0x41)
+		{
+			return -1;
+		}
+		if (m_ReData > 0x43)
+		{
+			return -1;
+		}
+		m_BarType = m_ReData- 0x41;//0 CODEA  1 CODEB 2 CODEC
+	}
+	else
+	{
+		return -1;
+	}
+//------------得到开头--------------------------
+	g_DataBuf = 0;
+	sum = 103 + m_BarType;
+	m_BarData = CODE128_encode[sum];
+
+	CodeBarZoom(11,m_BarData);
+//--------------------------------------
+	while (m_Barlen > 0)
+	{
+
+		m_ReData = PrinterCore();//得到数据
+		m_Barlen--;
+		//----------特殊处理
+		if (m_ReData == 0x7B)
+		{
+			m_ReData = PrinterCore();//得到数据
+			m_Barlen--;
+			if(m_ReData == 0x53)
+			{
+				m_ReData = 98;
+			}
+			else if(m_ReData == 0x41)
+			{
+				m_BarType = 0;
+				m_ReData = 101;
+			}
+			else if(m_ReData == 0x42)
+			{
+				m_BarType = 1;
+				m_ReData = 100;
+			}
+			else if(m_ReData == 0x43)
+			{
+				m_BarType = 2;
+				m_ReData = 99;
+			}
+			else if(m_ReData == 0x31)
+			{
+				m_ReData = 102;
+			}
+			else if(m_ReData == 0x32)
+			{
+				m_ReData = 97;
+
+			}
+			else if(m_ReData == 0x33)
+			{
+				m_ReData = 96;
+			}
+			else if(m_ReData == 0x34)
+			{
+				m_ReData = 101;
+			}
+			else if(m_ReData == 0x7B)
+			{
+				m_ReData = 123;
+				CodeBarStr[i++] = m_ReData;
+			}
+			else
+			{
+				return -1;
+			}
+		}
+		else
+		{
+			//===========处理字符集A
+			if (m_BarType == 0)
+			{
+				if (m_ReData > 95)
+				{
+					return -1;
+				}
+				CodeBarStr[i++] = m_ReData;
+				if (m_ReData < 32)
+				{
+					m_ReData +=  64;
+				}
+				else
+				{
+					m_ReData -= 32;
+				}
+
+			}
+			//===========处理字符集B
+			else if (m_BarType == 1)
+			{
+				if (m_ReData > 127)
+				{
+					return -1;
+				}
+				if (m_ReData <32)
+				{
+					return -1;
+				}
+				CodeBarStr[i++] = m_ReData;
+				m_ReData -= 32 ;
+
+			}
+			//===========处理字符集C
+			else
+			{
+				if (m_ReData > 0x99)
+				{
+					return -1;
+				}
+				k =0;
+				while(m_ReData > 9)
+				{
+					k++;
+					m_ReData -= 10;
+				}
+				CodeBarStr[i++] = k + 0x30;
+				CodeBarStr[i++] = m_ReData  + 0x30;
+
+				m_ReData = m_ReData + k*10;
+			}
+		}
+		//**************************得到图形打印数据
+		m_BarData = CODE128_encode[m_ReData];
+		sum += m_ReData * mul ;
+		mul++;
+		CodeBarZoom(11,m_BarData);
+	}
+//==================添加校验码
+	while(sum > 102)//修改20150709
+	{
+		sum -= 103;
+	}
+	m_BarData = CODE128_encode[sum];
+	CodeBarZoom(11,m_BarData);
+//======================结尾
+	m_BarData = 0x18EB;
+	CodeBarZoom(13,m_BarData);
+
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}
+
+	return 0;
+
+}
+
+/****************************************************************************
+* 函数名：ProcessEAN13()
+* 功  能：主程序
+*
+* 说  明：
+
+****************************************************************************/
+int ProcessEAN13(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	short m_Barlen;
+	unsigned short i,k,m;
+	unsigned short m_EAN13RType ,m_orde_type   ;
+
+	unsigned int  sum;
+	unsigned int  mul;
+	g_BarLen = 0;
+
+	m_orde_type = 	I_BarType;
+	g_count = 0;
+	g_DataBuf = 0;
+	sum = 0;
+	mul = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i=0;
+	CodeBarZoom(3,0x5);//左护线
+	//-------------开头数据
+	if(I_BarType == 2)
+	{
+		m_Barlen = 13;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	m = 1;
+	m_BarData = PrinterCore();//类型码
+	m_Barlen--;//20090818
+	sum = m_BarData - 0x30;
+	m++;
+	CodeBarStr[i++] = m_BarData;
+	m_EAN13RType = EAN__TYPE[m_BarData-0x30];//得到左侧类型码
+	k = 6;
+	while (k >0)
+	{
+
+		m_EAN13RType = m_EAN13RType << 1;
+		m_BarData = PrinterCore();//左侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		if( (m_EAN13RType&0x40) == 0x40)
+		{
+			m_BarData = EAN_A[m_BarData];
+		}
+		else
+		{
+			m_BarData = EAN_B[m_BarData];
+		}
+		CodeBarZoom(7,m_BarData);//左编码
+		k--;
+		m_Barlen--;
+	}
+
+	CodeBarZoom(5,0xA);//中护线
+
+	k = 5;
+	while (k >0)
+	{
+		m_BarData = PrinterCore();//右侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		m_BarData = EAN_R[m_BarData];
+		CodeBarZoom(7,m_BarData);//右编码
+		k--;
+		m_Barlen--;
+	}
+//*AT91C_US1_THR = m_orde_type;
+	if(m_orde_type == 2)
+	{
+		m_BarData = 1;
+		while(m_BarData!= 0)
+		{
+			m_BarData = PrinterCore();
+		}
+	}
+	else
+	{
+		while (m_Barlen > 0)
+		{
+			m_BarData = PrinterCore();//得到条码的长度
+			m_Barlen--;
+		}
+	}
+
+	//---校验码
+	mul = mul * 3;
+	sum += mul;
+	while (sum > 9)
+	{
+		sum -= 10;
+	}
+	sum = 10 - sum;
+	if (sum == 10)
+	{
+		sum =0;
+	}
+	CodeBarStr[i++] = sum +0x30;
+	m_BarData = EAN_R[sum];
+	CodeBarZoom(7,m_BarData);//右编码
+
+
+
+	CodeBarZoom(3,0x5);//右护线
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessEAN13()
+* 功  能：主程序
+*
+* 说  明：
+
+****************************************************************************/
+int ProcessEAN8(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	short m_Barlen;
+	unsigned short i,k,m;
+	unsigned short m_orde_type   ;
+
+	unsigned int  sum;
+	unsigned int  mul;
+
+	g_BarLen = 0;
+	m_orde_type = 	I_BarType;
+	g_count = 0;
+	g_DataBuf = 0;
+	sum = 0;
+	mul = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i=0;
+	CodeBarZoom(3,0x5);//左护线
+	//-------------开头数据
+	if(I_BarType == 3)////////////////////////
+	{
+		m_Barlen = 8;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	m = 1;
+	k = 4;
+	while (k >0)
+	{
+		m_BarData = PrinterCore();//左侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		m_BarData = EAN_A[m_BarData];
+		CodeBarZoom(7,m_BarData);//左编码
+		k--;
+		m_Barlen--;
+	}
+	CodeBarZoom(5,0xA);//中护线
+	k = 3;
+	while (k >0)
+	{
+		m_BarData = PrinterCore();//右侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		m_BarData = EAN_R[m_BarData];
+		CodeBarZoom(7,m_BarData);//右编码
+		k--;
+		m_Barlen--;
+	}
+//*AT91C_US1_THR = m_orde_type;
+	if(m_orde_type == 2)
+	{
+		m_BarData = 1;
+		while(m_BarData!= 0)
+		{
+			m_BarData = PrinterCore();
+		}
+	}
+	else
+	{
+		while (m_Barlen > 0)
+		{
+			m_BarData = PrinterCore();//得到条码的长度
+			m_Barlen--;
+		}
+	}
+
+	//---校验码
+	sum = sum * 3;
+	sum += mul;
+	while (sum > 9)
+	{
+		sum -= 10;
+	}
+	sum = 10 - sum;
+	if (sum == 10)
+	{
+		sum =0;
+	}
+	CodeBarStr[i++] = sum +0x30;
+	m_BarData = EAN_R[sum];
+	CodeBarZoom(7,m_BarData);//右编码
+
+	CodeBarZoom(3,0x5);//右护线
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessUPCA()
+* 功  能：主程序
+*
+* 说  明：
+20150709 修改
+****************************************************************************/
+int ProcessUPCA(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	short m_Barlen;
+	unsigned short i,k,m;
+	unsigned short m_EAN13RType ,m_orde_type   ;
+
+	unsigned int  sum;
+	unsigned int  mul;
+	g_BarLen = 0;
+
+	m_orde_type = 	I_BarType;
+	g_count = 0;
+	g_DataBuf = 0;
+	sum = 0;
+	mul = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i =0;
+	CodeBarZoom(3,0x5);//左护线
+	//-------------开头数据
+	if(I_BarType == 0)
+	{
+		m_Barlen = 12;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	m = 1;
+	m_BarData = PrinterCore();//类型码
+	sum = m_BarData - 0x30;
+	m++;
+	m_Barlen--;
+	CodeBarStr[i++] = m_BarData;
+	//修改  类型码固定为0
+//	m_EAN13RType = EAN__TYPE[m_BarData-0x30];//得到左侧类型码
+
+	m_EAN13RType = EAN__TYPE[0];//得到左侧类型码
+
+	m_EAN13RType = m_EAN13RType << 1;
+//	m_BarData = 0x30;//左侧数据
+	m_BarData =m_BarData - 0x30;
+/*	if ((m & 1) == 1)//修改
+	{
+		sum += m_BarData;
+	}
+	else
+	{
+		mul += m_BarData;
+
+	}*/
+//	m++;
+	if( (m_EAN13RType&0x40) == 0x40)
+	{
+		m_BarData = EAN_A[m_BarData];
+	}
+	else
+	{
+		m_BarData = EAN_B[m_BarData];
+	}
+	CodeBarZoom(7,m_BarData);//左编码
+
+
+	k = 5;
+	while (k >0)
+	{
+
+		m_EAN13RType = m_EAN13RType << 1;
+		m_BarData = PrinterCore();//左侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		if( (m_EAN13RType&0x40) == 0x40)
+		{
+			m_BarData = EAN_A[m_BarData];
+		}
+		else
+		{
+			m_BarData = EAN_B[m_BarData];
+		}
+		CodeBarZoom(7,m_BarData);//左编码
+		k--;
+		m_Barlen--;
+	}
+
+	CodeBarZoom(5,0xA);//中护线
+
+	k = 5;
+	while (k >0)
+	{
+		m_BarData = PrinterCore();//右侧数据
+		CodeBarStr[i++] = m_BarData;
+		m_BarData =m_BarData - 0x30;
+		if ((m & 1) == 1)
+		{
+			sum += m_BarData;
+		}
+		else
+		{
+			mul += m_BarData;
+
+		}
+		m++;
+		m_BarData = EAN_R[m_BarData];
+		CodeBarZoom(7,m_BarData);//右编码
+		k--;
+		m_Barlen--;
+	}
+//*AT91C_US1_THR = m_orde_type;
+	if(m_orde_type == 2)
+	{
+		m_BarData = 1;
+		while(m_BarData!= 0)
+		{
+			m_BarData = PrinterCore();
+		}
+	}
+	else
+	{
+		while (m_Barlen > 0)
+		{
+			m_BarData = PrinterCore();//得到条码的长度
+			m_Barlen--;
+		}
+	}
+
+	//---校验码
+//	mul = mul * 3;//修改
+sum = sum * 3;//修改
+	sum += mul;
+	while (sum > 9)
+	{
+		sum -= 10;
+	}
+	sum = 10 - sum;
+	if (sum == 10)
+	{
+		sum =0;
+	}
+	CodeBarStr[i++] = sum +0x30;
+	m_BarData = EAN_R[sum];
+	CodeBarZoom(7,m_BarData);//右编码
+
+
+
+	CodeBarZoom(3,0x5);//右护线
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}
+	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessUPCE()
+* 功  能：主程序
+*
+* 说  明：
+
+****************************************************************************/
+int ProcessUPCE(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	unsigned short m_Barlen;
+	unsigned short i,k,m;
+	unsigned short m_EAN13RType ,m_orde_type   ;
+	m_orde_type = 	I_BarType;
+	g_count = 0;
+	g_BarLen = 0;
+	g_DataBuf = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i = 0;
+	CodeBarZoom(3,0x5);//左护线
+
+	//-------------开头数据
+	if(I_BarType == 1)
+	{
+		m_Barlen = 8;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	m_BarData = PrinterCore();
+	if (m_BarData != 0x30)
+	{
+		return -1;
+	}
+	CodeBarStr[i++] = m_BarData;//1
+	CodeBarStr[i++] = PrinterCore();//2
+	CodeBarStr[i++] = PrinterCore();//3
+	CodeBarStr[i++] = PrinterCore();//4
+	CodeBarStr[i++] = PrinterCore();//5
+	CodeBarStr[i++] = PrinterCore();//6
+	CodeBarStr[i++] = PrinterCore();//7
+	m_BarData =  PrinterCore();
+	CodeBarStr[i++] = m_BarData;//8
+
+
+//	m_BarData = ;//类别码
+	m =1;
+	k = 6;
+	m_Barlen-- ;
+	m_EAN13RType = UPCE__TYPE[m_BarData - 0x30]	 ;
+	while (k >0)
+	{
+
+		m_BarData = CodeBarStr[m++];//数据
+		m_BarData =m_BarData - 0x30;
+		if( (m_EAN13RType&0x20) == 0x20)
+		{
+			m_BarData = EAN_A[m_BarData];
+		}
+		else
+		{
+			m_BarData = EAN_B[m_BarData];
+		}
+		CodeBarZoom(7,m_BarData);//编码
+		m_EAN13RType = m_EAN13RType << 1;
+		k--;
+		m_Barlen--;
+	}
+	m_Barlen--;
+	CodeBarZoom(6,0x15);//右护线
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	if(m_orde_type == 2)
+	{
+		m_BarData = 1;
+		while(m_BarData!= 0)
+		{
+			m_BarData = PrinterCore();
+		}
+	}
+	else
+	{
+		while (m_Barlen > 0)
+		{
+			m_BarData = PrinterCore();//得到条码的长度
+			m_Barlen--;
+		}
+	}
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessCODE39()
+* 功  能：主程序
+*
+* 说  明：
+CODE39_S
+****************************************************************************/
+int ProcessCODE39(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	unsigned short m_Barlen;
+	unsigned short i,k;
+	g_count = 0;
+	g_DataBuf = 0;
+	i =0;
+	g_BarLen = 0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i = 0;
+	CodeBarZoom(13,0x12DA);//左护线
+
+	//-------------开头数据
+	if(I_BarType == 4)
+	{
+		m_Barlen = 50;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	while (m_Barlen >0)
+	{
+		m_BarData = PrinterCore();
+		if (m_BarData ==0 )
+		{
+			break;
+		}
+		CodeBarStr[i++] = m_BarData;
+		m_BarData = m_BarData -0x20;
+		m_BarData = CODE39_S[m_BarData];
+
+		CodeBarZoom(13,m_BarData);
+
+		m_Barlen--;
+	}
+	CodeBarZoom(13,0x12DA);//左护线
+
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}
+	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessCODE93()
+* 功  能：主程序
+*
+* 说  明：
+CODE39_S
+****************************************************************************/
+int ProcessCODE93(void)
+{
+	unsigned short m_BarData;
+	unsigned short m_BData93;
+	unsigned short m_Barlen;
+	unsigned short i,m;
+	unsigned char k;
+	unsigned int sum;
+	unsigned int mul;
+
+	unsigned char m_valu_C;
+	g_BarLen = 0;
+	g_count = 0;
+	g_DataBuf = 0;
+	i =0;
+	sum = 0;
+	mul =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	i = 0;
+	CodeBarZoom(9,0x15e);//开始
+	//-------------得到93码的长度
+	m_Barlen = PrinterCore();//得到条码的长度
+	if (m_Barlen > 50)
+	{
+		m_Barlen = 50;
+	}
+	//==========得到条码数据=========================
+	k = m_Barlen;
+	while (k > 20)
+	{
+		k -= 20;
+	}
+	for (i=0;i<m_Barlen;i++)
+	{
+		m_BarData = PrinterCore();//得到code93码
+		CodeBarStr[i] = m_BarData;
+		m_BarData = (m_BarData - 0x20) << 1;//减去0x20后 * 2
+		m_BData93 = CODE93[m_BarData];
+		CodeBarZoom(9,m_BData93);
+		mul = CODE93[m_BarData + 1];//得到位权的值
+		mul = mul * k;
+		sum += mul;
+		k--;
+		if (k == 0)
+		{
+			k =20;
+		}
+	}
+	//========计算C值
+	while (sum >= 47)
+	{
+		sum -= 47;
+	}
+	m_valu_C = sum;
+	m_BData93 = CODE93_T[sum];
+	CodeBarZoom(9,m_BData93);
+	//===================================
+	//========计算K值
+	sum = 0;
+	k = m_Barlen+1;
+	while(k > 15)
+	{
+		k -= 15;
+
+	}
+	for (m=0;m<m_Barlen;m++)
+	{
+		m_BarData = CodeBarStr[m];
+		m_BarData = (m_BarData - 0x20) << 1;//减去0x20后 * 2
+		mul = CODE93[m_BarData + 1];//得到位权的值
+		mul = mul * k;
+		sum += mul;
+		k --;
+		if (k == 0)
+		{
+			k =15;
+		}
+	}
+	sum +=m_valu_C;
+	while (sum >= 47)
+	{
+		sum -= 47;
+	}
+	m_BData93 = CODE93_T[sum];
+	CodeBarZoom(9,m_BData93);
+	//===================================
+//	CodeBarZoom(9,0x15e);//结束
+	CodeBarZoom(10,0x2bd);//结束
+
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}
+	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessITF25()
+* 功  能：主程序
+*
+* 说  明：
+CODE39_S
+****************************************************************************/
+int ProcessITF25(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	unsigned short m_Barlen;
+	unsigned short i,m,k,l;
+	unsigned int	m_data;
+	g_count = 0;
+	g_BarLen = 0;
+	g_DataBuf = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	CodeBarZoom(4,0x0A);//起始码
+
+	//-------------开头数据
+	if(I_BarType == 5)
+	{
+		m_Barlen = 50;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+	//----------------------------
+	i = 0;
+	for (m=0;m<m_Barlen;m++)
+	{
+		m_BarData = PrinterCore();//得到条码的数据
+		if (m_BarData == 0)
+		{
+			break;
+		}
+		CodeBarStr[i++] = m_BarData;
+	}
+	if((m & 1) == 1)
+	{
+		m--;
+	}
+	m_Barlen = m >> 1;
+	k =0;
+	while (m_Barlen >0)
+	{
+		m_BarData = CodeBarStr[k++] - 0x30;
+		m_BarData = ITF25_VE[m_BarData];
+		m = CodeBarStr[k++] - 0x30;
+		m = ITF25_VE[m];
+		m_data = 0;
+		for (l=0;l<5;l++)
+		{
+			m_BarData = m_BarData<<1;
+			if((m_BarData & 0x20) == 0x20)
+			{
+				m_data = m_data << 2;
+				m_data |= 0x3;
+			}
+			else
+			{
+				m_data = m_data << 1;
+				m_data |= 0x1;
+			}
+			m = m << 1;
+			if((m & 0x20) == 0x20)
+			{
+				m_data = m_data << 2;
+			}
+			else
+			{
+				m_data = m_data << 1;
+			}
+		}
+		CodeBarZoom(14,m_data);
+		m_Barlen--;
+	}
+	//==================================
+
+	CodeBarZoom(4,0x0D);//左护线
+
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}
+	
+	return 0;
+}
+/****************************************************************************
+* 函数名：ProcessCODABAR(unsigned char I_BarType)
+* 功  能：主程序
+*
+* 说  明：
+CODE39_S
+****************************************************************************/
+int ProcessCODABAR(unsigned char I_BarType)
+{
+	unsigned short m_BarData;
+	unsigned short m_Barlen;
+	unsigned short i,m,k,l;
+	unsigned int	m_data;
+	g_count = 0;
+	g_DataBuf = 0;
+	g_BarLen = 0;
+	i =0;
+	g_Prolen = s_CodeBarCon.m_BarSpace & 0xf;
+	g_count = s_CodeBarCon.m_BarSpace >> 4;
+	g_DataBuf = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = 0;
+	}
+	//-------------开头数据
+	if(I_BarType == 6)
+	{
+		m_Barlen = 50;
+	}
+	else
+	{
+		m_Barlen = PrinterCore();//得到条码的长度
+	}
+
+	i = 0;
+	for (m=0;m<m_Barlen;m++)
+	{
+		m_BarData = PrinterCore();//得到条码的数据
+		if (m_BarData == 0)
+		{
+			break;
+		}
+		CodeBarStr[i++] = m_BarData;
+	}
+	m_Barlen = m;
+	//----------------------------
+	m = 0;
+	while (m_Barlen >0)
+	{
+		m_data = 0;
+		l = 0;
+		m_BarData = CodeBarStr[m++];
+		m_BarData -= 0x20;
+		m_BarData = CODABAR[m_BarData];
+		m_BarData = m_BarData << 1;
+		m_BarData |= 1;
+		for (k=0;k<4;k++)
+		{
+			if((m_BarData & 0x80) == 0x80)
+			{
+				m_data = m_data << 2;
+				m_data |= 3;
+				l += 2;
+			}
+			else
+			{
+				m_data = m_data << 1;
+				m_data |= 1;
+				l += 1;
+			}
+			if((m_BarData & 0x8) == 0x8)
+			{
+				m_data = m_data << 2;
+				l += 2;
+			}
+			else
+			{
+				m_data = m_data << 1;
+				l += 1;
+			}
+			m_BarData = m_BarData << 1;
+		}
+		CodeBarZoom(l,m_data);
+		m_Barlen--;
+	}
+	//==================================
+
+	g_DataBuf = g_DataBuf << (16 - g_Prolen);
+	Buffer_CodeBar[g_count++]= g_DataBuf;
+
+	CodeBarStr[i++] = 0x0d;
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	if(g_alignType)
+	{
+		if(g_BarLen < PRINT_HEAD_LENGTH )
+		{
+			if(g_alignType == 1)
+			{
+					k = (PRINT_HEAD_LENGTH - g_BarLen )/2;
+			}
+			else
+			{
+				k = (PRINT_HEAD_LENGTH - g_BarLen );
+			}
+		}
+		if(k)
+		{
+			CodeBarInp(k);	
+		}
+	}	
+	
+	return 0;
+}
+
+#endif /* PSF20_R002_ESC_POS_PROTOCOL */

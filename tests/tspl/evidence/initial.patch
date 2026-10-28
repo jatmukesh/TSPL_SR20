@@ -1,0 +1,34 @@
+Index: Code/PrintCore.C
+===================================================================
+--- Code/PrintCore.C	(revision 175)
++++ Code/PrintCore.C	(working copy)
+@@ -1265,13 +1265,13 @@
+ static volatile unsigned char g_BatteryLowChargeVoltageSampleDue;
+ static unsigned short g_BatteryLowChargeVoltageSampleTicks;
+ #ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+-static volatile unsigned char g_BatteryLabelActive;
+-static volatile unsigned char g_BatteryLabelFinalQueued;
+-static volatile unsigned char g_BatteryLabelFinalBuffer;
+-static volatile unsigned char g_BatteryLabelComplete;
+-static volatile unsigned char g_BatteryLabelChargerResetDue;
+-static unsigned short g_BatteryLabelLowCount;
+-static unsigned char g_BatteryLabelWarning;
++static volatile unsigned char g_BatteryLabelActive;					// Indicates that a label is currently being printed.
++static volatile unsigned char g_BatteryLabelFinalQueued;		// flag to Indicates that the final print buffer for the current label has been queued.
++static volatile unsigned char g_BatteryLabelFinalBuffer;		// Stores which print buffer contains the final part of the label. 
++static volatile unsigned char g_BatteryLabelComplete;				// Indicates that the final buffer has reached a completion state.(0/1/2)
++static volatile unsigned char g_BatteryLabelChargerResetDue;// Indicates that a charger connection was detected and battery label state must be reset.
++static unsigned short g_BatteryLabelLowCount;								// Counts how many completed labels were found to have low battery voltage after printing.
++static unsigned char g_BatteryLabelWarning;									// Indicates that the next label should show the low-charge warning.
+ #if defined(mukesh_DEBUG_BATTERY_IDLE) || defined(mukesh_DEBUG_BATTERY_PRINT)
+ static unsigned int g_BatteryDebugLabelId;
+ static unsigned int g_BatteryDebugCompletedLabels;
+@@ -1514,7 +1514,7 @@
+ {
+     if (g_BatteryLabelChargerResetDue || PRINTER_PDL.USB._GetUSBDet() != 0)
+ 		{
+-        BatteryLowCharge_LabelChargerReset();
++        BatteryLowCharge_LabelChargerReset();			// reset flags 
+ 		}
+     if (!g_BatteryLabelWarning)
+ 		{

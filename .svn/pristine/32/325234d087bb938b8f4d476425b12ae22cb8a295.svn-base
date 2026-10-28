@@ -1,0 +1,9 @@
+.\objects\yc_otp.o: ..\Librarier\sdk\yc_otp.c
+.\objects\yc_otp.o: ..\Librarier\sdk\yc_otp.h
+.\objects\yc_otp.o: ..\Librarier\core\yc3121.h
+.\objects\yc_otp.o: ..\Librarier\core\type.h
+.\objects\yc_otp.o: ..\Librarier\core\system.h
+.\objects\yc_otp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_otp.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_otp.o: ..\Librarier\core\yc3121.h
+.\objects\yc_otp.o: ..\Librarier\core\rom_api.h

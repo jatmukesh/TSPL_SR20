@@ -1,0 +1,9 @@
+.\objects\split.o: ..\qrcode\split.c
+.\objects\split.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\split.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\errno.h
+.\objects\split.o: ..\qrcode\qrencode.h
+.\objects\split.o: ..\qrcode\qrinput.h
+.\objects\split.o: ..\qrcode\bitstream.h
+.\objects\split.o: ..\qrcode\qrspec.h
+.\objects\split.o: ..\qrcode\split.h
+.\objects\split.o: ..\MALLOC\malloc.h

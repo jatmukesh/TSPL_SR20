@@ -1,0 +1,9 @@
+.\objects\misc.o: ..\Librarier\core\misc.c
+.\objects\misc.o: ..\Librarier\core\misc.h
+.\objects\misc.o: ..\Librarier\core\yc3121.h
+.\objects\misc.o: ..\Librarier\core\type.h
+.\objects\misc.o: ..\Librarier\core\system.h
+.\objects\misc.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\misc.o: ..\Librarier\sdk\yc_uart.h
+.\objects\misc.o: ..\Librarier\core\yc3121.h
+.\objects\misc.o: ..\Librarier\core\rom_api.h

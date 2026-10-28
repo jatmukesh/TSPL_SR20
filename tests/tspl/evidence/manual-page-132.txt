@@ -1,0 +1,49 @@
+ 
+ 
+114 
+TEXT 
+ 
+Description 
+This command prints text on label. 
+ 
+Syntax 
+ TEXT x,y, " font " ,rotation,x-multiplication,y-multiplication,[alignment,] " content "  
+ 
+Parameter Description 
+x The x-coordinate of the text 
+y The y-coordinate of the text 
+font Font name 
+0 Monotye CG Triumvirate Bold Condensed, font width and 
+height is stretchable 
+1 8 x 12 fixed pitch dot font 
+2 12 x 20 fixed pitch dot font 
+3 16 x 24 fixed pitch dot font 
+4 24 x 32 fixed pitch dot font 
+5 32 x 48 dot fixed pitch font 
+6 14 x 19 dot fixed pitch font OCR-B 
+7 21 x 27 dot fixed pitch font OCR-B 
+8 14 x25 dot fixed pitch font OCR-A 
+ROMAN.TTF Monotye CG Triumvirate Bold Condensed, font width and 
+height proportion is fixed. 
+Following fonts were supported since V6.80 EZ. 
+1.EFT EPL2 font 1 
+2.EFT EPL2 font 2 
+3.EFT EPL2 font 3 
+4.EFT EPL2 font 4 
+5.EFT EPL2 font 5 
+A.FNT ZPL2 font A 
+B.FNT ZPL2 font B 
+D.FNT ZPL2 font D 
+E8.FNT ZPL2 font E8 
+F.FNT ZPL2 font F 
+G.FNT ZPL2 font G 
+H8.FNT ZPL2 font H8 
+GS.FNT ZPL2 font GS 
+ 
+rotation The rotation angle of text 
+0 : No rotation 
+90 : degrees, in clockwise direction 
+180 : degrees, in clockwise direction 
+270 : degrees, in clockwise direction 
+x-multiplication Horizontal multiplication, up to 10x 
+Available factors: 1~10 

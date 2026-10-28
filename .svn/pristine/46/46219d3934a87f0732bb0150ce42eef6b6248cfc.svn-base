@@ -1,0 +1,38 @@
+#ifndef RECEIVEBUFFERPRO_H
+#define RECEIVEBUFFERPRO_H
+#include "PrinterParType.h"
+
+#include "flash.h"
+
+unsigned short CalStbTime(void);
+
+unsigned short BT_ReceiveDumpNBytes (unsigned char *dataBuffer,unsigned short len) ;
+
+//void USART1_IRQHandler(void);
+//void USART2_IRQHandler(void);
+void EXTI0_IRQHandler(void);
+//unsigned char PrinterCore(void);
+unsigned short PUSB_Dump_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) ;
+unsigned short SaveDataToFlash(void);
+unsigned char PrinterCore_RAM(void);
+unsigned char PrinterCore_Flash(void);
+void PARALLEL_DUMP_ReceiveNBytes (void) ;
+
+#ifdef BT_CMD_REQ
+void Get_Label_Size_BT_Response(uint16_t Media_Height);//void Get_Label_Size_BT_Response(char *Media_Type,uint16_t Media_Height);
+void Get_Media_Detect_BT_Response(char * Media_Availability);
+void Get_Oversize_Detection_BT_Response(uint16_t Received_Label_Size, uint16_t Calculated_Label_Size);
+
+int MyMemCmp(const void *ptr1, const void *ptr2, unsigned int len);
+#endif
+
+#ifdef TEMP_STATUS_ACK_TO_SOFTWARE_APP
+void Get_Temperature_BT_Response(char *Status_State, uint16_t Current_Temp);  //TEMP_STATUS_NAck
+#endif
+
+
+
+
+
+
+#endif

@@ -1,0 +1,10 @@
+ 
+ 
+4 
+600 DPI : 1mm = 24 dots 
+▪ For metric and dot systems, there must be a space between parameter and mm. 
+▪ When the sensor type is changed from "Black Mark" to "GAP", please send the "GAP" command to the printer 
+first. 
+ 
+ 
+  

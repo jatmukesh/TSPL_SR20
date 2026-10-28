@@ -1,0 +1,9 @@
+.\objects\yc_sysctrl.o: ..\Librarier\sdk\yc_sysctrl.c
+.\objects\yc_sysctrl.o: ..\Librarier\sdk\yc_sysctrl.h
+.\objects\yc_sysctrl.o: ..\Librarier\core\yc3121.h
+.\objects\yc_sysctrl.o: ..\Librarier\core\type.h
+.\objects\yc_sysctrl.o: ..\Librarier\core\system.h
+.\objects\yc_sysctrl.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_sysctrl.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_sysctrl.o: ..\Librarier\core\yc3121.h
+.\objects\yc_sysctrl.o: ..\Librarier\core\rom_api.h

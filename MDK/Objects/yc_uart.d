@@ -1,0 +1,8 @@
+.\objects\yc_uart.o: ..\Librarier\sdk\yc_uart.c
+.\objects\yc_uart.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_uart.o: ..\Librarier\core\yc3121.h
+.\objects\yc_uart.o: ..\Librarier\core\type.h
+.\objects\yc_uart.o: ..\Librarier\core\system.h
+.\objects\yc_uart.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_uart.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_uart.o: ..\Librarier\core\rom_api.h

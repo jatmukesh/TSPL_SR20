@@ -1,0 +1,6 @@
+.\objects\tsplfirmware.o: ..\Code\TsplFirmware.c
+.\objects\tsplfirmware.o: ..\Code\TsplFirmware.h
+.\objects\tsplfirmware.o: ..\Code\TsplJob.h
+.\objects\tsplfirmware.o: ..\Code\TsplParser.h
+.\objects\tsplfirmware.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\tsplfirmware.o: ..\Code\macros.h

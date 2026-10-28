@@ -1,0 +1,28 @@
+ 
+ 
+18 
+REFERENCE 
+ 
+Description 
+This command defines the reference point of the label. The reference (origin) point varies with the print direction, 
+as shown: 
+ 
+ 
+Syntax 
+ REFERENCE x, y 
+ 
+Parameter Description 
+x Horizontal coordinate (in dots) 
+y Vertical coordinate (in dots) 
+ 
+Note:  
+200 DPI: 1 mm = 8 dots 
+300 DPI: 1 mm = 12 dots 
+600 DPI : 1mm = 24 dots 
+ 
+Example 
+Sample code 
+ 
+REFERENCE 10,10 
+ 
+ 

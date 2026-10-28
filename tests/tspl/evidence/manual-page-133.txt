@@ -1,0 +1,36 @@
+ 
+ 
+115 
+For "ROMAN.TTF" true type font, this parameter is ignored. 
+For font "0", this parameter is used to specify the width (point) of true type font. 1 
+point=1/72 inch. 
+y-multiplication Vertical multiplication, up to 10x 
+Available factors: 1~10 
+For true type font, this parameter is used to specify the height (point) of true type font.  1 
+point=1/72 inch. 
+For *.TTF font, x-multiplication and y-multiplication support floating value. (V6.91 EZ) 
+alignment Optional. Specify the alignment of text. (V6.73 EZ) 
+0 : Default (Left) 
+1 : Left 
+2 : Center 
+3 : Right 
+content Content of text string 
+ 
+Note:  
+ The internal font (font #1~#5) pitch between TSPL and TSPL2 is different. 
+ Font "0" and "ROMAN.TTF" internal True Type Fonts are available in TSPL2 language printers, but not TSPL 
+language printers. 
+ Please refer to printer model list for checking TSPL or TSPL2. 
+ If there is any double quote (") within the text, please change it to \["]. 
+ If font "0" is used, the font width and font height is stretchable by x-multiplication and y-multiplication 
+parameter. It is expressed by pt (point). 1 point=1/72inch. 
+ EPL2 and ZPL2 are emulating for Eltron®  and Zebra®  languages. 
+ 
+MODEL 
+Font Type 
+0 1 2 3 4 5 6 7 8 ROMAN.TTF 
+TSPL language printers  V V V V V     
+TSPL2 language printers V V V V V V V V V V 
+TTP-248M printer  V V V V V V V  V 
+ 
+  

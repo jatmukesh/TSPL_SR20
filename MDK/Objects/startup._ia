@@ -1,0 +1,4 @@
+--cpu Cortex-M0 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"
+-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include
+--pd "__UVISION_VERSION SETA 534" --pd "ARMCM0 SETA 1"
+--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d "..\Librarier\startup\startup.s"

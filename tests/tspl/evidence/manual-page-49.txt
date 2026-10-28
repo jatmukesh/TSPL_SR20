@@ -1,0 +1,35 @@
+ 
+ 
+31 
+PRINT 
+ 
+Description 
+This command prints the label format currently stored in the image buffer. 
+ 
+Syntax 
+ PRINT m[,n] 
+ 
+Parameter Description 
+m Specifies how many sets of labels will be printed. 
+1 ≤ m ≤ 999999999 
+ 
+n Specifies how many copies should be printed for each particular label set. 
+1 ≤ n ≤ 999999999 
+ 
+Example 
+Sample code Result 
+ 
+SIZE 50 mm,25 mm 
+GAP 3 mm,0 
+DIRECTION 1 
+SET COUNTER @1 1 
+@1="0001" 
+CLS 
+TEXT 10,10, "3",0,1,1,@1 
+PRINT 3,2 
+ 
+ 
+ 
+ 
+Paper feed direction 
+1 set, 2 copies 

@@ -1,0 +1,5 @@
+--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O2 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC
+-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include
+-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include
+-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2
+-o .\objects\bt_code.o --omf_browse .\objects\bt_code.crf --depend .\objects\bt_code.d "..\Librarier\core\bt_code.c"

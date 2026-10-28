@@ -1,0 +1,704 @@
+Dependencies for Project 'SR20', Target 'SR20': (DO NOT MODIFY !)
+CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
+F (..\Librarier\core\bt_code.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O2 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\bt_code.o --omf_browse .\objects\bt_code.crf --depend .\objects\bt_code.d)
+F (..\Librarier\core\misc.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\misc.o --omf_browse .\objects\misc.crf --depend .\objects\misc.d)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\core\system.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\system.o --omf_browse .\objects\system.crf --depend .\objects\system.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x5E8E5FEA)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\core\cortexm3_macro.s)(0x6AC607B4)(--cpu Cortex-M0 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include--pd "__UVISION_VERSION SETA 534" --pd "ARMCM0 SETA 1"--list .\listings\cortexm3_macro.lst --xref -o .\objects\cortexm3_macro.o --depend .\objects\cortexm3_macro.d)
+F (..\Source\main.c)(0x6AC8C626)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+F (..\Code\macros.h)(0x6AD1F079)()
+F (..\Librarier\sdk\yc_gpio.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_gpio.o --omf_browse .\objects\yc_gpio.crf --depend .\objects\yc_gpio.d)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_uart.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_uart.o --omf_browse .\objects\yc_uart.crf --depend .\objects\yc_uart.d)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_bt.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O2 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_bt.o --omf_browse .\objects\yc_bt.crf --depend .\objects\yc_bt.d)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_systick.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_systick.o --omf_browse .\objects\yc_systick.crf --depend .\objects\yc_systick.d)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_ipc.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_ipc.o --omf_browse .\objects\yc_ipc.crf --depend .\objects\yc_ipc.d)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_otp.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_otp.o --omf_browse .\objects\yc_otp.crf --depend .\objects\yc_otp.d)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_timer.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_timer.o --omf_browse .\objects\yc_timer.crf --depend .\objects\yc_timer.d)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_lpm.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_lpm.o --omf_browse .\objects\yc_lpm.crf --depend .\objects\yc_lpm.d)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_sysctrl.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_sysctrl.o --omf_browse .\objects\yc_sysctrl.crf --depend .\objects\yc_sysctrl.d)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_power.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_power.o --omf_browse .\objects\yc_power.crf --depend .\objects\yc_power.d)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_qspi.lib)(0x6AC607B4)()
+F (..\Librarier\sdk\yc_spi.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_spi.o --omf_browse .\objects\yc_spi.crf --depend .\objects\yc_spi.d)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\sdk\yc_adc.c)(0x6AD1E2F0)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_adc.o --omf_browse .\objects\yc_adc.crf --depend .\objects\yc_adc.d)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+F (..\Librarier\sdk\yc_wdt.c)(0x6AC607B4)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\yc_wdt.o --omf_browse .\objects\yc_wdt.crf --depend .\objects\yc_wdt.d)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+F (..\Librarier\startup\flash_start.s)(0x6AC607B5)(--cpu Cortex-M0 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include--pd "__UVISION_VERSION SETA 534" --pd "ARMCM0 SETA 1"--list .\listings\flash_start.lst --xref -o .\objects\flash_start.o --depend .\objects\flash_start.d)
+F (..\Librarier\startup\startup.s)(0x6AC607B5)(--cpu Cortex-M0 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include--pd "__UVISION_VERSION SETA 534" --pd "ARMCM0 SETA 1"--list .\listings\startup.lst --xref -o .\objects\startup.o --depend .\objects\startup.d)
+F (..\BSP\RD_BT_BSP.c)(0x6AC8D617)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\rd_bt_bsp.o --omf_browse .\objects\rd_bt_bsp.crf --depend .\objects\rd_bt_bsp.d)
+I (..\BSP\RD_BT_BSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+F (..\Code\HP12832_01_SSD1306_I2C.c)(0x6ACA0F59)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\hp12832_01_ssd1306_i2c.o --omf_browse .\objects\hp12832_01_ssd1306_i2c.crf --depend .\objects\hp12832_01_ssd1306_i2c.d)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+F (..\BSP\RD_V2_DeviceBSP.c)(0x6AD1E2EF)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\rd_v2_devicebsp.o --omf_browse .\objects\rd_v2_devicebsp.crf --depend .\objects\rd_v2_devicebsp.d)
+I (..\BSP\RD_BT_BSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+F (..\USB\usb.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O2 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\usb.o --omf_browse .\objects\usb.crf --depend .\objects\usb.d)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+F (..\PDL\PDL.c)(0x6AC607B7)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\pdl.o --omf_browse .\objects\pdl.crf --depend .\objects\pdl.d)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+F (..\Code\PrintCore.C)(0x6AD1E8D9)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\printcore.o --omf_browse .\objects\printcore.crf --depend .\objects\printcore.d)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\LabelPro.h)(0x6AC607B3)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\Code\ParseESC.h)(0x6AC607B3)
+I (..\Code\ParseMatrix.h)(0x6AC607B3)
+I (..\Code\ReceiveBufferPro.h)(0x6AC61715)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\BarCode.h)(0x6AC607B3)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+I (..\Source\Audio_Indication.h)(0x6AC607B8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E8E5FEA)
+F (..\Code\ParseESC.c)(0x6AD09A7D)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\parseesc.o --omf_browse .\objects\parseesc.crf --depend .\objects\parseesc.d)
+I (..\Code\ParseESC.h)(0x6AC607B3)
+I (..\Code\ParseMatrix.h)(0x6AC607B3)
+I (..\Code\ReceiveBufferPro.h)(0x6AC61715)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\BarCode.h)(0x6AC607B3)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\Code\LabelPro.h)(0x6AC607B3)
+F (..\Code\ParseMatrix.c)(0x6AC607B3)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\parsematrix.o --omf_browse .\objects\parsematrix.crf --depend .\objects\parsematrix.d)
+I (..\Code\ParseMatrix.h)(0x6AC607B3)
+I (..\Code\ReceiveBufferPro.h)(0x6AC61715)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+F (..\Code\ReceiveBufferPro.c)(0x6AD1BEAE)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\receivebufferpro.o --omf_browse .\objects\receivebufferpro.crf --depend .\objects\receivebufferpro.d)
+I (..\Code\ReceiveBufferPro.h)(0x6AC61715)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+I (..\Source\Audio_Indication.h)(0x6AC607B8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E8E5FEA)
+F (..\Code\flash.c)(0x6AD1F139)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\flash.o --omf_browse .\objects\flash.crf --depend .\objects\flash.d)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+F (..\Code\LabelPro.c)(0x6AC607B3)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\labelpro.o --omf_browse .\objects\labelpro.crf --depend .\objects\labelpro.d)
+I (..\Code\LabelPro.h)(0x6AC607B3)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+F (..\Code\BarCode.c)(0x6AC607B3)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\barcode.o --omf_browse .\objects\barcode.crf --depend .\objects\barcode.d)
+I (..\Code\BarCode.h)(0x6AC607B3)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Code\flash.h)(0x6AC607B3)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+F (..\Code\OLED_Menu.c)(0x6ACCC2DD)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\oled_menu.o --omf_browse .\objects\oled_menu.crf --depend .\objects\oled_menu.d)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Code\HP12832_01_SSD1306_I2C.h)(0x6AC8D3FE)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+I (..\Source\Audio_Indication.h)(0x6AC607B8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E8E5FEA)
+F (..\Source\Audio_Indication.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\audio_indication.o --omf_browse .\objects\audio_indication.crf --depend .\objects\audio_indication.d)
+I (..\Source\Audio_Indication.h)(0x6AC607B8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_timer.h)(0x6AC607B4)
+I (..\Librarier\core\yc3121.h)(0x6AC607B4)
+I (..\Librarier\core\type.h)(0x6AC607B4)
+I (..\Librarier\core\system.h)(0x6AC607B4)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\Librarier\sdk\yc_uart.h)(0x6AC607B4)
+I (..\Librarier\core\rom_api.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_gpio.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_systick.h)(0x6AC607B4)
+I (..\PDL\PDL.h)(0x6AC607B7)
+I (..\BSP\RD_V2_DeviceBSP.h)(0x6AC607B3)
+I (..\Librarier\sdk\yc_spi.h)(0x6AC607B4)
+I (..\Librarier\core\misc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_adc.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_otp.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_ipc.h)(0x6AC607B4)
+I (..\Librarier\core\bt_code.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_lpm.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_sysctrl.h)(0x6AC607B4)
+I (..\Librarier\core\cortexm3_macro.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_bt.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_qspi.h)(0x6AC607B4)
+I (..\Librarier\sdk\yc_power.h)(0x6AC607B4)
+I (..\USB\usb.h)(0x6AC607B8)
+I (..\Librarier\sdk\yc_wdt.h)(0x6AC607B4)
+I (..\Code\macros.h)(0x6AD1F079)
+I (..\Code\PrinterParType.h)(0x6AC8D0F5)
+F (..\qrcode\bitstream.c)(0x6AC607B7)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\bitstream.o --omf_browse .\objects\bitstream.crf --depend .\objects\bitstream.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\bitstream.h)(0x6AC607B7)
+F (..\qrcode\mask.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mask.o --omf_browse .\objects\mask.crf --depend .\objects\mask.d)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\limits.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\qrspec.h)(0x6AC607B8)
+I (..\qrcode\mask.h)(0x6AC607B8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x5E8E5FEA)
+F (..\qrcode\mmask.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mmask.o --omf_browse .\objects\mmask.crf --depend .\objects\mmask.d)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\limits.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\mqrspec.h)(0x6AC607B8)
+I (..\qrcode\mmask.h)(0x6AC607B8)
+F (..\qrcode\mqrspec.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\mqrspec.o --omf_browse .\objects\mqrspec.crf --depend .\objects\mqrspec.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\mqrspec.h)(0x6AC607B8)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+F (..\qrcode\qrencode.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrencode.o --omf_browse .\objects\qrencode.crf --depend .\objects\qrencode.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\qrspec.h)(0x6AC607B8)
+I (..\qrcode\mqrspec.h)(0x6AC607B8)
+I (..\qrcode\bitstream.h)(0x6AC607B7)
+I (..\qrcode\qrinput.h)(0x6AC607B8)
+I (..\qrcode\rscode.h)(0x6AC607B8)
+I (..\qrcode\split.h)(0x6AC607B8)
+I (..\qrcode\mask.h)(0x6AC607B8)
+I (..\qrcode\mmask.h)(0x6AC607B8)
+F (..\qrcode\qrinput.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrinput.o --omf_browse .\objects\qrinput.crf --depend .\objects\qrinput.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\qrspec.h)(0x6AC607B8)
+I (..\qrcode\mqrspec.h)(0x6AC607B8)
+I (..\qrcode\bitstream.h)(0x6AC607B7)
+I (..\qrcode\qrinput.h)(0x6AC607B8)
+F (..\qrcode\qrspec.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\qrspec.o --omf_browse .\objects\qrspec.crf --depend .\objects\qrspec.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\qrspec.h)(0x6AC607B8)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\qrinput.h)(0x6AC607B8)
+I (..\qrcode\bitstream.h)(0x6AC607B7)
+F (..\qrcode\rscode.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\rscode.o --omf_browse .\objects\rscode.crf --depend .\objects\rscode.d)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+I (..\qrcode\rscode.h)(0x6AC607B8)
+F (..\qrcode\split.c)(0x6AC607B8)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\split.o --omf_browse .\objects\split.crf --depend .\objects\split.d)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5E8E5FEA)
+I (C:\Keil_v5\ARM\ARMCC\include\errno.h)(0x5E8E5FEA)
+I (..\qrcode\qrencode.h)(0x6AC607B8)
+I (..\qrcode\qrinput.h)(0x6AC607B8)
+I (..\qrcode\bitstream.h)(0x6AC607B7)
+I (..\qrcode\qrspec.h)(0x6AC607B8)
+I (..\qrcode\split.h)(0x6AC607B8)
+I (..\MALLOC\malloc.h)(0x6AC607B5)
+F (..\MALLOC\malloc.c)(0x6AC607B5)(--c99 --gnu -c --cpu Cortex-M0 -D__MICROLIB --li -g -W -O0 --apcs=interwork --split_sections -I ..\Librarier\sdk -I ..\Librarier\core -I ..\Source -I ..\BSP -I ..\PDL -I ..\Code -I ..\USB -I ..\qrcode -I ..\MALLOC-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include-IC:\Users\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include-D__UVISION_VERSION="534" -DARMCM0 -DMOTO_PWM_EN -DPRINTER_LABEL -DMOTO_STEP_FX -DQR_ENCODE_ENABLE -DENCODE_ENABLE -DRD_TYPE_BT -DLPS_ADC_TYPE -D__USEKEILCOMPILE__ -DRD_TYPE_SERIAL -DRD_EK32_PRINTER -DRD_TYPE_SERIAL -DPRINTER_58MM -DPRINTER_BUFF_RAM -DPRINTER_ENGLISH -DPRINTER_DIRECT_NOR -DPRINTER_AND_USB -DPRINTER_LOW_2-o .\objects\malloc.o --omf_browse .\objects\malloc.crf --depend .\objects\malloc.d)
+I (..\MALLOC\malloc.h)(0x6AC607B5)

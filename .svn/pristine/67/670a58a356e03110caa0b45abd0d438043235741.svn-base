@@ -1,0 +1,15 @@
+.\objects\usb.o: ..\USB\usb.c
+.\objects\usb.o: ..\Librarier\sdk\yc_sysctrl.h
+.\objects\usb.o: ..\Librarier\core\yc3121.h
+.\objects\usb.o: ..\Librarier\core\type.h
+.\objects\usb.o: ..\Librarier\core\system.h
+.\objects\usb.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\usb.o: ..\Librarier\sdk\yc_uart.h
+.\objects\usb.o: ..\Librarier\core\yc3121.h
+.\objects\usb.o: ..\Librarier\core\rom_api.h
+.\objects\usb.o: ..\USB\usb.h
+.\objects\usb.o: ..\Librarier\core\misc.h
+.\objects\usb.o: ..\Librarier\sdk\yc_timer.h
+.\objects\usb.o: ..\Librarier\sdk\yc_gpio.h
+.\objects\usb.o: ..\Librarier\sdk\yc_qspi.h
+.\objects\usb.o: ..\Librarier\sdk\yc_otp.h

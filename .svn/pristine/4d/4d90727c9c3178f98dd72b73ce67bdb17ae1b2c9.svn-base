@@ -1,0 +1,9 @@
+.\objects\yc_systick.o: ..\Librarier\sdk\yc_systick.c
+.\objects\yc_systick.o: ..\Librarier\sdk\yc_systick.h
+.\objects\yc_systick.o: ..\Librarier\core\yc3121.h
+.\objects\yc_systick.o: ..\Librarier\core\type.h
+.\objects\yc_systick.o: ..\Librarier\core\system.h
+.\objects\yc_systick.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_systick.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_systick.o: ..\Librarier\core\yc3121.h
+.\objects\yc_systick.o: ..\Librarier\core\rom_api.h

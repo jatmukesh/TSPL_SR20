@@ -1,0 +1,17 @@
+ 
+ 
+2 
+ 
+▪ English system (inch): 
+SIZE 3.5,3.00 
+ 
+▪ Metric system (mm): 
+SIZE 100 mm,100 mm 
+ 
+   
+ 
+ 
+ 
+See Also 
+ GAP, BLINE 
+  

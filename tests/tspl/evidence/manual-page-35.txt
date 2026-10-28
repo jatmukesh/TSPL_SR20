@@ -1,0 +1,29 @@
+ 
+ 
+17 
+DIRECTION and Mirror Image 
+ 
+Description 
+This command defines the printout direction and mirror image. This will be stored in the printer memory. 
+ 
+Syntax 
+ DIRECTION n[,m] 
+ 
+Parameter Description 
+n 0 or 1. Please refer to the illustrations below 
+m 0: Print normal image 
+1: Print mirror image 
+(Note: TDP-643 Plus , TTP-243, TTP-342, TTP-244ME, TTP-342M and TTP-248M series are not supported 
+this mirror feature) 
+ 
+ 
+ 
+Example 
+Sample code 
+ 
+▪ DIRECTION 0 
+▪ DIRECTION 0,1 
+ 
+See Also 
+ REFERENCE 
+  

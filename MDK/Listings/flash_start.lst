@@ -1,0 +1,1249 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 AREA             |.flash_start|, CODE, READONLY 
+ ,ALIGN=4
+    2 00000000         
+    3 00000000         Reset_Handler
+                               PROC
+    4 00000000                 EXPORT           Reset_Handler
+    5 00000000                 IMPORT           __main
+    6 00000000 4849            LDR              R0, =__main
+    7 00000002 4700            BX               R0
+    8 00000004                 ENDP
+    9 00000004         
+   10 00000004         
+   11 00000004         hard_fault_handler
+                               PROC
+   12 00000004                 EXPORT           hard_fault_handler
+   13 00000004 4849            ldr              r0,=HARD_FAULT_IRQHandler
+   14 00000006 4700            bx               r0
+   15 00000008 BF00            nop
+   16 0000000A                 ENDP
+   17 0000000A         
+   18 0000000A         svc_handler
+                               PROC
+   19 0000000A                 EXPORT           svc_handler
+   20 0000000A 4849            ldr              r0,=SVC_IRQHandler
+   21 0000000C 4700            bx               r0
+   22 0000000E BF00            nop
+   23 00000010                 ENDP
+   24 00000010         
+   25 00000010         pendsv_handler
+                               PROC
+   26 00000010                 EXPORT           pendsv_handler
+   27 00000010 4848            ldr              r0,=PENDSV_IRQHandler
+   28 00000012 4700            bx               r0
+   29 00000014 BF00            nop
+   30 00000016                 ENDP
+   31 00000016         
+   32 00000016         systick PROC
+   33 00000016                 EXPORT           systick
+   34 00000016 4848            ldr              r0,=SYSTICK_IRQHandler
+   35 00000018 4700            bx               r0
+   36 0000001A BF00            nop
+   37 0000001C                 ENDP
+   38 0000001C         
+   39 0000001C         irq0    PROC
+   40 0000001C                 EXPORT           irq0
+   41 0000001C 2000            movs             r0,#4*0
+   42 0000001E E7FE            b                isr
+   43 00000020                 ENDP
+   44 00000020         
+   45 00000020         irq1    PROC
+   46 00000020                 EXPORT           irq1
+   47 00000020 2004            movs             r0,#4*1
+   48 00000022 E7FE            b                isr
+   49 00000024                 ENDP
+   50 00000024         
+   51 00000024         irq2    PROC
+   52 00000024                 EXPORT           irq2
+   53 00000024 2008            movs             r0,#4*2
+   54 00000026 E7FE            b                isr
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   55 00000028                 ENDP
+   56 00000028         
+   57 00000028         irq3    PROC
+   58 00000028                 EXPORT           irq3
+   59 00000028 200C            movs             r0,#4*3
+   60 0000002A E7FE            b                isr
+   61 0000002C                 ENDP
+   62 0000002C         
+   63 0000002C         irq4    PROC
+   64 0000002C                 EXPORT           irq4
+   65 0000002C 2010            movs             r0,#4*4
+   66 0000002E E7FE            b                isr
+   67 00000030                 ENDP
+   68 00000030         
+   69 00000030         irq5    PROC
+   70 00000030                 EXPORT           irq5
+   71 00000030 2014            movs             r0,#4*5
+   72 00000032 E7FE            b                isr
+   73 00000034                 ENDP
+   74 00000034         
+   75 00000034         irq6    PROC
+   76 00000034                 EXPORT           irq6
+   77 00000034 2018            movs             r0,#4*6
+   78 00000036 E7FE            b                isr
+   79 00000038                 ENDP
+   80 00000038         
+   81 00000038         irq7    PROC
+   82 00000038                 EXPORT           irq7
+   83 00000038 201C            movs             r0,#4*7
+   84 0000003A E7FE            b                isr
+   85 0000003C                 ENDP
+   86 0000003C         
+   87 0000003C         irq8    PROC
+   88 0000003C                 EXPORT           irq8
+   89 0000003C 2020            movs             r0,#4*8
+   90 0000003E E7FE            b                isr
+   91 00000040                 ENDP
+   92 00000040         
+   93 00000040         irq9    PROC
+   94 00000040                 EXPORT           irq9
+   95 00000040 2024            movs             r0,#4*9
+   96 00000042 E7FE            b                isr
+   97 00000044                 ENDP
+   98 00000044         
+   99 00000044         irq10   PROC
+  100 00000044                 EXPORT           irq10
+  101 00000044 2028            movs             r0,#4*10
+  102 00000046 E7FE            b                isr
+  103 00000048                 ENDP
+  104 00000048         
+  105 00000048         irq11   PROC
+  106 00000048                 EXPORT           irq11
+  107 00000048 202C            movs             r0,#4*11
+  108 0000004A E7FE            b                isr
+  109 0000004C                 ENDP
+  110 0000004C         
+  111 0000004C         irq12   PROC
+  112 0000004C                 EXPORT           irq12
+  113 0000004C 2030            movs             r0,#4*12
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+  114 0000004E E7FE            b                isr
+  115 00000050                 ENDP
+  116 00000050         
+  117 00000050         irq13   PROC
+  118 00000050                 EXPORT           irq13
+  119 00000050 2034            movs             r0,#4*13
+  120 00000052 E7FE            b                isr
+  121 00000054                 ENDP
+  122 00000054         
+  123 00000054         irq14   PROC
+  124 00000054                 EXPORT           irq14
+  125 00000054 2038            movs             r0,#4*14
+  126 00000056 E7FE            b                isr
+  127 00000058                 ENDP
+  128 00000058         
+  129 00000058         irq15   PROC
+  130 00000058                 EXPORT           irq15
+  131 00000058 203C            movs             r0,#4*15
+  132 0000005A E7FE            b                isr
+  133 0000005C                 ENDP
+  134 0000005C         
+  135 0000005C         irq16   PROC
+  136 0000005C                 EXPORT           irq16
+  137 0000005C 2040            movs             r0,#4*16
+  138 0000005E E7FE            b                isr
+  139 00000060                 ENDP
+  140 00000060         
+  141 00000060         irq17   PROC
+  142 00000060                 EXPORT           irq17
+  143 00000060 2044            movs             r0,#4*17
+  144 00000062 E7FE            b                isr
+  145 00000064                 ENDP
+  146 00000064         
+  147 00000064         irq18   PROC
+  148 00000064                 EXPORT           irq18
+  149 00000064 2048            movs             r0,#4*18
+  150 00000066 E7FE            b                isr
+  151 00000068                 ENDP
+  152 00000068         
+  153 00000068         irq19   PROC
+  154 00000068                 EXPORT           irq19
+  155 00000068 204C            movs             r0,#4*19
+  156 0000006A E7FE            b                isr
+  157 0000006C                 ENDP
+  158 0000006C         
+  159 0000006C         irq20   PROC
+  160 0000006C                 EXPORT           irq20
+  161 0000006C 2050            movs             r0,#4*20
+  162 0000006E E7FE            b                isr
+  163 00000070                 ENDP
+  164 00000070         
+  165 00000070         irq21   PROC
+  166 00000070                 EXPORT           irq21
+  167 00000070 2054            movs             r0,#4*21
+  168 00000072 E7FE            b                isr
+  169 00000074                 ENDP
+  170 00000074         
+  171 00000074         irq22   PROC
+  172 00000074                 EXPORT           irq22
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  173 00000074 2058            movs             r0,#4*22
+  174 00000076 E7FE            b                isr
+  175 00000078                 ENDP
+  176 00000078         
+  177 00000078         irq23   PROC
+  178 00000078                 EXPORT           irq23
+  179 00000078 205C            movs             r0,#4*23
+  180 0000007A E7FE            b                isr
+  181 0000007C                 ENDP
+  182 0000007C         
+  183 0000007C         irq24   PROC
+  184 0000007C                 EXPORT           irq24
+  185 0000007C 2060            movs             r0,#4*24
+  186 0000007E E7FE            b                isr
+  187 00000080                 ENDP
+  188 00000080         
+  189 00000080         irq25   PROC
+  190 00000080                 EXPORT           irq25
+  191 00000080 2064            movs             r0,#4*25
+  192 00000082 E7FE            b                isr
+  193 00000084                 ENDP
+  194 00000084         
+  195 00000084         irq26   PROC
+  196 00000084                 EXPORT           irq26
+  197 00000084 2068            movs             r0,#4*26
+  198 00000086 E7FE            b                isr
+  199 00000088                 ENDP
+  200 00000088         
+  201 00000088         irq27   PROC
+  202 00000088                 EXPORT           irq27
+  203 00000088 206C            movs             r0,#4*27
+  204 0000008A E7FE            b                isr
+  205 0000008C                 ENDP
+  206 0000008C         
+  207 0000008C         irq28   PROC
+  208 0000008C                 EXPORT           irq28
+  209 0000008C 2070            movs             r0,#4*28
+  210 0000008E E7FE            b                isr
+  211 00000090                 ENDP
+  212 00000090         
+  213 00000090         irq29   PROC
+  214 00000090                 EXPORT           irq29
+  215 00000090 2074            movs             r0,#4*29
+  216 00000092 E7FE            b                isr
+  217 00000094                 ENDP
+  218 00000094         
+  219 00000094         irq30   PROC
+  220 00000094                 EXPORT           irq30
+  221 00000094 2078            movs             r0,#4*30
+  222 00000096 E7FE            b                isr
+  223 00000098                 ENDP
+  224 00000098         
+  225 00000098         irq31   PROC
+  226 00000098                 EXPORT           irq31
+  227 00000098 207C            movs             r0,#4*31
+  228 0000009A E7FE            b                isr
+  229 0000009C                 ENDP
+  230 0000009C         
+  231 0000009C         
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  232 0000009C         isr     PROC
+  233 0000009C 4927            ldr              r1,=isr_table
+  234 0000009E 5840            ldr              r0,[r0, r1]
+  235 000000A0 4700            bx               r0
+  236 000000A2                 ENDP
+  237 000000A2         
+  238 000000A2 00 00           ALIGN
+  239 000000A4         NMI_IRQHandler
+                               PROC
+  240 000000A4                 EXPORT           NMI_IRQHandler    [WEAK]
+  241 000000A4 E7FE            B                .
+  242 000000A6                 ENDP
+  243 000000A6         
+  244 000000A6         HARD_FAULT_IRQHandler
+                               PROC
+  245 000000A6                 EXPORT           HARD_FAULT_IRQHandler  [WEAK]
+  246 000000A6 E7FE            B                .
+  247 000000A8                 ENDP
+  248 000000A8         
+  249 000000A8         SVC_IRQHandler
+                               PROC
+  250 000000A8                 EXPORT           SVC_IRQHandler    [WEAK]
+  251 000000A8 E7FE            B                .
+  252 000000AA                 ENDP
+  253 000000AA         
+  254 000000AA         PENDSV_IRQHandler
+                               PROC
+  255 000000AA                 EXPORT           PENDSV_IRQHandler   [WEAK]
+  256 000000AA E7FE            B                .
+  257 000000AC                 ENDP
+  258 000000AC         
+  259 000000AC         SYSTICK_IRQHandler
+                               PROC
+  260 000000AC                 EXPORT           SYSTICK_IRQHandler   [WEAK]
+  261 000000AC E7FE            B                .
+  262 000000AE                 ENDP
+  263 000000AE         
+  264 000000AE         EXTI0_IRQHandler
+                               PROC
+  265 000000AE                 EXPORT           EXTI0_IRQHandler   [WEAK]
+  266 000000AE E7FE            B                .
+  267 000000B0                 ENDP
+  268 000000B0         
+  269 000000B0         EXTI1_IRQHandler
+                               PROC
+  270 000000B0                 EXPORT           EXTI1_IRQHandler   [WEAK]
+  271 000000B0 E7FE            B                .
+  272 000000B2                 ENDP
+  273 000000B2         
+  274 000000B2         EXTI2_IRQHandler
+                               PROC
+  275 000000B2                 EXPORT           EXTI2_IRQHandler   [WEAK]
+  276 000000B2 E7FE            B                .
+  277 000000B4                 ENDP
+  278 000000B4         
+  279 000000B4         EXTI3_IRQHandler
+                               PROC
+  280 000000B4                 EXPORT           EXTI3_IRQHandler   [WEAK]
+  281 000000B4 E7FE            B                .
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+  282 000000B6                 ENDP
+  283 000000B6         
+  284 000000B6         EXTI4_IRQHandler
+                               PROC
+  285 000000B6                 EXPORT           EXTI4_IRQHandler   [WEAK]
+  286 000000B6 E7FE            B                .
+  287 000000B8                 ENDP
+  288 000000B8         
+  289 000000B8         EXTI5_IRQHandler
+                               PROC
+  290 000000B8                 EXPORT           EXTI5_IRQHandler   [WEAK]
+  291 000000B8 E7FE            B                .
+  292 000000BA                 ENDP
+  293 000000BA         
+  294 000000BA         Default_Handler
+                               PROC
+  295 000000BA         ; ToDo:  Add here the export definition for the device s
+                       pecific external interrupts handler
+  296 000000BA                 EXPORT           USB_IRQHandler   [WEAK]
+  297 000000BA                 EXPORT           IIC_IRQHandler    [WEAK]
+  298 000000BA                 EXPORT           QSPI_IRQHandler   [WEAK]
+  299 000000BA                 EXPORT           SPI0_IRQHandler   [WEAK]
+  300 000000BA                 EXPORT           SPI1_IRQHandler   [WEAK]
+  301 000000BA                 EXPORT           UART0_IRQHandler  [WEAK]
+  302 000000BA                 EXPORT           UART1_IRQHandler  [WEAK]
+  303 000000BA                 EXPORT           MEMCP_IRQHandler  [WEAK]
+  304 000000BA                 EXPORT           RSA_IRQHandler    [WEAK]
+  305 000000BA                 EXPORT           SCI0_IRQHandler   [WEAK]
+  306 000000BA                 EXPORT           SCI1_IRQHandler   [WEAK]
+  307 000000BA                 EXPORT           BT_IRQHandler   [WEAK]
+  308 000000BA                 EXPORT           GPIO_IRQHandler     [WEAK]
+  309 000000BA                 EXPORT           TIMER0_IRQHandler [WEAK]
+  310 000000BA                 EXPORT           TIMER1_IRQHandler [WEAK]
+  311 000000BA                 EXPORT           TIMER2_IRQHandler [WEAK]
+  312 000000BA                 EXPORT           TIMER3_IRQHandler [WEAK]
+  313 000000BA                 EXPORT           TIMER4_IRQHandler [WEAK]
+  314 000000BA                 EXPORT           TIMER5_IRQHandler [WEAK]
+  315 000000BA                 EXPORT           TIMER6_IRQHandler [WEAK]
+  316 000000BA                 EXPORT           TIMER7_IRQHandler [WEAK]
+  317 000000BA                 EXPORT           TIMER8_IRQHandler  [WEAK]
+  318 000000BA                 EXPORT           SM4_IRQHandler    [WEAK]
+  319 000000BA                 EXPORT           SEC_IRQHandler  [WEAK]
+  320 000000BA                 EXPORT           MSR_IRQHandler  [WEAK]
+  321 000000BA                 EXPORT           TRNG_IRQHandler  [WEAK]
+  322 000000BA                 EXPORT           WDT_IRQHandler  [WEAK]
+  323 000000BA         
+  324 000000BA         ; ToDo:  Add here the names for the device specific exte
+                       rnal interrupts handler
+  325 000000BA         USB_IRQHandler
+  326 000000BA         IIC_IRQHandler
+  327 000000BA         QSPI_IRQHandler
+  328 000000BA         SPI0_IRQHandler
+  329 000000BA         SPI1_IRQHandler
+  330 000000BA         UART0_IRQHandler
+  331 000000BA         UART1_IRQHandler
+  332 000000BA         MEMCP_IRQHandler
+  333 000000BA         RSA_IRQHandler
+  334 000000BA         SCI0_IRQHandler
+  335 000000BA         SCI1_IRQHandler
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  336 000000BA         BT_IRQHandler
+  337 000000BA         GPIO_IRQHandler
+  338 000000BA         TIMER0_IRQHandler
+  339 000000BA         TIMER1_IRQHandler
+  340 000000BA         TIMER2_IRQHandler
+  341 000000BA         TIMER3_IRQHandler
+  342 000000BA         TIMER4_IRQHandler
+  343 000000BA         TIMER5_IRQHandler
+  344 000000BA         TIMER6_IRQHandler
+  345 000000BA         TIMER7_IRQHandler
+  346 000000BA         TIMER8_IRQHandler
+  347 000000BA         SM4_IRQHandler
+  348 000000BA         SEC_IRQHandler
+  349 000000BA         MSR_IRQHandler
+  350 000000BA         TRNG_IRQHandler
+  351 000000BA         WDT_IRQHandler
+  352 000000BA E7FE            B                .
+  353 000000BC                 ENDP
+  354 000000BC         
+  355 000000BC         
+  356 000000BC         
+  357 000000BC                 EXPORT           isr_table
+  358 000000BC 00000000 
+                       isr_table
+                               DCD              USB_IRQHandler
+  359 000000C0 00000000        DCD              IIC_IRQHandler
+  360 000000C4 00000000        DCD              QSPI_IRQHandler
+  361 000000C8 00000000        DCD              SPI0_IRQHandler
+  362 000000CC 00000000        DCD              SPI1_IRQHandler
+  363 000000D0 00000000        DCD              UART0_IRQHandler
+  364 000000D4 00000000        DCD              UART1_IRQHandler
+  365 000000D8 00000000        DCD              MEMCP_IRQHandler
+  366 000000DC 00000000        DCD              RSA_IRQHandler
+  367 000000E0 00000000        DCD              SCI0_IRQHandler
+  368 000000E4 00000000        DCD              SCI1_IRQHandler
+  369 000000E8 00000000        DCD              BT_IRQHandler
+  370 000000EC 00000000        DCD              GPIO_IRQHandler
+  371 000000F0 00000000        DCD              TIMER0_IRQHandler
+  372 000000F4 00000000        DCD              TIMER1_IRQHandler
+  373 000000F8 00000000        DCD              TIMER2_IRQHandler
+  374 000000FC 00000000        DCD              TIMER3_IRQHandler
+  375 00000100 00000000        DCD              TIMER4_IRQHandler
+  376 00000104 00000000        DCD              TIMER5_IRQHandler
+  377 00000108 00000000        DCD              TIMER6_IRQHandler
+  378 0000010C 00000000        DCD              TIMER7_IRQHandler
+  379 00000110 00000000        DCD              TIMER8_IRQHandler
+  380 00000114 00000000        DCD              SM4_IRQHandler
+  381 00000118 00000000        DCD              SEC_IRQHandler
+  382 0000011C 00000000        DCD              MSR_IRQHandler
+  383 00000120 00000000        DCD              TRNG_IRQHandler
+  384 00000124 00000000        DCD              WDT_IRQHandler
+  385 00000128                 END
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+ork --depend=.\objects\flash_start.d -o.\objects\flash_start.o -IC:\Users\User\
+AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include --predefine="
+__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 534" --predefine="ARMCM0
+ SETA 1" --list=.\listings\flash_start.lst ..\Librarier\startup\flash_start.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.flash_start 00000000
+
+Symbol: .flash_start
+   Definitions
+      At line 1 in file ..\Librarier\startup\flash_start.s
+   Uses
+      None
+Comment: .flash_start unused
+BT_IRQHandler 000000BA
+
+Symbol: BT_IRQHandler
+   Definitions
+      At line 336 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 307 in file ..\Librarier\startup\flash_start.s
+      At line 369 in file ..\Librarier\startup\flash_start.s
+
+Default_Handler 000000BA
+
+Symbol: Default_Handler
+   Definitions
+      At line 294 in file ..\Librarier\startup\flash_start.s
+   Uses
+      None
+Comment: Default_Handler unused
+EXTI0_IRQHandler 000000AE
+
+Symbol: EXTI0_IRQHandler
+   Definitions
+      At line 264 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 265 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI0_IRQHandler used once
+EXTI1_IRQHandler 000000B0
+
+Symbol: EXTI1_IRQHandler
+   Definitions
+      At line 269 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 270 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI1_IRQHandler used once
+EXTI2_IRQHandler 000000B2
+
+Symbol: EXTI2_IRQHandler
+   Definitions
+      At line 274 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 275 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI2_IRQHandler used once
+EXTI3_IRQHandler 000000B4
+
+Symbol: EXTI3_IRQHandler
+   Definitions
+      At line 279 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 280 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI3_IRQHandler used once
+EXTI4_IRQHandler 000000B6
+
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: EXTI4_IRQHandler
+   Definitions
+      At line 284 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 285 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI4_IRQHandler used once
+EXTI5_IRQHandler 000000B8
+
+Symbol: EXTI5_IRQHandler
+   Definitions
+      At line 289 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 290 in file ..\Librarier\startup\flash_start.s
+Comment: EXTI5_IRQHandler used once
+GPIO_IRQHandler 000000BA
+
+Symbol: GPIO_IRQHandler
+   Definitions
+      At line 337 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 308 in file ..\Librarier\startup\flash_start.s
+      At line 370 in file ..\Librarier\startup\flash_start.s
+
+HARD_FAULT_IRQHandler 000000A6
+
+Symbol: HARD_FAULT_IRQHandler
+   Definitions
+      At line 244 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 13 in file ..\Librarier\startup\flash_start.s
+      At line 245 in file ..\Librarier\startup\flash_start.s
+
+IIC_IRQHandler 000000BA
+
+Symbol: IIC_IRQHandler
+   Definitions
+      At line 326 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 297 in file ..\Librarier\startup\flash_start.s
+      At line 359 in file ..\Librarier\startup\flash_start.s
+
+MEMCP_IRQHandler 000000BA
+
+Symbol: MEMCP_IRQHandler
+   Definitions
+      At line 332 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 303 in file ..\Librarier\startup\flash_start.s
+      At line 365 in file ..\Librarier\startup\flash_start.s
+
+MSR_IRQHandler 000000BA
+
+Symbol: MSR_IRQHandler
+   Definitions
+      At line 349 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 320 in file ..\Librarier\startup\flash_start.s
+      At line 382 in file ..\Librarier\startup\flash_start.s
+
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+NMI_IRQHandler 000000A4
+
+Symbol: NMI_IRQHandler
+   Definitions
+      At line 239 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 240 in file ..\Librarier\startup\flash_start.s
+Comment: NMI_IRQHandler used once
+PENDSV_IRQHandler 000000AA
+
+Symbol: PENDSV_IRQHandler
+   Definitions
+      At line 254 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 27 in file ..\Librarier\startup\flash_start.s
+      At line 255 in file ..\Librarier\startup\flash_start.s
+
+QSPI_IRQHandler 000000BA
+
+Symbol: QSPI_IRQHandler
+   Definitions
+      At line 327 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 298 in file ..\Librarier\startup\flash_start.s
+      At line 360 in file ..\Librarier\startup\flash_start.s
+
+RSA_IRQHandler 000000BA
+
+Symbol: RSA_IRQHandler
+   Definitions
+      At line 333 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 304 in file ..\Librarier\startup\flash_start.s
+      At line 366 in file ..\Librarier\startup\flash_start.s
+
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 3 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 4 in file ..\Librarier\startup\flash_start.s
+Comment: Reset_Handler used once
+SCI0_IRQHandler 000000BA
+
+Symbol: SCI0_IRQHandler
+   Definitions
+      At line 334 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 305 in file ..\Librarier\startup\flash_start.s
+      At line 367 in file ..\Librarier\startup\flash_start.s
+
+SCI1_IRQHandler 000000BA
+
+Symbol: SCI1_IRQHandler
+   Definitions
+      At line 335 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 306 in file ..\Librarier\startup\flash_start.s
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 368 in file ..\Librarier\startup\flash_start.s
+
+SEC_IRQHandler 000000BA
+
+Symbol: SEC_IRQHandler
+   Definitions
+      At line 348 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 319 in file ..\Librarier\startup\flash_start.s
+      At line 381 in file ..\Librarier\startup\flash_start.s
+
+SM4_IRQHandler 000000BA
+
+Symbol: SM4_IRQHandler
+   Definitions
+      At line 347 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 318 in file ..\Librarier\startup\flash_start.s
+      At line 380 in file ..\Librarier\startup\flash_start.s
+
+SPI0_IRQHandler 000000BA
+
+Symbol: SPI0_IRQHandler
+   Definitions
+      At line 328 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 299 in file ..\Librarier\startup\flash_start.s
+      At line 361 in file ..\Librarier\startup\flash_start.s
+
+SPI1_IRQHandler 000000BA
+
+Symbol: SPI1_IRQHandler
+   Definitions
+      At line 329 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 300 in file ..\Librarier\startup\flash_start.s
+      At line 362 in file ..\Librarier\startup\flash_start.s
+
+SVC_IRQHandler 000000A8
+
+Symbol: SVC_IRQHandler
+   Definitions
+      At line 249 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 20 in file ..\Librarier\startup\flash_start.s
+      At line 250 in file ..\Librarier\startup\flash_start.s
+
+SYSTICK_IRQHandler 000000AC
+
+Symbol: SYSTICK_IRQHandler
+   Definitions
+      At line 259 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 34 in file ..\Librarier\startup\flash_start.s
+      At line 260 in file ..\Librarier\startup\flash_start.s
+
+TIMER0_IRQHandler 000000BA
+
+Symbol: TIMER0_IRQHandler
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 338 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 309 in file ..\Librarier\startup\flash_start.s
+      At line 371 in file ..\Librarier\startup\flash_start.s
+
+TIMER1_IRQHandler 000000BA
+
+Symbol: TIMER1_IRQHandler
+   Definitions
+      At line 339 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 310 in file ..\Librarier\startup\flash_start.s
+      At line 372 in file ..\Librarier\startup\flash_start.s
+
+TIMER2_IRQHandler 000000BA
+
+Symbol: TIMER2_IRQHandler
+   Definitions
+      At line 340 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 311 in file ..\Librarier\startup\flash_start.s
+      At line 373 in file ..\Librarier\startup\flash_start.s
+
+TIMER3_IRQHandler 000000BA
+
+Symbol: TIMER3_IRQHandler
+   Definitions
+      At line 341 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 312 in file ..\Librarier\startup\flash_start.s
+      At line 374 in file ..\Librarier\startup\flash_start.s
+
+TIMER4_IRQHandler 000000BA
+
+Symbol: TIMER4_IRQHandler
+   Definitions
+      At line 342 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 313 in file ..\Librarier\startup\flash_start.s
+      At line 375 in file ..\Librarier\startup\flash_start.s
+
+TIMER5_IRQHandler 000000BA
+
+Symbol: TIMER5_IRQHandler
+   Definitions
+      At line 343 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 314 in file ..\Librarier\startup\flash_start.s
+      At line 376 in file ..\Librarier\startup\flash_start.s
+
+TIMER6_IRQHandler 000000BA
+
+Symbol: TIMER6_IRQHandler
+   Definitions
+      At line 344 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 315 in file ..\Librarier\startup\flash_start.s
+      At line 377 in file ..\Librarier\startup\flash_start.s
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Relocatable symbols
+
+
+TIMER7_IRQHandler 000000BA
+
+Symbol: TIMER7_IRQHandler
+   Definitions
+      At line 345 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 316 in file ..\Librarier\startup\flash_start.s
+      At line 378 in file ..\Librarier\startup\flash_start.s
+
+TIMER8_IRQHandler 000000BA
+
+Symbol: TIMER8_IRQHandler
+   Definitions
+      At line 346 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 317 in file ..\Librarier\startup\flash_start.s
+      At line 379 in file ..\Librarier\startup\flash_start.s
+
+TRNG_IRQHandler 000000BA
+
+Symbol: TRNG_IRQHandler
+   Definitions
+      At line 350 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 321 in file ..\Librarier\startup\flash_start.s
+      At line 383 in file ..\Librarier\startup\flash_start.s
+
+UART0_IRQHandler 000000BA
+
+Symbol: UART0_IRQHandler
+   Definitions
+      At line 330 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 301 in file ..\Librarier\startup\flash_start.s
+      At line 363 in file ..\Librarier\startup\flash_start.s
+
+UART1_IRQHandler 000000BA
+
+Symbol: UART1_IRQHandler
+   Definitions
+      At line 331 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 302 in file ..\Librarier\startup\flash_start.s
+      At line 364 in file ..\Librarier\startup\flash_start.s
+
+USB_IRQHandler 000000BA
+
+Symbol: USB_IRQHandler
+   Definitions
+      At line 325 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 296 in file ..\Librarier\startup\flash_start.s
+      At line 358 in file ..\Librarier\startup\flash_start.s
+
+WDT_IRQHandler 000000BA
+
+Symbol: WDT_IRQHandler
+   Definitions
+
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 351 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 322 in file ..\Librarier\startup\flash_start.s
+      At line 384 in file ..\Librarier\startup\flash_start.s
+
+hard_fault_handler 00000004
+
+Symbol: hard_fault_handler
+   Definitions
+      At line 11 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 12 in file ..\Librarier\startup\flash_start.s
+Comment: hard_fault_handler used once
+irq0 0000001C
+
+Symbol: irq0
+   Definitions
+      At line 39 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 40 in file ..\Librarier\startup\flash_start.s
+Comment: irq0 used once
+irq1 00000020
+
+Symbol: irq1
+   Definitions
+      At line 45 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 46 in file ..\Librarier\startup\flash_start.s
+Comment: irq1 used once
+irq10 00000044
+
+Symbol: irq10
+   Definitions
+      At line 99 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 100 in file ..\Librarier\startup\flash_start.s
+Comment: irq10 used once
+irq11 00000048
+
+Symbol: irq11
+   Definitions
+      At line 105 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 106 in file ..\Librarier\startup\flash_start.s
+Comment: irq11 used once
+irq12 0000004C
+
+Symbol: irq12
+   Definitions
+      At line 111 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 112 in file ..\Librarier\startup\flash_start.s
+Comment: irq12 used once
+irq13 00000050
+
+Symbol: irq13
+   Definitions
+      At line 117 in file ..\Librarier\startup\flash_start.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 118 in file ..\Librarier\startup\flash_start.s
+Comment: irq13 used once
+irq14 00000054
+
+Symbol: irq14
+   Definitions
+      At line 123 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 124 in file ..\Librarier\startup\flash_start.s
+Comment: irq14 used once
+irq15 00000058
+
+Symbol: irq15
+   Definitions
+      At line 129 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 130 in file ..\Librarier\startup\flash_start.s
+Comment: irq15 used once
+irq16 0000005C
+
+Symbol: irq16
+   Definitions
+      At line 135 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 136 in file ..\Librarier\startup\flash_start.s
+Comment: irq16 used once
+irq17 00000060
+
+Symbol: irq17
+   Definitions
+      At line 141 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 142 in file ..\Librarier\startup\flash_start.s
+Comment: irq17 used once
+irq18 00000064
+
+Symbol: irq18
+   Definitions
+      At line 147 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 148 in file ..\Librarier\startup\flash_start.s
+Comment: irq18 used once
+irq19 00000068
+
+Symbol: irq19
+   Definitions
+      At line 153 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 154 in file ..\Librarier\startup\flash_start.s
+Comment: irq19 used once
+irq2 00000024
+
+Symbol: irq2
+   Definitions
+      At line 51 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 52 in file ..\Librarier\startup\flash_start.s
+Comment: irq2 used once
+irq20 0000006C
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: irq20
+   Definitions
+      At line 159 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 160 in file ..\Librarier\startup\flash_start.s
+Comment: irq20 used once
+irq21 00000070
+
+Symbol: irq21
+   Definitions
+      At line 165 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 166 in file ..\Librarier\startup\flash_start.s
+Comment: irq21 used once
+irq22 00000074
+
+Symbol: irq22
+   Definitions
+      At line 171 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 172 in file ..\Librarier\startup\flash_start.s
+Comment: irq22 used once
+irq23 00000078
+
+Symbol: irq23
+   Definitions
+      At line 177 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 178 in file ..\Librarier\startup\flash_start.s
+Comment: irq23 used once
+irq24 0000007C
+
+Symbol: irq24
+   Definitions
+      At line 183 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 184 in file ..\Librarier\startup\flash_start.s
+Comment: irq24 used once
+irq25 00000080
+
+Symbol: irq25
+   Definitions
+      At line 189 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 190 in file ..\Librarier\startup\flash_start.s
+Comment: irq25 used once
+irq26 00000084
+
+Symbol: irq26
+   Definitions
+      At line 195 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 196 in file ..\Librarier\startup\flash_start.s
+Comment: irq26 used once
+irq27 00000088
+
+Symbol: irq27
+   Definitions
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 201 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 202 in file ..\Librarier\startup\flash_start.s
+Comment: irq27 used once
+irq28 0000008C
+
+Symbol: irq28
+   Definitions
+      At line 207 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 208 in file ..\Librarier\startup\flash_start.s
+Comment: irq28 used once
+irq29 00000090
+
+Symbol: irq29
+   Definitions
+      At line 213 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 214 in file ..\Librarier\startup\flash_start.s
+Comment: irq29 used once
+irq3 00000028
+
+Symbol: irq3
+   Definitions
+      At line 57 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 58 in file ..\Librarier\startup\flash_start.s
+Comment: irq3 used once
+irq30 00000094
+
+Symbol: irq30
+   Definitions
+      At line 219 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 220 in file ..\Librarier\startup\flash_start.s
+Comment: irq30 used once
+irq31 00000098
+
+Symbol: irq31
+   Definitions
+      At line 225 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 226 in file ..\Librarier\startup\flash_start.s
+Comment: irq31 used once
+irq4 0000002C
+
+Symbol: irq4
+   Definitions
+      At line 63 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 64 in file ..\Librarier\startup\flash_start.s
+Comment: irq4 used once
+irq5 00000030
+
+Symbol: irq5
+   Definitions
+      At line 69 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 70 in file ..\Librarier\startup\flash_start.s
+
+
+
+ARM Macro Assembler    Page 11 Alphabetic symbol ordering
+Relocatable symbols
+
+Comment: irq5 used once
+irq6 00000034
+
+Symbol: irq6
+   Definitions
+      At line 75 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 76 in file ..\Librarier\startup\flash_start.s
+Comment: irq6 used once
+irq7 00000038
+
+Symbol: irq7
+   Definitions
+      At line 81 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 82 in file ..\Librarier\startup\flash_start.s
+Comment: irq7 used once
+irq8 0000003C
+
+Symbol: irq8
+   Definitions
+      At line 87 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 88 in file ..\Librarier\startup\flash_start.s
+Comment: irq8 used once
+irq9 00000040
+
+Symbol: irq9
+   Definitions
+      At line 93 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 94 in file ..\Librarier\startup\flash_start.s
+Comment: irq9 used once
+isr 0000009C
+
+Symbol: isr
+   Definitions
+      At line 232 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 42 in file ..\Librarier\startup\flash_start.s
+      At line 48 in file ..\Librarier\startup\flash_start.s
+      At line 54 in file ..\Librarier\startup\flash_start.s
+      At line 60 in file ..\Librarier\startup\flash_start.s
+      At line 66 in file ..\Librarier\startup\flash_start.s
+      At line 72 in file ..\Librarier\startup\flash_start.s
+      At line 78 in file ..\Librarier\startup\flash_start.s
+      At line 84 in file ..\Librarier\startup\flash_start.s
+      At line 90 in file ..\Librarier\startup\flash_start.s
+      At line 96 in file ..\Librarier\startup\flash_start.s
+      At line 102 in file ..\Librarier\startup\flash_start.s
+      At line 108 in file ..\Librarier\startup\flash_start.s
+      At line 114 in file ..\Librarier\startup\flash_start.s
+      At line 120 in file ..\Librarier\startup\flash_start.s
+      At line 126 in file ..\Librarier\startup\flash_start.s
+      At line 132 in file ..\Librarier\startup\flash_start.s
+      At line 138 in file ..\Librarier\startup\flash_start.s
+      At line 144 in file ..\Librarier\startup\flash_start.s
+      At line 150 in file ..\Librarier\startup\flash_start.s
+      At line 156 in file ..\Librarier\startup\flash_start.s
+
+
+
+ARM Macro Assembler    Page 12 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 162 in file ..\Librarier\startup\flash_start.s
+      At line 168 in file ..\Librarier\startup\flash_start.s
+      At line 174 in file ..\Librarier\startup\flash_start.s
+      At line 180 in file ..\Librarier\startup\flash_start.s
+      At line 186 in file ..\Librarier\startup\flash_start.s
+      At line 192 in file ..\Librarier\startup\flash_start.s
+      At line 198 in file ..\Librarier\startup\flash_start.s
+      At line 204 in file ..\Librarier\startup\flash_start.s
+      At line 210 in file ..\Librarier\startup\flash_start.s
+      At line 216 in file ..\Librarier\startup\flash_start.s
+      At line 222 in file ..\Librarier\startup\flash_start.s
+      At line 228 in file ..\Librarier\startup\flash_start.s
+
+isr_table 000000BC
+
+Symbol: isr_table
+   Definitions
+      At line 358 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 233 in file ..\Librarier\startup\flash_start.s
+      At line 357 in file ..\Librarier\startup\flash_start.s
+
+pendsv_handler 00000010
+
+Symbol: pendsv_handler
+   Definitions
+      At line 25 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 26 in file ..\Librarier\startup\flash_start.s
+Comment: pendsv_handler used once
+svc_handler 0000000A
+
+Symbol: svc_handler
+   Definitions
+      At line 18 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 19 in file ..\Librarier\startup\flash_start.s
+Comment: svc_handler used once
+systick 00000016
+
+Symbol: systick
+   Definitions
+      At line 32 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 33 in file ..\Librarier\startup\flash_start.s
+Comment: systick used once
+79 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 5 in file ..\Librarier\startup\flash_start.s
+   Uses
+      At line 6 in file ..\Librarier\startup\flash_start.s
+Comment: __main used once
+1 symbol
+415 symbols in table

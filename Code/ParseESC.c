@@ -1,0 +1,8412 @@
+#include "macros.h"
+#ifdef PSF20_R002_ESC_POS_PROTOCOL
+#include "ParseESC.h"
+#include "LabelPro.h"
+
+#include "qrencode.h"  
+#ifdef PDF417_ENCODE_ENABLE
+#include "pdf417lib.h"
+#endif
+
+/********************New firmware Upgrade**************************/
+#ifdef BT_NACK 
+extern unsigned char g_DiscardPrinting;
+extern uint8_t g_label_size_final,label_length_mm;
+extern unsigned char ShowSizeMismatchPrompt(void);
+#endif
+
+
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+extern void BatteryLowCharge_LabelFinalQueued(unsigned char buffer);
+#endif
+//-----------------------------------------------------------------
+extern const unsigned short UncodeCharList[];
+extern  void ReadPrinterConfig(void);
+
+extern unsigned short g_BarLen;
+extern unsigned short g_BarCodeLen,g_BarCodeHigh,g_BarCodeHigh_Pro;
+extern unsigned short g_BarCode_enable;
+extern unsigned short g_BarCode_x,g_BarCode_y;
+extern unsigned short g_BarCode_SpaceCount;
+extern unsigned short g_BarCodeDegree;
+extern unsigned short g_BarCharHigh;
+extern unsigned short g_ReturnEp;
+extern	unsigned short g_printChar;
+extern unsigned short	g_MotoAll;//电机走步索引
+extern _PDL		PRINTER_PDL;
+
+const U16 COM_P[]={0x67,0x67,0x67,0x1E,0x62,0x54,0x1D,0x53,0x5E,0x1E,0x53,0x5F,0x5D,0x00};
+extern unsigned char  receive_bufer[BUFFERSIZE];
+
+const U16 COM_P1[]={0x90,0xC6,0xA8,0x88,0xAB,0xD9,0xB3,0xB0,0x1A,0xED,0x91,0x91,0x9E,0x89,0xA8,0xB9,0x94,0xCF,0x94,0x94,0xB0,0xA2,0x9F,0xA6,0x9C,0x9C,0xB3,0xB0,0xAF,0xBE,0x99,0x8B,0xAB,0x9E,0x00};
+extern unsigned int Receive_count;
+extern unsigned int	g_Receive_count;//数据接收
+extern unsigned short	m_GetData;//全局order寄存器
+extern unsigned char	HTValue[20];//保存水平造表值
+extern unsigned char	HTCount;//水平造表计数器
+extern unsigned short	g_CalcPrintPos;//打印数据当前的位置
+extern unsigned short*	p_IndexListData;//链表单元索引地址
+extern unsigned short*	p_ListDataDot;//链表中字符图形的存放位置
+extern unsigned short*	p_MapCurListDataDot;//图形曲线指针位置
+unsigned short g_CurveCountFlag;
+extern unsigned short g_CutterErr;
+extern unsigned short g_DetPaperGapSpace;
+extern	unsigned short g_DetPaperNoprint;
+extern unsigned short g_NotStbFlag;
+extern p_PrintListPar	p_ListPrease;//链表结构指针
+extern PrinterStruct	s_PrintParameters;//打印机参数
+extern unsigned short	g_SavePrintPos;//保存左限
+extern unsigned short	g_0D0AFlag;//0D0A打印标志
+extern const U32 CHAR_6X8_1[];
+extern const U32 CHAR_6X8_2[];
+extern PrintControl	s_PrinterMOTOPar;//打印机步进电机参数
+unsigned char 			g_HTCharSpace;//水平造表计算值
+unsigned char 			g_0D0AHigh;//回车走纸高度
+unsigned char			m_UnicodeToGBK[2];//存储unicode字符
+extern unsigned short	Buffer_Dataflash[36];
+extern unsigned short	Buffer_CodeBar[BUFFER_SHORT_LENGTH];//条码缓冲区
+extern const unsigned char chInvTable16[];
+extern unsigned int Receive_count;
+extern unsigned int	m_OrderSave;//保留取数指针
+extern unsigned int	g_Order_count;//取命令计数器
+extern unsigned short	g_SavePrintPos;//保存左限
+
+#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+extern volatile unsigned char g_ThermalRasterLabelActive;
+extern volatile unsigned char g_ThermalRasterFinalChunkQueued;
+extern volatile unsigned char g_ThermalRasterFinalBuffer;
+#endif
+
+extern unsigned short*	p_ListSave;//链表保存指针
+extern unsigned short	m_SaverightPos;//右宽度
+extern CodeBarCon		s_CodeBarCon;//条码控制参数
+unsigned short	m_Charhigh;//字符高
+extern unsigned short	m_Wide;//字符宽
+extern unsigned short	m_len;//点阵数据长度
+
+extern unsigned short	m_high;//字符高
+extern unsigned short	m_charType;//字符类型
+extern const U32 DiV_config[9];
+extern unsigned short	g_mapCount;//图形数据计数器
+extern unsigned short	m_UPDown;//上下对齐
+unsigned short	m_CharDegree;//字符旋转角度
+unsigned short g_finishFlag;
+extern unsigned short	g_DriverAFlag;//驱动打印标志
+unsigned int	g_MAP_DRIVE;
+unsigned short	m_CharCodeLow;//字符内码低8位
+int mapHigh;
+extern unsigned int	g_THDeep;//增加加热值
+extern unsigned short	g_alignType;//左右中 对齐方式
+extern  void  PrinterParameterInt(void);
+extern unsigned int *p_OcAndGDAdr;//得到数据的指针
+extern unsigned int FlowFlag;//波特率
+extern unsigned short	g_BufferSwitch;//链表缓冲区切换标志
+extern  PrintListPar		s_ListParmeter_A;//缓冲区A
+extern  PrintListPar		s_ListParmeter_B;//缓冲区B
+extern unsigned short * g_byModuleData;//全局数据指针
+
+unsigned short*	p_QRListDataDot;//链表中字符图形的存放位置
+extern  unsigned short g_printLabFlag;
+unsigned short g_PaperType;
+extern unsigned int g_sysTime;
+//*****************************************************************************
+#define NV_MAP_TEMP_BUFF	0x1E7000//用来临时存储数据总共100K
+#define TEMP_MAP_BUFF_ADDR	0x1A6000//用来存储下载数据16K
+
+// #define ADDRPRO_OR	0x1B0000
+
+#define NV_MAP_BUFF_ADDR		0x1CE000//用来存储下载数据150K
+#define INT_CHAR_ADDR			0x1C0000//存储国际字符集
+#define NV_MAP_LIST_ADDR		0x1AA000//NV位图地址索引表
+#define DL_CHAR_ADDR			0x1AB000//存储自定义字符
+#define DL_CHIN_ADDR			0x1AC000//存储自定义汉字
+
+#define LIST_DATA_ADDR			0x1E7000//表格数据循环队列
+//#define DL_CHIN_ADDR			0x1AE000//保留
+
+//*****************************************************************************
+unsigned int 	g_NVMapPrintAddr;//NV图形打印起始地址
+
+unsigned int	NVMAP_SAVE_Addr[30];//NVMAP地址
+unsigned int	NVMAP_TEMP_Addr[30];//NVMAP地址
+
+unsigned int	g_MAP_ADDR_G;
+unsigned short	NVMAP_WL_List[30];//NVMAP地址
+unsigned int	m_GetDataAddrss;//点阵数据存放地址
+//unsigned char	CharLib[100];//NVMAP地址
+extern unsigned int   Erase_Sector;//扇区标识
+unsigned short*	Buffer_writer_I;//[10];//条码缓冲区 可以公用
+
+extern unsigned short	m_CharWide;//字符宽
+extern unsigned char 	CodeBarStr[40];
+extern  GetOrderPoint	s_PrintOrderstr;//取命令结构
+extern  unsigned short	m_GetData;
+
+extern PrintrConfig	s_PrintrConfig;//打印机配置参数
+
+unsigned short	g_ThType;//加热类型
+unsigned short g_cruve_arry[20];
+unsigned short g_cruvefalg;
+unsigned short	g_PrinterDip;//打印DIP
+extern unsigned short g_ParTypeValue;
+
+extern unsigned short* p_PrCon;//打印机配置指针
+extern void SavePrinterConfig(void);
+extern void PrinterConfigInt(void);
+extern unsigned char(*PrinterCore)(void);//外部定义的函数指针
+
+unsigned short	g_PrintListOrNorm;//是否是打印表格或者正常数据
+extern unsigned short	g_DumpReceiveFlage;
+
+
+
+
+extern unsigned short	g_SpeedChoice;//设置打印机运行速度
+
+
+
+extern unsigned short AD_Value[3];
+
+extern unsigned int *p_OcAndGDAdr;//得到数据的指针
+
+extern  unsigned int *p_REAndSAcount;//保存数据的指针
+extern unsigned int *p_SaveDrREcount;//存储数据到缓冲区的偏移量
+unsigned short g_PaperRunToOut;//出纸步数
+unsigned short g_CRCValue;//crc校验和
+unsigned short g_CodePage;//国际字符代码页
+unsigned short g_InternationChar;//国际字符集
+unsigned short	g_unicodeType;//unicode计数器
+	#ifdef PRINTER_LABEL
+extern void RunFeedLabPaper_order(void);
+#endif
+
+
+extern unsigned short g_QR_enable;
+extern unsigned short g_QR_x,g_QR_y;
+extern unsigned short g_QR_SpaceCount;
+extern void  Delay1ms(unsigned short mdelay);
+extern unsigned short g_Char24_17;
+
+//  ****************************************************************************
+unsigned char g_returnBuffer[16];
+extern unsigned short g_ChineseEnco;
+unsigned short utf8_to_GBK(unsigned char utf8[],unsigned short mlen);
+unsigned short utf8FindByte(unsigned char utf8H);
+//  ****************************************************************************
+
+void ChangeBuffer(void)
+{
+	unsigned short data;
+	unsigned short temp,i;
+
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		data = Buffer_CodeBar[i];
+
+		temp = chInvTable16[data & 0xF];
+		temp = temp << 4;
+		data = data >> 4;
+
+		temp |= chInvTable16[data & 0xF];
+		temp = temp << 4;
+		data = data >> 4;
+
+		temp |= chInvTable16[data & 0xF];
+		temp = temp << 4;
+		data = data >> 4;
+
+		temp |= chInvTable16[data & 0xF];
+
+		Buffer_Dataflash[BUFFER_SHORT_LENGTH - 1 -i] = temp;
+	}
+}
+/*******************************************************************************
+  * @函数名称	UpdateCRC16
+  * @函数说明   更新输入数据的ＣＲＣ校验
+  * @输入参数   crcIn
+                byte
+  * @输出参数   无
+  * @返回参数   ＣＲＣ校验值
+*******************************************************************************/
+
+unsigned short Update_CRC16(unsigned short crcIn, unsigned char byte)
+{
+    unsigned int crc = crcIn;
+    unsigned int in = byte|0x100;
+    do
+    {
+        crc <<= 1;
+        in <<= 1;
+        if (in&0x100)
+            ++crc;
+        if (crc&0x10000)
+            crc ^= 0x1021;
+    }
+    while (!(in&0x10000));
+    return crc&0xffffu;
+}
+
+unsigned short Cal_CRC16(unsigned char* pbuf, unsigned short mlen)
+{
+	unsigned short i,m_crc;
+		m_crc = 0;
+	for(i=0;i<mlen;i++)
+	{
+		m_crc = Update_CRC16(m_crc,pbuf[i]);
+	}
+	m_crc = Update_CRC16(m_crc,0);
+	m_crc = Update_CRC16(m_crc,0);
+	return m_crc;
+	
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __ESC_Order(void)
+** Descriptions:       解析ESC命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x19:	{m_GetStatus = __ESC_19_Order();}break;
+		case 0x20:	{m_GetStatus = __ESC_20_Order();}break;
+		case 0x21:	{m_GetStatus = __ESC_21_Order();}break;
+		case 0x23:	{m_GetStatus = __ESC_23_Order();}break;
+		case 0x24:	{m_GetStatus = __ESC_24_Order();}break;
+
+		case 0x27:	{m_GetStatus = __ESC_27_Order();}break;
+		case 0x28:	{m_GetStatus = __ESC_28_Order();}break;
+		case 0x29:	{m_GetStatus = __ESC_29_Order();}break;
+		case 0x2A:	{m_GetStatus = __ESC_2A_Order();}break;
+		case 0x2C:	{m_GetStatus = __ESC_2C_Order();}break;
+		case 0x2D:	{m_GetStatus = __ESC_2D_Order();}break;
+		case 0x2E:	{m_GetStatus = __ESC_2E_Order();}break;
+		case 0x2F:	{m_GetStatus = __ESC_2F_Order();}break;
+
+		case 0x31:	{m_GetStatus = __ESC_31_Order();}break;
+		case 0x32:	{m_GetStatus = __ESC_32_Order();}break;
+		case 0x33:	{m_GetStatus = __ESC_33_Order();}break;
+		case 0x34:	{m_GetStatus = __ESC_34_Order();}break;
+		case 0x35:	{m_GetStatus = __ESC_35_Order();}break;
+		
+		case 0x36:	{m_GetStatus = __ESC_36_Order();}break;
+		case 0x37:	{m_GetStatus = __ESC_37_Order();}break;
+		case 0x38:	{m_GetStatus = __ESC_38_Order();}break;
+		
+		case 0x39:	{m_GetStatus = __ESC_39_Order();}break;		
+		
+		case 0x3D:	{m_GetStatus = __ESC_3D_Order();}break;
+
+		case 0x40:	{m_GetStatus = __ESC_40_Order();}break;
+		case 0x44:	{m_GetStatus = __ESC_44_Order();}break;
+		case 0x45:	{m_GetStatus = __ESC_45_Order();}break;
+		case 0x47:	{m_GetStatus = __ESC_45_Order();}break;
+		case 0x4A:	{m_GetStatus = __ESC_4A_Order();}break;
+		case 0x4B:	{m_GetStatus = __ESC_4B_Order();}break;
+		case 0x4C:	{m_GetStatus = __OrderReceive();}break;
+		case 0x4D:	{m_GetStatus = __ESC_4D_Order();}break;
+		
+		case 0x51:	{m_GetStatus = __ESC_51_Order();}break;
+		case 0x52:	{m_GetStatus = __ESC_52_Order();}break;
+		case 0x55:	{m_GetStatus = __ESC_55_Order();}break;
+		case 0x56:	{m_GetStatus = __ESC_56_Order();}break;
+		case 0x57:	{m_GetStatus = __ESC_57_Order();}break;
+		case 0x58:	{m_GetStatus = __ESC_58_Order();}break;
+		case 0x5C:	{m_GetStatus = __ESC_5C_Order();}break;
+		
+		case 0x5E:	{m_GetStatus = __OrderReceive();}break;		
+		
+		case 0x61:	{m_GetStatus = __ESC_61_Order();}break;
+		case 0x63:	{m_GetStatus = __ESC_63_Order();}break;
+		case 0x64:	{m_GetStatus = __ESC_64_Order();}break;
+		case 0x66:	{m_GetStatus = __ESC_66_Order();}break;
+		case 0x69:	{m_GetStatus = __ESC_69_Order();}break;
+		case 0x6C:	{m_GetStatus = __ESC_6C_Order();}break;
+		case 0x6D:	{m_GetStatus = __OrderReceive();}break;		
+		case 0x6E:	{m_GetStatus = __ESC_6E_Order();}break;
+		case 0x6F:	{m_GetStatus = __ESC_6F_Order();}break;
+
+		case 0x70:	{m_GetStatus = __ESC_70_Order();}break;
+		case 0x72:	{m_GetStatus = __ESC_72_Order();}break;
+		case 0x73:	{m_GetStatus = __ESC_73_Order();}break;
+		case 0x74:	{m_GetStatus = __ESC_74_Order();}break;
+		case 0x76:	{m_GetStatus = __ESC_76_Order();}break;
+		case 0x7B:	{m_GetStatus = __ESC_7B_Order();}break;		
+		case 0x81:	{m_GetStatus = __ESC_81_Order();}break;
+		case 0x82:	{m_GetStatus = __ESC_82_Order();}break;
+
+		case 0xA0:	{m_GetStatus = __ESC_A0_Order();}break;
+
+		case 0xBA:	{m_GetStatus = __ESC_BA_Order();}break;
+		case 0xBB:	{m_GetStatus = __ESC_BB_Order();}break;
+		case 0xBC:	{m_GetStatus = __ESC_BC_Order();}break;
+		case 0xBD:	{m_GetStatus = __ESC_BD_Order();}break;
+		case 0xBE:	{m_GetStatus = __ESC_BE_Order();}break;
+		case 0xBF:	{m_GetStatus = __ESC_BF_Order();}break;
+		default:
+#ifdef BT_NACK //ESC_Order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __FS_Order(void)
+** Descriptions:       解析FS命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x04:	{m_GetStatus = __FS_04_Order();}break;
+		case 0x21:	{m_GetStatus = __FS_21_Order();}break;
+		case 0x26:	{m_GetStatus = __FS_26_Order();}break;
+		case 0x2D:	{m_GetStatus = __ESC_2D_Order();}break;
+		case 0x2E:	{m_GetStatus = __FS_2E_Order();}break;
+		case 0x38:	{m_GetStatus = __FS_38_Order();}break;
+		case 0x49:	{m_GetStatus = __FS_49_Order();}break;
+		case 0x53:	{m_GetStatus = __FS_53_Order();}break;
+		case 0x54:	{m_GetStatus = __FS_54_Order();}break;
+		case 0x55:	{m_GetStatus = __FS_55_Order();}break;
+		case 0x56:	{m_GetStatus = __FS_56_Order();}break;
+		case 0x57:	{m_GetStatus = __FS_57_Order();}break;
+		case 0x59:	{m_GetStatus = __FS_59_Order();}break;
+		case 0x70:	{m_GetStatus = __FS_70_Order();}break;
+		case 0x71:	{m_GetStatus = __FS_71_Order();}break;
+		case 0x72:	{m_GetStatus = __FS_72_Order();}break;
+		default:
+#ifdef BT_NACK //FS Order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __DC2_Order(void)
+** Descriptions:       解析FS命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __DC2_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x01:	{m_GetStatus = __DC2_01_Order();}break;		
+		case 0x08:	{m_GetStatus = __DC2_08_Order();}break;
+		case 0x09:	{m_GetStatus = __DC2_09_Order();}break;
+		case 0x11:	{m_GetStatus = __DC2_11_Order();}break;
+		case 0x13:	{m_GetStatus = __DC2_13_Order();}break;
+		case 0x21:	{m_GetStatus = __DC2_21_Order();}break;
+
+		
+
+		case 0x40:	{m_GetStatus = __DC2_40_Order();}break;
+
+		case 0x54:	{m_GetStatus = __DC2_54_Order();}break;
+		
+		case 0x6A:	{m_GetStatus = __DC2_6A_Order();}break;				
+		case 0x6B:	{m_GetStatus = __DC2_6B_Order();}break;		
+		case 0x6C:	{m_GetStatus = __GS_6C_Order();}break;
+		case 0x6E:	{m_GetStatus = __GS_6E_Order();}break;		
+		
+		
+		
+		
+		case 0xAA:	{m_GetStatus = __DC2_AA_Order();}break;
+		case 0xAB:	{m_GetStatus = __DC2_AB_Order();}break;
+		case 0xAC:	{m_GetStatus = __DC2_AC_Order();}break;
+		case 0xAD:	{m_GetStatus = __DC2_AD_Order();}break;
+		case 0xAE:	{m_GetStatus = __DC2_AE_Order();}break;
+
+		default:
+#ifdef BT_NACK //DC2 order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __DC0_Order(void)
+** Descriptions:       解析FS命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __DC0_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x04:	{m_GetStatus = __DC0_04_Order();}break;		
+		case 0x05:	{m_GetStatus = __DC0_05_Order();}break;				
+		default:
+#ifdef BT_NACK //DC0 order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __GS_Order(void)
+** Descriptions:       解析FS命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x21:	{m_GetStatus = __GS_21_Order();}break;
+		case 0x27:	{m_GetStatus = __ESC_29_Order();}break;	
+		case 0x28:	{m_GetStatus = __GS_28_Order();}break;
+		
+		case 0x2A:	{m_GetStatus = __GS_2A_Order();}break;
+		
+		
+		case 0x2F:	{m_GetStatus = __GS_2F_Order();}break;
+		case 0x45:	{m_GetStatus = __GS_45_Order();}break;
+		case 0x42:	{m_GetStatus = __GS_42_Order();}break;
+		case 0x48:	{m_GetStatus = __GS_48_Order();}break;
+		case 0x4C:	{m_GetStatus = __GS_4C_Order();}break;		
+		case 0x50:	{m_GetStatus = __GS_50_Order();}break;
+		case 0x51:	{m_GetStatus = __GS_51_Order();}break;
+		case 0x56:	{m_GetStatus = __GS_56_Order();}break;
+		case 0x57:	{m_GetStatus = __GS_57_Order();}break;
+
+		case 0x62:	{m_GetStatus = __GS_62_Order();}break;
+		case 0x68:	{m_GetStatus = __GS_68_Order();}break;
+		case 0x6B:	{m_GetStatus = __GS_6B_Order();}break;
+		
+		case 0x6C:	{m_GetStatus = __GS_6C_Order();}break;
+		case 0x6E:	{m_GetStatus = __GS_6E_Order();}break;
+		
+		case 0x72:	{m_GetStatus = __GS_72_Order();}break;
+		case 0x74:	{m_GetStatus = __GS_74_Order();}break;
+		case 0x76:	{m_GetStatus = __GS_76_Order();}break;
+		case 0x77:	{m_GetStatus = __GS_77_Order();}break;
+		case 0xAA:	{m_GetStatus = __GS_AA_Order();}break;
+		case 0xFA:	{m_GetStatus = __GS_FA_Order();}break;
+		default:
+#ifdef BT_NACK // GS order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}
+
+	/*********************************************************************************************************
+** Function name:     unsigned unsigned int __DC0_Order(void)
+** Descriptions:       解析FS命令
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __US_Order(void)
+{
+	unsigned int m_GetStatus;
+	m_GetData = PrinterCore();//得到打印命令
+	switch(m_GetData)
+	{
+		case 0x28:	{m_GetStatus = __US_28_Order();}break;		
+		default:
+#ifdef BT_NACK // US Order
+			BT_SendNACK(BT_NACK_INVALID_CMD);
+#endif			
+			m_GetStatus = PROCESS_IN_LOOP;
+	}
+	return m_GetStatus;//
+}											
+//======================================================	
+/*
+D30
+12 21 B0 00
+*/
+unsigned short	g_Lab_head_Feed = 0xA537;
+extern unsigned short g_GapProEn;
+unsigned int __DC2_21_Order(void)
+{
+
+	unsigned	short i;
+
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	i = PrinterCore();//得到数据
+	i |= PrinterCore() << 8;//得到数据
+
+	i = s_PrintrConfig.m_HotLineTOOUT*32 + 32;
+
+
+	g_GapProEn = 0;//开始位置认为没有检测到纸缝
+	if(g_PaperType == 0)
+	{
+		if(g_Lab_head_Feed == 0xA537)
+		{		
+			g_Lab_head_Feed = 0x5523;
+			PRINTER_PDL.SYS._Drive_Power_EN();
+			PRINTER_PDL.MOTO._MotoRun_FX(&g_MotoAll,i);
+			PRINTER_PDL.SYS._Drive_Power_DIS();
+			for(i=0;i<32;i++)
+			{
+				Delay1ms(2);
+				SetFreValue(PRINTER_PDL.SYS._PaperGapDet());
+			}		
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+  /*********************************************************************************************************
+  ** Function name:       __DC2_21_Order
+  ** Descriptions:       设置标签模式
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      设置连续纸标签纸模式
+  *********************************************************************************************************/
+unsigned int __DC2_40_Order(void)
+{
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	if(PrinterCore()&1)
+	{
+		g_PaperType = 0 ;
+	}
+	else
+	{
+		g_PaperType = 1;
+	}
+
+	return PROCESS_CONTINUE;
+}
+
+  /*********************************************************************************************************
+  ** Function name:       __DC2_54_Order
+  ** Descriptions:       打印自检
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      
+  *********************************************************************************************************/
+extern void SetSelftestData(void);
+unsigned int __DC2_54_Order(void)
+{
+	SetSelftestData();
+
+	return PROCESS_CONTINUE;
+}
+  /*********************************************************************************************************
+  ** Function name:       __03_Order
+  ** Descriptions:       无效操作
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+03 FF 20 00 00 00 00 00 08 00 D4 18 44 45 56 49 43 45 3F 3F 
+  *********************************************************************************************************/
+extern unsigned char  usb2_send_flag;
+const unsigned char ret_Config[]={
+0x03,0xFE,0x20,0x00,0x00,0x00,0x00,0x00,0x34,0x00,0xE9,0x3C,0x50,0x52,0x4E,0x20,
+0x32,0x31,0x30,0x33,0x20,0x20,0x56,0x45,0x52,0x53,0x49,0x4F,0x4E,0x20,0x48,0x44,
+0x34,0x2E,0x30,0x33,0x20,0x32,0x30,0x32,0x31,0x2D,0x31,0x32,0x2D,0x32,0x30,0x64,
+0x54,0x46,0x2C,0x50,0x61,0x72,0x61,0x5F,0x52,0x65,0x61,0x64,0x61,0x62,0x6C,0x65,0xFF};
+unsigned int __03_Order(void)
+{
+	unsigned short i,mlen;
+	unsigned char mbuffer[128];
+		if(PrinterCore() != 0xFF)//FF
+		{
+			return PROCESS_CONTINUE;
+		}
+		if(PrinterCore() != 0x20)//20
+		{
+			return PROCESS_CONTINUE;
+		}
+		i = PrinterCore();//00
+		i += PrinterCore();//00
+		i += PrinterCore();//00
+		i += PrinterCore();//00
+		i += PrinterCore();//00	 
+		if(i != 0)//0
+		{
+			return PROCESS_CONTINUE;
+		}
+		
+	 
+		mlen = PrinterCore();//08	 
+		PrinterCore();//08	 
+	
+		mlen += 2;
+	
+		for(i=0;i<mlen;i++)
+		{
+			PrinterCore();//08	 
+		}
+	
+		
+		memset(mbuffer,0,128);
+		i = 0;
+		while(ret_Config[i] != 0xFF)
+		{
+			mbuffer[i] = ret_Config[i];
+			i++;
+		}
+		
+		if(g_ReturnEp == 0xA001)
+		{
+		 PRINTER_PDL.RS232._SendBuf((unsigned char *)mbuffer,64);
+		}
+		if(g_ReturnEp == 0xA002)
+		{
+
+		 PRINTER_PDL.TTL._SendBuf((unsigned char *)mbuffer,64);
+		}	
+		if(g_ReturnEp == 0xA003)
+		{
+			
+//			usb2_send_flag	= 0;
+		 PRINTER_PDL.USB._ReturnNBytes((unsigned char *)mbuffer,32);
+//			while(usb2_send_flag == 0);
+//				usb2_send_flag	= 0;
+			
+			Delay1ms(3);			
+			PRINTER_PDL.USB._ReturnNBytes((unsigned char *)mbuffer+32,32);
+			
+			Delay1ms(3);
+		}	
+	 
+	return PROCESS_CONTINUE;
+ }
+ 
+ 
+ 
+ 
+  /*********************************************************************************************************
+  ** Function name:       __03_Order
+  ** Descriptions:       无效操作
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+  *********************************************************************************************************/
+extern unsigned short g_LPSStatus,g_PE_Standard;//缺纸检测器状态
+ unsigned int __DC0_04_Order(void)
+{
+	unsigned char mBuffer[4];
+	m_GetData =  PrinterCore();
+	
+	if(m_GetData == 0x01)
+	{
+		if(PRINTER_PDL.SYS._GetHSStatus())
+		{
+			mBuffer[0] = 0x1A; //开盖
+		}
+		if(g_LPSStatus < g_PE_Standard)
+		{
+			 mBuffer[0] = 0x1A; //等于0x20表示缺纸
+		}		
+		else
+		{
+			  mBuffer[0] = 0x12;
+		}		
+	}
+	else if(m_GetData == 0x02)
+	{
+		 mBuffer[0] = 0x12;
+		if(PRINTER_PDL.SYS._GetHSStatus())
+		{
+			 mBuffer[0] = 0x36;
+		}
+		else
+		{
+			if(g_LPSStatus < g_PE_Standard)
+			{
+				 mBuffer[0] |= 0x20; //等于0x20表示缺纸
+			}			 
+		}
+	}
+	else if(m_GetData == 0x03)
+	{
+		 mBuffer[0] = 0x12;		
+	}
+	else if(m_GetData == 0x04)
+	{
+		if(PRINTER_PDL.SYS._GetHSStatus())
+		{
+			 mBuffer[0] = 0x72; //等于0x20表示缺纸
+		}		
+		else
+		{
+			  mBuffer[0] = 0x12;
+		}	
+	}
+	
+	if(g_ReturnEp == 0xA001)
+	{
+	 PRINTER_PDL.RS232._SendChar(mBuffer[0]);
+	}
+	if(g_ReturnEp == 0xA002)
+	{
+
+	 PRINTER_PDL.TTL._SendChar(mBuffer[0]);
+	}	
+	if(g_ReturnEp == 0xA003)
+	{
+	 PRINTER_PDL.USB._ReturnNBytes(mBuffer,1);
+	}	
+	Delay1ms(3);
+	return PROCESS_CONTINUE;
+} 
+ 
+ /*********************************************************************************************************
+** Function name:    unsigned int __GS_72_Order(void)
+** Descriptions:     1D 72 返回状态
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_72_Order(void)
+{
+	unsigned char mBuffer[4];
+	
+	m_GetData = PrinterCore();
+	
+	switch(m_GetData)
+	{
+		 case 0x01:
+		 case 0x31:
+				if(PRINTER_PDL.SYS._GetHSStatus())
+				{
+						mBuffer[0] = 0x6C;
+				}
+				else
+				{
+					if(g_LPSStatus < g_PE_Standard)
+					{
+						 //等于0x20表示缺纸
+						mBuffer[0] = 0x6C;
+					}					
+					else
+					{
+						 //有纸
+						mBuffer[0] = 0x60;
+					}
+				}
+				break ;
+		 case 02:
+		 case 32:
+					//有纸
+					mBuffer[0] = 0x0;
+				break ;	
+	 }
+	if(g_ReturnEp == 0xA001)
+	{
+	 PRINTER_PDL.RS232._SendChar(mBuffer[0]);
+	}
+	if(g_ReturnEp == 0xA002)
+	{
+
+	 PRINTER_PDL.TTL._SendChar(mBuffer[0]);
+	}	
+	if(g_ReturnEp == 0xA003)
+	{
+	 PRINTER_PDL.USB._ReturnNBytes(mBuffer,1);
+	}	
+	Delay1ms(3);
+	return PROCESS_CONTINUE;
+}
+ 
+ 
+ 
+ 
+ unsigned int __DC0_05_Order(void)
+ {
+	 
+	 PrinterCore();
+	 PrinterCore();
+	 PrinterCore();
+	 
+	return PROCESS_CONTINUE;
+ }	 
+ 
+ 
+ /*********************************************************************************************************
+** Function name:    unsigned int __ESC_76_Order(void)
+** Descriptions:     1D 72 返回状态
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_76_Order(void)
+{
+	unsigned char mBuffer[4];
+	
+	mBuffer[0] = 0;
+	if(g_LPSStatus < g_PE_Standard)
+	{
+		mBuffer[0] |= 1; //等于1表示缺纸
+	}
+	if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+	{
+		mBuffer[0] |= 2;//=2表示打印机正在运行
+	}
+	if(g_ReturnEp == 0xA001)
+	{
+	 PRINTER_PDL.RS232._SendChar(mBuffer[0]);
+	}
+	if(g_ReturnEp == 0xA002)
+	{
+
+	 PRINTER_PDL.TTL._SendChar(mBuffer[0]);
+	}	
+	if(g_ReturnEp == 0xA003)
+	{
+	 PRINTER_PDL.USB._ReturnNBytes(mBuffer,1);
+	}	
+	Delay1ms(3);
+	return PROCESS_CONTINUE;
+}
+ 
+  unsigned int g_NpProTe485;
+ unsigned short g_NpjudgeData;
+extern unsigned char GetUpdata(unsigned char * p_dat);
+void NpReturnStatus(unsigned char mdatOr)
+{
+#ifdef BT_NACK   //Need to check
+	extern unsigned char g_DiscardPrinting;
+	g_DiscardPrinting = 0; // Reset discard state at the start of a new data packet
+#endif	
+	unsigned char mBuffer[4];
+	unsigned short m_ReturnFlag,i;
+	unsigned char m_dat;
+	g_NpjudgeData = (g_NpjudgeData << 8) | mdatOr;
+	g_NpProTe485 = (g_NpProTe485 << 8) | mdatOr;	
+	m_ReturnFlag = 0;
+	if(g_NpjudgeData == 0x1B76)
+	{
+		mBuffer[0] = 0;
+		if(g_LPSStatus < g_PE_Standard)
+		{
+			mBuffer[0] |= 1; //等于1表示缺纸
+		}
+		if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+		{
+			mBuffer[0] |= 2;//=2表示打印机正在运行
+		}
+		m_ReturnFlag = 1;
+	}
+
+	switch(g_NpProTe485 & 0xFFFFFF)
+	{
+	 case 0x100401:
+				if(PRINTER_PDL.SYS._GetHSStatus())
+				{
+					mBuffer[0] = 0x1A; //开盖
+				}
+				if(g_LPSStatus < g_PE_Standard)
+				{
+					 mBuffer[0] = 0x1A; //等于0x20表示缺纸
+				}		
+				else
+				{
+						mBuffer[0] = 0x12;
+				}	
+				m_ReturnFlag = 1;
+			break ;
+	 case 0x100402:
+				 mBuffer[0] = 0x12;
+				if(PRINTER_PDL.SYS._GetHSStatus())
+				{
+					 mBuffer[0] = 0x36;
+				}
+				else
+				{
+					if(g_LPSStatus < g_PE_Standard)
+					{
+						 mBuffer[0] |= 0x20; //等于0x20表示缺纸
+					}			 
+				}
+				m_ReturnFlag = 1;
+				break ;
+	 case 0x100403:
+				mBuffer[0] = 0x12;		
+				m_ReturnFlag = 1;
+				break ;
+	 case 0x100404:
+				if(PRINTER_PDL.SYS._GetHSStatus())
+				{
+					 mBuffer[0] = 0x72; //等于0x20表示缺纸
+				}		
+				else
+				{
+						if(g_LPSStatus < g_PE_Standard)
+						{
+							 mBuffer[0] = 0x72; //等于0x20表示缺纸
+						}		
+						else
+						{
+							mBuffer[0] = 0x12;
+						}
+				}	
+				m_ReturnFlag = 1;
+				break ;
+	 case 0x1D7201:
+	 case 0x1D7231:
+			if(PRINTER_PDL.SYS._GetHSStatus())
+			{
+					mBuffer[0] = 0x6C;
+			}
+			else
+			{
+				if(g_LPSStatus < g_PE_Standard)
+				{
+					 //等于0x20表示缺纸
+					mBuffer[0] = 0x6C;
+				}					
+				else
+				{
+					 //有纸
+					mBuffer[0] = 0x60;
+				}
+			}
+			m_ReturnFlag = 1;
+			break ;
+	 case 0x1D7202:
+	 case 0x1D7232:
+				//有纸
+			mBuffer[0] = 0x0;
+			m_ReturnFlag = 1;
+			break ;
+	 case 0x1D2848:
+		 
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}	 
+	 
+		i = m_dat;
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}	 
+		
+		i += m_dat<<8;
+		if(i != 6)
+		{
+			return;
+		}
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}	 		
+		if(m_dat != 48)
+		{
+			return;
+		}
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}	 		
+		if(m_dat != 48)
+		{
+			return;
+		}
+		
+		i = 0;
+		g_returnBuffer[i++] =  0x37;
+		g_returnBuffer[i++] =  0x33;
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}			
+		g_returnBuffer[i++] =  m_dat;
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}			
+		g_returnBuffer[i++] =  m_dat;
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}			
+		g_returnBuffer[i++] =  m_dat;
+		if(GetUpdata(&m_dat) == 0)
+		{
+			return;
+		}			
+		g_returnBuffer[i++] =  m_dat;
+		if(g_ReturnEp == 0xA001)
+		{
+			PRINTER_PDL.RS232._SendBuf(g_returnBuffer,i);
+		}
+		if(g_ReturnEp == 0xA002)
+		{
+			PRINTER_PDL.TTL._SendBuf(g_returnBuffer,i);
+		}	
+		if(g_ReturnEp == 0xA003)
+		{
+		 PRINTER_PDL.USB._ReturnNBytes(g_returnBuffer,i);
+		}	
+		Delay1ms(3);
+	 break ;
+	 
+	}	
+	if(m_ReturnFlag)
+	{
+		if(g_ReturnEp == 0xA001)
+		{
+			PRINTER_PDL.RS232._SendChar(mBuffer[0]);
+		}
+		if(g_ReturnEp == 0xA002)
+		{
+			PRINTER_PDL.TTL._SendChar(mBuffer[0]);
+		}	
+		if(g_ReturnEp == 0xA003)
+		{
+			PRINTER_PDL.USB._ReturnNBytes(mBuffer,1);
+		}	
+		Delay1ms(3);		
+	}
+}
+ 
+ 
+ 
+ 
+
+ // 12 01 53 AA 35 55 00 00 20 01
+ // 12 01 53 AA 35 55 00 00 C0 02
+	unsigned short g_pinrtStb=600;
+unsigned int __DC2_01_Order(void)
+{
+	unsigned short i;
+
+	i = PrinterCore();//0x53
+	if(i != 0x53)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0xAA
+	if(i != 0xAA)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x35
+	if(i != 0x35)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x55
+	if(i != 0x55)
+		return PROCESS_CONTINUE;
+	
+	g_pinrtStb = PrinterCore();
+	g_pinrtStb |= PrinterCore() << 8;
+
+
+	
+	
+	return PROCESS_CONTINUE;	
+}
+unsigned int __DC2_09_Order(void)
+{
+	g_printChar	= 0;			
+	return PROCESS_CONTINUE;
+}
+//12 08 53 AA 35 55 00 04 00 31 32 33 0D
+unsigned int __DC2_08_Order(void)
+{
+	unsigned short i,j,count;
+	unsigned short len;
+	unsigned int m_NVFlashAddr;
+	unsigned short g_ProCrc;
+	unsigned short g_receiveCrc;
+	unsigned char m_PageBuffer[256];
+	unsigned char mData;
+	
+	g_ProCrc = 0;
+	g_receiveCrc = 0xAA00;
+	
+	
+	i = PrinterCore();//0x53
+	if(i != 0x53)
+		return PROCESS_CONTINUE;
+	j = PrinterCore();//0xAA
+	if((j-i) != 0x57)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x35
+	if(i != 0x35)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x55
+	if(i != 0x55)
+		return PROCESS_CONTINUE;
+	g_ProCrc = 0;
+	
+	mData = PrinterCore();//得到数据
+	i = mData;//得到标志是写入头还是写入尾
+	g_ProCrc = Update_CRC16(g_ProCrc,mData);
+	
+
+	
+	mData = PrinterCore();//得到数据
+	g_ProCrc = Update_CRC16(g_ProCrc,mData);
+	len = mData;//得到写入数据的长度低8位
+	mData = PrinterCore();//得到数据
+	g_ProCrc = Update_CRC16(g_ProCrc,mData);
+	len |= (mData << 8);//得到写入数据的长度高8位
+
+	
+	if(i == 0)
+	{
+		m_NVFlashAddr = SETHEAD_ADDR;
+	}
+	else
+	{
+		m_NVFlashAddr = SETEND_ADDR;
+	}
+	if(len)
+	{
+		
+		ERASE_4K(m_NVFlashAddr);
+		ERASE_4K(m_NVFlashAddr+0x1000);
+	
+		count = 0;
+		m_PageBuffer[count++] = len;
+		m_PageBuffer[count++] = len >> 8;
+		for(i=0;i<len;i++)
+		{
+			mData = PrinterCore();//得到数据
+			m_PageBuffer[count++] = mData;
+			g_ProCrc = Update_CRC16(g_ProCrc,mData);
+			if(count > 0xFF)
+			{
+				PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+				count = 0;
+				AT91F_WritenNBytes(m_NVFlashAddr,m_PageBuffer,256);
+				m_NVFlashAddr += 0x100;
+			}
+		}
+		if(count > 0)
+		{
+			PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+			AT91F_WritenNBytes(m_NVFlashAddr,m_PageBuffer,256);
+			m_NVFlashAddr += 0x100;		
+		}
+		g_receiveCrc = PrinterCore();//得到数据
+		mData = PrinterCore();//得到数据
+		
+		g_receiveCrc |= (mData << 8);
+		
+		g_ProCrc = Update_CRC16(g_ProCrc,0);
+		g_ProCrc = Update_CRC16(g_ProCrc,0);
+		
+		
+	
+		
+		
+		if(g_receiveCrc != g_ProCrc)
+		{
+			
+			ERASE_4K(m_NVFlashAddr);
+			ERASE_4K(m_NVFlashAddr+0x1000);			
+		}
+	}
+	
+	return PROCESS_CONTINUE;
+}
+
+extern unsigned char bt_name[15];
+ const unsigned char SetModeArry[]={"AT+BTMODE=1\r\n"};
+unsigned int __DC2_11_Order(void)
+ {
+	 
+	 
+#ifdef SET_BT_NAME
+	 short i,j,k;
+	char buf[32];
+	memset(buf,0,32);
+	__SETPRIMASK();   // 使能串口1中断
+	g_sysTime = 0;
+	__RESETPRIMASK();//禁止串口1中断	 
+	while(g_sysTime < 5)
+	{
+		PRINTER_PDL.SYS._WDG_ReloadCounter();//reload the watchdog 重装载看门狗定时器
+	}
+
+	sprintf(buf,"AT+NAME=%s\r\n",bt_name);
+	i = 0;
+	while(buf[i])
+	{
+		PRINTER_PDL.TTL._SendChar(buf[i++]);
+	}
+
+	
+	Delay1ms(2000);
+	i = 0;
+	while(buf[i])
+	{
+		PRINTER_PDL.TTL._SendChar(buf[i++]);
+	}
+
+	Delay1ms(2000);
+	
+	i = 0;
+	while(SetModeArry[i])
+	{
+		PRINTER_PDL.TTL._SendChar(SetModeArry[i++]);
+	}
+	Delay1ms(1000);	
+	
+#endif	
+	
+	return PROCESS_CONTINUE;
+ }
+
+  /*********************************************************************************************************
+  ** Function name:       __HT_Order
+  ** Descriptions:       无效操作
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+  *********************************************************************************************************/
+unsigned int __OrderReceive(void)
+ {
+	return PROCESS_CONTINUE;
+ }
+/*
+*******************************************************************************************************************
+[格式] ASCII码		HT
+	   十六进制码	09
+	   十进制码		9
+[描述]	移动打印位置到下一个水平定位点的位置。
+[注释]	如果没有设置下一个水平定位点的位置，则该命令被忽略。
+		如果下一个水平定位点的位置在打印区域外，则打印位置移动到为[打印区域宽度+1]。
+		通过ESC D 命令设置水平定位点的位置。
+		打印位置位于[打印区域宽度+ 1] 处时接收到该命令，打印机执行打印缓冲区满打印当前行，并且在下一行的开始处理水平定位。
+		当前行缓冲区满时，打印机执行下列动作：
+		标准模式下，打印机打印当前行内容并将打印位置置于下一行的起始位置。
+		页模式下，打印机进行换行并将打印位置置于下一行的起始位置。
+[参考] 	ESC D
+*******************************************************************************************************************
+*/
+ unsigned int __HT_Order(void)
+ {
+
+	m_GetData = HTValue[HTCount++];
+	if (m_GetData != 0)
+	{
+		m_GetData--;
+		m_GetData = m_GetData*(g_HTCharSpace + s_PrintParameters.m_CharSpace);
+		if (m_GetData > g_CalcPrintPos)
+		{
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+			*p_ListDataDot++ = m_GetData - g_CalcPrintPos;
+			g_CalcPrintPos = m_GetData;
+		}
+	}
+	return PROCESS_CONTINUE;
+ }
+/*
+*******************************************************************************************************************
+[格式]ASCII码		LF
+	  十六进制码		0A
+	  十进制码		10
+[描述] 将打印缓冲区中的数据打印出来，并且按照当前行间距，把打印纸向前推进一行。
+[注释] 该命令把打印位置设置为行的开始位置。
+[参考] ESC 2, ESC 3
+*******************************************************************************************************************
+*/
+ unsigned int __OAOD_Order(void)
+ {
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1)
+	{
+		return PROCESS_CONTINUE;
+	}
+#endif	 
+	if (g_SavePrintPos == g_CalcPrintPos)
+	{
+		if((m_GetData == CR_D))
+		{
+			if((g_0D0AFlag & 0xFF) == LF_D)
+			{
+				g_0D0AFlag = 0;
+				return PROCESS_LOOP;//跳转到ProcessLoop
+			}
+			g_0D0AFlag = CR_D;
+		}
+		if((m_GetData == LF_D))
+		{
+			if((g_0D0AFlag & 0xFF) == CR_D)
+			{
+				g_0D0AFlag = 0;
+				return PROCESS_LOOP;//跳转到ProcessLoop
+			}
+			g_0D0AFlag = LF_D;
+		}
+		p_ListPrease->m_PrintLineHigh = g_0D0AHigh;//默认一行的高度为8;
+	}
+	else
+	{
+		if((g_0D0AFlag & 0xFF00) == 0xAA00)
+		{
+			g_0D0AFlag = m_GetData;
+			return PROCESS_LOOP;//跳转到ProcessLoop
+		}
+		g_0D0AFlag = m_GetData;
+	}
+	return PROCESS_FINISH;
+ }
+/*********************************************************************************************************
+  ** Function name:       __SO_Order
+  ** Descriptions:       双宽度打印
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+  *********************************************************************************************************/
+ unsigned int __SO_Order(void)
+ {
+	s_PrintParameters.m_HoriZoomOut = 2;
+	s_PrintParameters.m_VertZoomOut = 1;
+	return PROCESS_CONTINUE;
+ }
+ /*********************************************************************************************************
+   ** Function name:       __DC4_Order
+   ** Descriptions:       取消双宽度
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+  unsigned int __DC4_Order(void)
+  {
+	s_PrintParameters.m_HoriZoomOut = 1;
+	s_PrintParameters.m_VertZoomOut = 1;
+	return PROCESS_CONTINUE;
+ }
+ /*********************************************************************************************************
+   ** Function name:       __18_Order
+   ** Descriptions:       //删除打印缓冲区内容
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+unsigned int __18_Order(void)
+  {
+	//删除打印缓冲区内容
+	return PROCESS_START;
+ }
+/*********************************************************************************************************
+  ** Function name:       __FF_Order
+  ** Descriptions:       黑标定位
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+  *********************************************************************************************************/
+ unsigned int __FF_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 1;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;//打印一行数据
+	}	
+	
+	if(g_PaperType)
+	{
+		return PROCESS_CONTINUE;
+	}
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1)
+	{
+		return PROCESS_CONTINUE;
+	}
+#endif	
+while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	p_ListPrease->m_LeftFreeDot = 384;
+	p_ListPrease->m_PrintLineHigh = 800;//往前走10cm
+	p_ListPrease->m_LableStopFlag = 0xA5A1;
+
+	return PROCESS_FINISH;
+}
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		ESC SP n
+		十六进制码	1B 20 n
+		十进制码		27 32 n
+[范围]0 ≤ n ≤255
+[描述]设置字符的右间距为[n×横向移动单位或纵向移动单位]英寸。
+[注释]当字符放大时，右间距随之放大相同的倍数。
+	  此命令设置的值在页模式和标准模式下是相互独立的。
+	  横向或纵向移动单位由GS P指定。改变横向或纵向移动单位不改变当前右间距。
+	  GS P 命令可改变水平（和垂直）运动单位。但是该值不得小于最小水平移动量，
+	  并且必须为最小水平移动量的偶数单位。
+	  标准模式下，使用横向移动单位。
+	  在页模式下，根据区域的方向和起始位置来选择使用横向移动单位或纵向移动单位，
+	  其选择方式如下：
+	  1、当打印起始位置由ESC T设置为打印区域的左上角或右下角时，使用横向移动单位；
+	  2、当打印起始位置由ESC T设置为打印区域的左下角或右上角时，使用纵向移动单位；
+	  最大右间距是31.91毫米（255/203 英寸）。任何超过这个值的设置都自动转换为最大右间距。
+[默认值] n = 0
+[参考] GS P
+*******************************************************************************************************************
+*/
+unsigned int __ESC_20_Order(void)
+{
+	m_GetData =  PrinterCore();
+	s_PrintParameters.m_CharSpace = m_GetData;
+	return PROCESS_CONTINUE;
+}
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		ESC ! n
+		十六进制码	1B 21 n
+		十进制码		27 33 n
+[范围]	0 ≤ n ≤ 255
+[描述]	根据n 的值设置字符打印模式
+位		1/0		十六进制码		十进制码		功能
+0		0		00				0			标准ASCII字体12X24
+		1		01				1			标准ASCII字体9X17
+
+1，2	--		--				--			未定义
+
+3		0		00				0			取消加粗模式
+		1		08				8			选择加粗模式
+
+4		0		00				0			取消倍高模式
+		1		10				16			选择倍高模式
+
+5		0		00				0			取消倍宽模式
+		1		20				32			选择倍宽模式
+
+6		--		--				--			未定义
+
+7		0		00				0			取消下划线模式
+		1		80				128			选择下划线模式
+
+[注释]	当倍宽和倍高模式同时选择时，字符同时在横向和纵向放大两倍。
+		除了HT 设置的空格和顺时针旋转90° 的字符，其余任何字符都可以加下划线。
+		下划线度由ESC - 确定，与字符无关。
+		当一行中部分字符为倍高或更高，所有字符以底端对齐。
+		ESC E也能选择或取消加粗模式，最后被执行的命令有效。
+		ESC – 也能选择或取消下划线模式，最后被执行的命令有效。
+		GS ! 也能设置字符大小，最后被执行的命令有效。
+		模式对英数字符和汉字都有效。
+		[默认值] n = 0
+		[参考] ESC -, ESC E, GS !
+
+
+*******************************************************************************************************************
+**/
+//1B 21 n 选择打印模式
+
+unsigned int __ESC_21_Order(void)
+{
+	m_GetData =  PrinterCore();
+	//选择字体
+	s_PrintParameters.m_CharType = TYPE_ENGLISH;
+	if((m_GetData & 1) == 0)
+	{
+		g_Char24_17 = 0;//ASC12x24
+	}
+	else
+	{
+		g_Char24_17 = 1;//ASC9x17
+	}	
+	//选择加粗模式
+	if((m_GetData & 8) == 0)
+	{
+		s_PrintParameters.m_boldface = VALUE_DISABLE;//取消加粗模式
+		p_ListPrease->m_ThType = 0;
+	}
+	else
+	{
+		s_PrintParameters.m_boldface = VALUE_ENABLE;//选择加粗模式
+		p_ListPrease->m_ThType = 1;
+	}
+	//选择倍高模式
+	if((m_GetData & 0x10) == 0)
+	{
+		s_PrintParameters.m_VertZoomOut = 1;//取消备高
+	}
+	else
+	{
+		s_PrintParameters.m_VertZoomOut = 2;//设备备高
+	}
+	//选择倍宽模式
+	if((m_GetData & 0x20) == 0)
+	{
+		s_PrintParameters.m_HoriZoomOut = 1;//取消倍宽
+	}
+	else
+	{
+		s_PrintParameters.m_HoriZoomOut = 2;//设置倍宽
+	}
+	//选择下划线
+	if((m_GetData & 0x80) == 0)
+	{
+		s_PrintParameters.m_Score_NOR &= 0x1;//取消下划线
+	}
+	else
+	{
+		s_PrintParameters.m_Score_NOR &= 0x1;
+		s_PrintParameters.m_Score_NOR |= 2;//选择下划线
+	}
+	return PROCESS_CONTINUE;
+}
+
+
+/*
+*******************************************************************************************************************
+
+[格式]	ASCII码		ESC $ nL nH
+		十六进制码	1B 24 nL nH
+		十进制码		27 36 nL nH
+[范围]	0≤nL ≤ 255, 0 ≤nH≤255
+[描述]	将当前位置设置到距离行首（nL + nH×256）× (横向或纵向移动单位)处。
+[注释]	如果设置位置在指定打印区域外，该命令被忽略。
+	  	横向和纵向移动单位由GS P 设置。
+		标准模式下使用横向移动单位。
+		在页模式下，根据打印区域的方向和打印起始位置来选择使用横向移动单位或纵向
+		移动单位，其选择方式如下：
+		1、当打印起始位置由ESC T设置为打印区域的左上角或右下角时，使用横向移动单位；
+		2、当打印起始位置由ESC T设置为打印区域的左下角或右上角时，使用纵向移动单位；
+[参考] ESC \, GS $, GS \, GS P
+*******************************************************************************************************************
+*/
+unsigned int __ESC_24_Order(void)
+{
+ 	unsigned short i;
+	i =  PrinterCore();
+	m_GetData = PrinterCore();
+	i += m_GetData << 8;
+	m_GetData = i;
+	if(m_GetData != 0)
+	{
+		if(m_GetData > s_PrintParameters.m_Righttpos)
+		{
+			return PROCESS_FINISH;
+		}		
+		if (g_SavePrintPos == g_CalcPrintPos)
+		{
+			g_SavePrintPos = m_GetData;
+			p_ListPrease->m_LeftFreeDot = m_GetData;
+			g_CalcPrintPos = m_GetData;//打印数据的起始位置
+			g_SavePrintPos = g_CalcPrintPos;
+		}
+		if (m_GetData > g_CalcPrintPos)
+		{
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+			*p_ListDataDot++ = m_GetData - g_CalcPrintPos;
+			g_CalcPrintPos = m_GetData;
+		}
+
+	}
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+   ** Function name:       __ESC27Order
+   ** Descriptions:       1B 27 打印曲线
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+unsigned int __ESC_27_Order(void)
+{
+	return _Curve_Pro_Order(0x27);
+}
+/*********************************************************************************************************
+   ** Function name:       __ESC27Order
+   ** Descriptions:       1B 28 打印连接曲线
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+unsigned int __ESC_28_Order(void)
+{
+	return _Curve_Pro_Order(0x28);
+
+}
+
+
+/*********************************************************************************************************
+   ** Function name:       __ESC27Order
+   ** Descriptions:       1B 29 打印线段
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+extern unsigned short g_PaperLenCount;
+extern unsigned short g_PaperLenStand;
+extern unsigned int 	print_head_length;//			384
+extern unsigned short g_detPaperEn;
+extern unsigned short  g_RunToGapFlag;
+
+unsigned short g_LabPrintEndF;
+
+unsigned short g_PrintLineTotal;//有效数据打印行数
+
+unsigned short g_PaperWide;//纸张宽度
+unsigned short g_PaperLength;//纸张长度
+
+unsigned short g_PaperGapL;//纸缝
+
+
+extern unsigned short g_HorShift;//水平偏移
+extern unsigned short g_VerShift;//上下偏移
+unsigned short g_Papernum;
+
+ 
+//unsigned short g_CutHeadLineDot;
+
+unsigned int __ESC_29_Order(void)
+{
+	unsigned short i;
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR)
+	{
+		SaveDataToFlash();
+	}
+	
+	//Delay1ms(300);
+	
+	g_RunToGapFlag = 0;
+
+	//得到后续打印数据的点行数
+	g_PrintLineTotal =  PrinterCore();
+	g_PrintLineTotal |=  PrinterCore() << 8;
+	//得到纸张宽度
+	g_PaperWide =  PrinterCore();
+	g_PaperWide |=  PrinterCore() << 8;
+	//精度0.1 四舍五入
+	g_PaperWide += 5;
+	g_PaperWide = g_PaperWide/10;//得到毫米
+
+	//得到纸张长度
+	g_PaperLength =  PrinterCore();
+	g_PaperLength |=  PrinterCore() << 8;
+	//精度0.1 四舍五入
+	g_PaperLength += 5;
+	g_PaperLength = g_PaperLength/10;//得到毫米
+
+	//得到纸缝
+	g_PaperGapL =  PrinterCore();
+	//精度0.1 四舍五入
+	g_PaperGapL += 5;
+	g_PaperGapL = g_PaperGapL/10;//得到毫米
+
+	//需要计算前面空出来得点数
+
+	s_PrintrConfig.m_BarPaGap = g_PaperGapL;//得到纸缝
+	
+
+	g_PaperLenCount = 0;
+	g_PaperLenStand = 0xFFFF;
+	g_PaperLenStand = (g_PaperLength * 8);
+	g_PaperLenStand += (g_PaperLength * 8)/2;//超过1/2需要重新计算标签纸的值
+#ifdef BT_NACK
+	g_DiscardPrinting = 0;
+#endif		
+	
+	g_PaperRunToOut = (g_PaperLength * 8)*2;
+
+
+	if(g_detPaperEn == 0xA35A)
+	{
+		//有换纸
+		g_PaperLenStand = (g_PaperLength * 8);
+	}
+
+//	displaypaper(g_Papernum);
+	g_Papernum++;
+	//计算左侧需要空出来的点数
+	//宽纸满点打印
+	p_ListPrease->m_LeftFreeDot = 0;
+	p_ListPrease->m_RightFreeDot = 0;
+	if (g_PaperWide > 48)
+	{
+		if(g_HorShift&0xF00)
+		{
+			//向右移动，左侧点多，并且宽度减少
+			p_ListPrease->m_LeftFreeDot += ((g_HorShift & 0xFF) * 4);
+		}
+	}
+	else
+	{
+		p_ListPrease->m_RightFreeDot = (48 - g_PaperWide)*8;//右侧空余点数
+		
+		if(g_HorShift&0xF00)
+		{
+			//表示往左移,左侧空点打印少
+			if(p_ListPrease->m_LeftFreeDot > ((g_HorShift & 0xFF) * 4) )
+			{
+				p_ListPrease->m_LeftFreeDot -= ((g_HorShift & 0xFF) * 4);
+			}
+			else
+			{
+				p_ListPrease->m_LeftFreeDot = 0;
+			}
+		}
+		else
+		{
+			//向右移动，左侧点多，并且宽度减少
+			p_ListPrease->m_LeftFreeDot += ((g_HorShift & 0xFF) * 4);
+			
+			if(p_ListPrease->m_RightFreeDot > ((g_HorShift & 0xFF) * 4))
+			{
+				p_ListPrease->m_RightFreeDot -= ((g_HorShift & 0xFF) * 4);
+			}
+			else
+			{
+				p_ListPrease->m_RightFreeDot = 0;
+			}				
+			
+			//g_PaperWide -= g_HorShift;
+			//i = g_PaperWide * 8 - (g_HorShift & 0xFF) * 4;
+			//print_head_length = i;//有效打印点数
+
+		}
+
+	}
+
+
+	print_head_length = 384 - (p_ListPrease->m_LeftFreeDot + p_ListPrease->m_RightFreeDot);//有效打印点数
+
+
+
+	s_PrintParameters.m_Righttpos = print_head_length;//打印机右限
+	s_PrintParameters.m_positions = print_head_length;//打印机能打印的位置为打印头能够打印的点数
+	g_CurveCountFlag = 0;
+
+	
+
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+
+	i = s_PrintrConfig.m_HotLineTOOUT*32 + 32;
+
+	g_GapProEn = 0;//开始位置认为没有检测到纸缝
+	if(g_PaperType == 0)
+	{
+			if(g_Lab_head_Feed == 0xA537)
+			{
+				g_Lab_head_Feed = 0x5523;
+				PRINTER_PDL.SYS._Drive_Power_EN();
+				PRINTER_PDL.MOTO._MotoRun_FX(&g_MotoAll,i);
+				PRINTER_PDL.SYS._Drive_Power_DIS();
+				for(i=0;i<32;i++)
+				{
+					Delay1ms(2);
+					SetFreValue(PRINTER_PDL.SYS._PaperGapDet());
+				}
+			}		
+	}	
+	
+	
+	return PROCESS_START;
+}
+
+unsigned short g_LabPrintEndF;
+unsigned int __ESC_69_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;//打印一行数据
+	}	
+	
+	if(g_PaperType)
+	{
+		return PROCESS_CONTINUE;
+	}
+	
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1)
+	{
+		return PROCESS_CONTINUE;
+	}
+#endif	
+	
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	
+	if((*p_REAndSAcount) < 5)
+	{
+	
+		g_Lab_head_Feed = 0xA537;	
+		p_ListPrease->m_LeftFreeDot = 0;
+		if(g_GapProEn == 0xA537)
+		{
+			g_PaperRunToOut +=  s_PrintrConfig.m_HotLineTOOUT * 8;	
+			p_ListPrease->m_PrintLineHigh = g_PaperRunToOut;
+		}
+		else
+		{
+			p_ListPrease->m_PrintLineHigh = 800;//往前走10cm
+		}
+		p_ListPrease->m_LableStopFlag = 0xA5A1;
+	}
+	else
+	{
+		p_ListPrease->m_LeftFreeDot = 0;
+		p_ListPrease->m_PrintLineHigh = 800;//往前走10cm
+		p_ListPrease->m_LableStopFlag = 0xA5A1;
+	}
+	return PROCESS_FINISH;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __ESC_19_Order(void)
+** Descriptions:       打印光栅位图
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned char g_OrderPrbuf[128];
+unsigned int __ESC_19_Order(void)
+{
+//1B 19 01 0D 1C 01 E0 61 8C 30 1C 30 03 1C 01 8C 30
+	unsigned short m_PrintWide;
+	unsigned char m_PrintDat[64];
+	unsigned int	m_Reg_R0;
+	unsigned int	m_ShortWide;
+	unsigned short m_CriTimeCount,i,j,len,m_Zerocount;
+	unsigned short m_DatOffset;
+	unsigned short m_Orcount;
+	unsigned char mdata;
+	p_ListPrease->m_PrintLineSpace = 0;
+	if(g_PaperWide > 48)//49)
+	{
+		m_PrintWide = 48;//宽纸可以打印48个字节
+	}
+	else
+	{
+		if(g_PaperWide < 20)
+		{
+			g_PaperWide = 20;
+		}
+		m_PrintWide = g_PaperWide;// - 2;//可以打印的宽度
+	}
+	m_Orcount = 0;
+
+	g_OrderPrbuf[m_Orcount++] = 0x1B;
+	g_OrderPrbuf[m_Orcount++] = 0x19;
+
+
+	memset(m_PrintDat,0,64);//清空数据缓冲区
+
+	m_CriTimeCount = PrinterCore();//得到数据行数
+	m_CriTimeCount = 1;
+	
+	g_OrderPrbuf[m_Orcount++] = m_CriTimeCount;
+
+
+	len = PrinterCore();//得到数剧个数
+	if(len)
+	{
+		len = len - 1;
+	}
+	else
+	{
+		return PROCESS_CONTINUE;
+	}
+	g_OrderPrbuf[m_Orcount++] = len + 1;
+
+	m_Zerocount = PrinterCore();//得到零的个数
+	g_OrderPrbuf[m_Orcount++] =m_Zerocount;
+
+	m_DatOffset = 0;
+	
+	if((m_Zerocount + len) > 48)
+	{
+		return PROCESS_CONTINUE;
+	}
+	
+	if(g_PrintLineTotal == 0)
+	{
+		return PROCESS_CONTINUE;
+	}
+
+	//-- 解压组织数据
+	for(i=0;i<m_Zerocount;i++)
+	{
+		m_PrintDat[m_DatOffset++] = 0;//设置0
+	}
+
+	for(i=0;i< len;i++)
+	{
+		mdata =  PrinterCore();//得到数据
+		g_OrderPrbuf[m_Orcount++] = mdata;
+		m_PrintDat[m_DatOffset++] = mdata;
+	}
+//	if(g_CutHeadLineDot)
+//	{
+//		g_CutHeadLineDot--;
+//		g_PrintLineTotal--;//总行数减一
+//		return PROCESS_CONTINUE;
+//	}
+
+//	if(g_RunToGapFlag == 0xA55A)
+//	{
+//		return PROCESS_CONTINUE;
+//	}	
+	//-------------
+	if(g_CurveCountFlag == 0)
+	{
+		//第一次进入
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		p_MapCurListDataDot = p_ListDataDot;//得到数据存放的首地址
+		g_printLabFlag = 0xA123;
+		*p_ListDataDot++ = PRINT_MAP;//打印数据头
+		m_Reg_R0 = m_PrintWide * 8;//得到打印宽度的实际宽度
+
+		*p_ListDataDot++ = (m_Reg_R0 << 4) | 1;//放大原倍
+
+		*p_ListDataDot++ = 1;//高12位表示高度
+		*p_ListDataDot++ = m_UPDown;//上下对齐
+
+		g_CurveCountFlag = 0xAA00;
+	}
+
+	m_ShortWide = (m_PrintWide+1)/2;//所占short型个数
+
+	for(j=0;j<1;j++)
+	{
+		g_CurveCountFlag++;//行计数器加一
+		g_PrintLineTotal--;//总行数减一
+		p_ListPrease->m_PrintLineHigh = g_CurveCountFlag & 0xff;//设置一行的高度
+
+		p_ListDataDot = p_MapCurListDataDot + 2;
+		*p_ListDataDot = ((g_CurveCountFlag & 0xff) << 4) | 1;//高度跟随放大倍数变化
+
+		p_ListDataDot = p_MapCurListDataDot + ((g_CurveCountFlag & 0xFF) - 1)*m_ShortWide + 4;//得到数据存放的首地址
+
+
+
+		m_DatOffset = 0;
+		for(i=0;i< m_PrintWide;i++)
+		{
+			if ((i &1) == 0)
+			{
+				m_GetData = m_PrintDat[m_DatOffset++];
+			}
+			else
+			{
+				*p_ListDataDot++ = (m_GetData << 8) | m_PrintDat[m_DatOffset++];
+			}
+		}
+		if ((m_PrintWide &1) == 1)
+		{
+			*p_ListDataDot++ = m_GetData;
+		}
+	}
+
+
+	g_CalcPrintPos = s_PrintParameters.m_positions;//给满点
+
+	if(m_CriTimeCount > 1)
+	{
+		g_OrderPrbuf[2] = m_CriTimeCount - 1;
+
+		s_PrintOrderstr.m_GetdataPos = m_Orcount;
+		s_PrintOrderstr.pSpecialposition = g_OrderPrbuf;
+
+
+	}
+
+
+	i = (g_CurveCountFlag & 0xFF) + g_PrintLineTotal;
+	if(i > 40)
+	{
+		if((g_CurveCountFlag & 0xFF) > 8)
+		{
+			//将当前的数据打印出去
+			g_CurveCountFlag = 0;
+				return PROCESS_FINISH;
+		}
+		//目前行数不大于8就将继续处理
+	}
+
+
+
+	if(g_PrintLineTotal == 0)
+	{
+		//数据处理完成，最后一行数据可以走到
+//		if((s_PrintrConfig.m_SaveConPar[2] & 0xF) != 2)
+//		{//标签纸和黑标纸有效
+//			p_ListPrease->m_LableStopFlag = 0xA5A1;
+//			p_ListPrease->m_PrintLineSpace = 800;//行间距设置为800;//走100mm
+//			g_LabPrintEndF = 0xA123;//设置结尾标志
+//		}
+
+		g_CurveCountFlag = 0;
+		return PROCESS_FINISH;
+	}
+
+
+
+	return PROCESS_CONTINUE;
+}
+
+
+unsigned int __ESC_35_Order(void)
+{
+//	char mBuf[32];
+	unsigned char data1,data2;
+	data1 =  PrinterCore();
+	data2 =  PrinterCore();
+	
+	g_HorShift = (data1 << 8)|data2;
+//	memset(mBuf,0,32);
+//	sprintf(mBuf,"LR:%d-%d  ",data1,data2);
+//	DisplayStr6x8(mBuf,32,3);
+	return PROCESS_CONTINUE;
+}
+unsigned int __ESC_34_Order(void)
+{
+//	char mBuf[32];
+	unsigned char data1,data2;
+	data1 =  PrinterCore();
+	data2 =  PrinterCore();
+	g_VerShift = (data1 << 8)|data2;
+//	memset(mBuf,0,32);
+//	sprintf(mBuf,"UD:%d-%d  ",data1,data2);
+//	DisplayStr6x8(mBuf,32,4);
+	return PROCESS_CONTINUE;
+}
+unsigned int __FS_21_Order(void)
+{
+	//设置打印浓度
+//	char mBuf[32];
+	m_GetData =  PrinterCore();
+//	if((m_GetData > 0) && (m_GetData < 16))
+//	{
+//		m_GetData--;
+//		if((s_PrintrConfig.m_SaveConPar[4] & 0xF) != m_GetData)
+//		{
+//			s_PrintrConfig.m_SaveConPar[4] = 0x0500 | (m_GetData & 0x0F) ;//浓度
+//			s_PrintrConfig.m_Density = m_GetData & 0x0F;
+//			
+//		}
+//	}
+//	memset(mBuf,0,32);
+//	sprintf(mBuf,"DE:%04X  ",s_PrintrConfig.m_SaveConPar[4]);
+//	DisplayStr6x8(mBuf,32,5);
+//
+
+	return PROCESS_CONTINUE;
+}
+
+/*
+n	类型
+0	连续纸
+1	定位孔
+2	间隙纸
+3	黑标纸
+4	线缆标签
+
+
+
+打印机内部
+0 标签  1 黑标    2连续纸   3 打孔纸
+*/
+
+const unsigned char  g_ArPaperType[]={2,3,0,1,0,0,0,};
+unsigned int __FS_25_Order(void)
+{
+	//设置纸张规格
+//	char mBuf[32];
+	m_GetData =  PrinterCore()&3;
+
+	s_PrintrConfig.m_SaveConPar[2] = g_ArPaperType[m_GetData];
+	
+	return PROCESS_CONTINUE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*********************************************************************************************************
+   ** Function name:       __ESC27Order
+   ** Descriptions:       1B 29 打印线段
+   ** input parameters:    无
+   ** output parameters:   无
+   ** Returned value:      无
+   *********************************************************************************************************/
+unsigned int __ESC_29_Order1(void)
+{
+	return _Curve_Pro_Order(0x29);
+}
+unsigned int _Curve_Pro_Order(unsigned short CurOrder)
+{
+	unsigned int	m_Reg_R0;
+	unsigned short x_Remainder,x_Quotient,x_Value,com;
+	unsigned short y_Remainder,y_Quotient,y_Value,z_Value;
+	if(g_CurveCountFlag == 0)
+	{
+		if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+		{
+			__SETPRIMASK();
+			Receive_count += 2;
+			//g_Order_count = m_OrderSave ;
+			(*p_OcAndGDAdr) = m_OrderSave;
+			__RESETPRIMASK();
+			//m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+			return PROCESS_FINISH;
+		}
+	}
+	m_len = PrinterCore();//得到长度
+	p_ListPrease->m_PrintLineSpace = 0;
+	p_ListPrease->m_LeftFreeDot = 0;
+	g_CalcPrintPos = 0;//打印数据的起始位置
+	g_SavePrintPos = g_CalcPrintPos;		
+	if(CurOrder == 0x27)
+	{
+		m_len |= (PrinterCore() << 8);
+	}
+
+	for (m_Wide=0;m_Wide<BUFFER_SHORT_LENGTH;m_Wide++)
+	{
+		Buffer_CodeBar[m_Wide] = 0;
+	}
+
+	if(g_CurveCountFlag == 0)
+	{
+
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		p_MapCurListDataDot = p_ListDataDot;//得到数据存放的首地址
+
+		*p_ListDataDot++ = PRINT_MAP;//打印数据头
+		//-------------图形的宽度是有可能超过255的
+		//*p_ListDataDot++ = (384 << 4) | 1;//字符宽度放大
+		*p_ListDataDot++ = (PRINT_HEAD_LENGTH << 4) | 1;//字符宽度放大
+		*p_ListDataDot++ =  0x80 | s_PrintParameters.m_VertZoomOut;//高度跟随放大倍数变化
+		//-------------
+		*p_ListDataDot++ = m_UPDown ;//上下对齐和字符间距
+		g_CurveCountFlag = 0xAA00;
+	}
+	g_CurveCountFlag++;//行计数器加一
+	p_ListPrease->m_PrintLineHigh = g_CurveCountFlag & 0xff;//设置一行的高度
+
+	p_ListDataDot = p_MapCurListDataDot + 2;
+	*p_ListDataDot = ((g_CurveCountFlag & 0xff) << 4) | s_PrintParameters.m_VertZoomOut;//高度跟随放大倍数变化
+
+	p_ListDataDot = p_MapCurListDataDot + ((g_CurveCountFlag & 0xFF) - 1)*BUFFER_SHORT_LENGTH + 4;//得到数据存放的首地址
+	com = 0;
+	while (m_len != 0)
+	{
+		//得到曲线结束地址
+		m_Wide  = PrinterCore();//得到数据的低8位
+		m_Wide  |= (PrinterCore() << 8) & 0xff00;//得到数据的高8位
+		if(m_Wide == 0)
+		{
+			m_Wide = 1;
+		}
+		//if(m_Wide > 384)
+		if(m_Wide > PRINT_HEAD_LENGTH)
+		{
+			//m_Wide = 384;
+			m_Wide = PRINT_HEAD_LENGTH;
+		}
+		if(CurOrder == 0x28)
+		{
+			if(g_cruvefalg == 0xAAAA)
+			{
+				//得到曲线起始地址
+				if(g_cruve_arry[com] == 0)
+				{
+					g_cruve_arry[com] = m_Wide;
+				}
+				m_GetData = g_cruve_arry[com];
+				g_cruve_arry[com] = m_Wide;
+				com++;
+			}
+			else
+			{
+				m_GetData = m_Wide;
+			}
+		}
+		if(CurOrder == 0x29)
+		{
+			m_GetData  = PrinterCore();//得到数据的低8位
+			m_GetData  |= (PrinterCore() << 8) & 0xff00;//得到数据的高8位
+			if(m_GetData == 0)
+			{
+				m_GetData = 1;
+			}
+			//if(m_GetData > 384)
+			if(m_GetData > PRINT_HEAD_LENGTH)
+			{
+				//m_GetData = 384;
+				m_GetData = PRINT_HEAD_LENGTH;
+			}
+		}
+		if(CurOrder == 0x27)
+		{
+			m_GetData = m_Wide;
+		}
+		//m_Wide 为最大值
+		if(m_GetData < m_Wide)
+		{
+			m_charType = m_GetData;//m_charType 保存最小值
+		}
+		else
+		{
+			m_charType = m_Wide;//得到最小值
+			m_Wide = m_GetData;//得到最大值
+		}
+		m_charType--;
+		m_Wide--;
+
+		x_Remainder = m_charType&0xF;//起始点x 余数位置
+		x_Quotient = m_charType>>4;//起始点x 商位置
+
+		y_Remainder = m_Wide&0xF;//结束点y 余数位置
+		y_Quotient = m_Wide>>4;//结束点y 商位置
+
+		x_Value = 0xFFFF >> x_Remainder;//左移余数位
+		y_Value = 0xFFFF << (15- y_Remainder);//右移余数剩余位
+
+		//相等表示x y在同一个字段内
+		if(x_Quotient == y_Quotient)
+		{
+			z_Value = y_Value &  x_Value;//得到x y之间的填充位
+			Buffer_CodeBar[ x_Quotient ] |= z_Value;//得到填充的数据 利用商做偏移量，余数在商的位置
+
+		}
+		else
+		{
+			//表示x y坐标没有在同一个字段内
+			//先填充x y 余数所在字段
+
+			Buffer_CodeBar[ x_Quotient] |= x_Value;//填充起始点x 的字段
+			Buffer_CodeBar[ y_Quotient] |= y_Value;//填充结束点y 的字段
+			x_Quotient += 1;//指向区间填充字节
+			while(x_Quotient < y_Quotient)
+			{
+				Buffer_CodeBar[ x_Quotient++] = 0xFFFF;
+			}
+		}
+		m_len--;
+	}
+	g_CalcPrintPos = s_PrintParameters.m_positions;//给满点
+	if(p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+	{
+
+		for (m_Wide=0;m_Wide<BUFFER_SHORT_LENGTH;m_Wide++)
+		{
+			*p_ListDataDot++ = Buffer_CodeBar[m_Wide];
+		}
+	}
+	else
+	{
+		ChangeBuffer();
+		for (m_Wide=0;m_Wide<BUFFER_SHORT_LENGTH;m_Wide++)
+		{
+			*p_ListDataDot++ = Buffer_Dataflash[m_Wide];
+		}
+	}
+	com = 0xAA0A;
+	if(Receive_count != 0)
+	{
+		m_Reg_R0 = (*p_OcAndGDAdr);
+		m_GetData = PrinterCore();//屏蔽掉回车
+		if(m_GetData == 0x0D)
+		{
+			com = 0;
+		}
+		else if(m_GetData == 0x00)
+		{
+			com = 0;//???????????????????
+		}
+		else
+		{
+			//--还原接收数据个数计数器
+			__SETPRIMASK();
+			(*p_OcAndGDAdr) = m_Reg_R0;
+			Receive_count++;
+			__RESETPRIMASK();
+		}
+
+	}
+	if(Receive_count == 0)
+	{
+		g_CurveCountFlag = 0xAA30;//如果没有数据打印机将数据打印出来
+	}
+	g_0D0AFlag = com;
+	if(g_CurveCountFlag < 0xAA18)
+	{
+		return PROCESS_CONTINUE;
+	}
+	else
+	{
+		g_CurveCountFlag = 0;
+		return PROCESS_FINISH;
+	}
+}
+/*********************************************************************************************************
+** Function name:       __ESC36Order
+** Descriptions:       设置曲线自动连接
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_23_Order(void)
+{
+	unsigned short i;
+	m_GetData = PrinterCore();
+	for(i=0;i<20;i++)
+	{
+		g_cruve_arry[i] = 0;
+	}
+	if(m_GetData & 1)
+	{
+		g_cruvefalg = 0xAAAA;
+	}
+	else
+	{
+		g_cruvefalg = 0;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC_6F_Order
+** Descriptions:       1B 6E n 设置打印机运行速度
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_6E_Order(void)
+{
+	unsigned short i;
+	m_GetData =  PrinterCore();
+	//=0 表示25mm/s !=0 表示 50mm/s
+	i = m_GetData;
+	if(i < 25)
+	{
+		i = 25;
+	}
+	if(i > 80)
+	{
+		i = 80;
+	}
+	g_SpeedChoice = 31250/i;
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	if (g_SavePrintPos == g_CalcPrintPos)
+	{
+		p_ListPrease->m_MotoRunTime = g_SpeedChoice;
+	}
+		return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC_6F_Order
+** Descriptions:       1B 6F n 设置打印分辨率
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_6F_Order(void)
+{
+	m_GetData =  PrinterCore();
+	m_GetData &= 3;
+	if(m_GetData == 2)
+	{
+		m_GetData = 3;
+	}
+
+	g_PrinterDip = m_GetData;
+
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	if (g_SavePrintPos == g_CalcPrintPos)
+	{
+		p_ListPrease->m_PrinterDip	= g_PrinterDip;
+
+		if(g_PrinterDip == 3)
+		{
+			g_ThType = 0; //正常加热方式
+		}
+		else
+		{
+			g_ThType = 1;//全区加热方式
+		}
+		p_ListPrease->m_ThType = g_ThType;
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		ESC * m nL nH d1...dk
+		十六进制码	1B 2A m nL nH d1...dk
+		十进制码		27 42 m nL nH d1...dk
+[范围]	m = 0, 1, 32, 33
+		0 ≤ nL ≤ 255
+		0 ≤ nH ≤ 3
+		0 ≤ d ≤255
+[描述]	选择由m 指定的一种位图模式，位图点数由nL 和nH 确定：
+[注释]	如果m的值超出规定范围，nL 和其后的数据被作为普通数据处理。
+		横向打印点数由nL和nH决定，总的点数为nL + nH × 256。
+		位图超出当前区域的部分被截掉。
+*******************************************************************************************************************
+*/
+unsigned int __ESC_2A_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	if (g_CalcPrintPos >= m_SaverightPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;
+	}
+	g_finishFlag = PROCESS_CONTINUE;
+	m_charType = PrinterCore();//得到打印方式
+	//***********************
+	m_high = (m_charType>> 4)+1;//得到图形的高度字节
+	if((m_charType & 0x0f) != 0)
+	{
+		m_Wide = 1;
+	}
+	else
+	{
+		m_Wide = 2;
+	}
+	//m_Wide = (m_charType & 0x0f)+1;//得到放大的倍数
+	//***********************
+	m_len = PrinterCore();//得到图形长度低8位
+	m_GetData = PrinterCore();//得到图形长度高8位
+
+	m_len |= ((m_GetData << 8) & 0x300);//得到图形的长度
+	//----------------------------
+	if ((m_len * m_Wide) > (m_SaverightPos - g_CalcPrintPos))
+	{
+		m_Reg_R0 = m_SaverightPos - g_CalcPrintPos;//打印长度
+		m_Reg_R0 = (m_Reg_R0 * DiV_config[m_Wide]) >> 16;//得到行数
+	}
+	else
+	{
+		m_Reg_R0 = m_len;//
+	}
+	g_mapCount = m_len * m_high;//点阵数据长度
+	g_CalcPrintPos += m_Reg_R0 * m_Wide;
+
+	//---如果是24点阵高度打印的长度应该要乘以3----------------------------------
+	//**************************************************************************
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_MAP;//打印数据头
+	//-------------图形的宽度是有可能超过255的
+	*p_ListDataDot++ = (m_Reg_R0 << 4) | m_Wide;//字符宽度放大
+	*p_ListDataDot++ = ((m_high*8) << 4) | 1;//图形的高度不发生变化
+	//-------------
+	if ((g_CalcPrintPos + s_PrintParameters.m_CharSpace) <= m_SaverightPos)
+	{
+		*p_ListDataDot++ = m_UPDown | s_PrintParameters.m_CharSpace;//上下对齐和字符间距
+		g_CalcPrintPos += s_PrintParameters.m_CharSpace;
+	}
+	else
+	{
+		//m_ProcessFlag = PROCESS_FINISH;
+		g_finishFlag = 	PROCESS_FINISH;
+		*p_ListDataDot++ = m_UPDown |(m_SaverightPos - g_CalcPrintPos);//上下对齐和字符间距
+		g_CalcPrintPos = m_SaverightPos;
+	}
+	if (p_ListPrease->m_PrintLineHigh < (m_high*8) )
+	{
+		p_ListPrease->m_PrintLineHigh = m_high*8;
+	}
+	//**************************************************************************
+	if (p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+	{
+	//**********************台序*******************************
+		if (m_high >1)
+		{
+			MAPDot24NOR(m_Reg_R0);
+		}
+		else
+		{
+			MAPDot8NOR(m_Reg_R0);
+		}
+	}
+	else
+	{
+	//**********************面板序*******************************
+		if (m_high >1)
+		{
+			MAPDot24FX(m_Reg_R0);
+		}
+		else
+		{
+			MAPDot8FX(m_Reg_R0);
+		}
+	}
+	while(g_mapCount > 0)
+	{
+		PrinterCore();
+		g_mapCount--;
+	}
+	p_ListPrease->m_PrintLineSpace = 0;
+	return g_finishFlag;
+
+}
+
+/*********************************************************************************************************
+** Function name:       __ESC_4D_Order
+** Descriptions:       1B 4D 选择字符
+[格式] ASCII 码 ESC M n 
+十六进制码 1B 4D n 
+十进制码 27 77 n 
+[范围] n = 0, 1, 48, 49 
+[描述] 选择字体n 
+功能 0,48 选择标准 ASCII 码字体(12 × 24) 
+1,49 选择压缩 ASCII 码字体(9 × 17)
+*********************************************************************************************************/
+
+unsigned int __ESC_4D_Order(void)
+{
+	g_Char24_17 = PrinterCore()&1;
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:       __ESC4BOrder
+** Descriptions:       1B 4B 打印图形
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_4B_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	if (g_CalcPrintPos >= m_SaverightPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;//打印一行数据
+	}
+ 	g_finishFlag = PROCESS_CONTINUE;
+	//***********************
+	m_high = 1;//得到图形的高度字节
+	m_Wide = s_PrintParameters.m_HoriZoomOut;//得到放大的倍数
+	//***********************
+	m_len = PrinterCore();//得到图形长度低8位
+	m_GetData = PrinterCore();//得到图形长度高8位
+
+	m_len |= ((m_GetData << 8) & 0x300);//得到图形的长度
+	//----------------------------
+	if ((m_len * m_Wide) > (m_SaverightPos - g_CalcPrintPos))
+	{
+		m_Reg_R0 = m_SaverightPos - g_CalcPrintPos;//打印长度
+		m_Reg_R0 = (m_Reg_R0 * DiV_config[m_Wide]) >> 16;//得到行数
+	}
+	else
+	{
+		m_Reg_R0 = m_len;//
+	}
+	g_mapCount = m_len;//点阵数据长度
+	g_CalcPrintPos += m_Reg_R0 * m_Wide;
+	//---如果是24点阵高度打印的长度应该要乘以3----------------------------------
+	//**************************************************************************
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_MAP;//打印数据头
+	//-------------图形的宽度是有可能超过255的
+	*p_ListDataDot++ = (m_Reg_R0 << 4) | m_Wide;//字符宽度放大
+	*p_ListDataDot++ =  0x80 | s_PrintParameters.m_VertZoomOut;//高度跟随放大倍数变化
+	//-------------
+	if ((g_CalcPrintPos + s_PrintParameters.m_CharSpace) <= m_SaverightPos)
+	{
+		*p_ListDataDot++ = m_UPDown | s_PrintParameters.m_CharSpace;//上下对齐和字符间距
+		g_CalcPrintPos += s_PrintParameters.m_CharSpace;
+	}
+	else
+	{
+		g_finishFlag = PROCESS_FINISH;
+		*p_ListDataDot++ = m_UPDown |(m_SaverightPos - g_CalcPrintPos);//上下对齐和字符间距
+		g_CalcPrintPos = m_SaverightPos;
+	}
+	if (p_ListPrease->m_PrintLineHigh < (m_high*8*s_PrintParameters.m_VertZoomOut) )
+	{
+		p_ListPrease->m_PrintLineHigh = m_high*8*s_PrintParameters.m_VertZoomOut;
+	}
+	//********************************************************
+	if (p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+	{
+	//**********************台序*******************************
+		MAPDot8NOR(m_Reg_R0);
+		//MAPDot8FX(m_Reg_R0);
+	}
+	else
+	{
+	//**********************面板序*******************************
+		MAPDot8FX(m_Reg_R0);
+	}
+	while(g_mapCount > 0)
+	{
+		PrinterCore();
+		g_mapCount--;
+	}
+	p_ListPrease->m_PrintLineSpace = 0;
+	return g_finishFlag;
+}
+/*********************************************************************************************************
+** Function name:       __ESC36Order
+** Descriptions:       打印小字符集
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_36_Order(void)
+{
+	s_PrintParameters.m_CharType = TYPE_LITTLECHAR;//默认为0表示打印的是汉字,小于80的表示打印的是字符
+	s_PrintParameters.m_Charlist = 1;//默认打印字符集1
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC37Order
+** Descriptions:       打印小字符集
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_37_Order(void)
+{
+//	s_PrintParameters.m_CharType = TYPE_LITTLECHAR;//默认为0表示打印的是汉字,小于80的表示打印的是字符
+//	s_PrintParameters.m_Charlist = 2;//默认打印字符集1
+	PrinterCore();
+	PrinterCore();
+	PrinterCore();
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC39Order
+** Descriptions:       
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+十六进制 ：1B 39 n
+选择打印机双字节编码 
+当n=0 时，选择GBK编码 
+当n=1 时，选择UTF8编码 
+当n=3 时，选择BIG5编码 
+当n=4 时，选择Shift-JIS编码 
+当n=5 时，选择EUC-KR编码
+*********************************************************************************************************/
+unsigned int __ESC_39_Order(void)
+{
+	
+	g_ChineseEnco = PrinterCore() & 0xF;//2A
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+  ** Function name:       __FF_Order
+  ** Descriptions:       黑标定位
+  ** input parameters:    无
+  ** output parameters:   无
+  ** Returned value:      无
+  *********************************************************************************************************/
+unsigned int __ESC_38_Order(void)
+ {
+ 	unsigned int	m_Reg_R0;
+ 	if(s_PrintrConfig.m_ChineseFont == PRINTTYPE_24)
+ 	{
+ 		s_PrintParameters.m_CharType = TYPE_CHINESE;
+ 		s_PrintParameters.m_ChineseCharType = TYPE_CHIN24X24;
+ 		return PROCESS_CONTINUE;
+ 	}
+ 	//m_Reg_R0 = g_Order_count;//预先保存一下取命令计数器位置
+ 	m_Reg_R0 = (*p_OcAndGDAdr);//预先保存一下取命令计数器位置
+ 	m_GetData =  PrinterCore();
+ 	if(m_GetData > 7)
+ 	{
+		__SETPRIMASK();
+		Receive_count += 1;
+		//g_Order_count = m_Reg_R0 ;
+		(*p_OcAndGDAdr) = m_Reg_R0;
+		__RESETPRIMASK();
+		s_PrintParameters.m_CharType = TYPE_CHINESE;
+ 	}
+ 	else
+ 	{
+		m_GetData &= 7;
+		if(m_GetData < 6)
+		{
+			//小于6表示打印的是汉字
+			s_PrintParameters.m_CharType = TYPE_CHINESE;
+			s_PrintParameters.m_ChineseCharType = TYPE_CHIN16X16 + m_GetData;
+		}
+		else
+		{
+			//大于等于6标打印的ASC字符
+			s_PrintParameters.m_CharType = TYPE_ENGLISH;
+			s_PrintParameters.m_CharRepertoire = TYPE_CHIN16X16 + m_GetData;
+		}
+ 	}
+	#ifdef	PRINT_TYPE_48
+			s_PrintParameters.m_CharType = TYPE_CHINESE;
+			s_PrintParameters.m_ChineseCharType = TYPE_CHIN16X16;
+	#endif
+	return PROCESS_CONTINUE;
+ }
+
+/*********************************************************************************************************
+** Function name:       __ESC63Order
+** Descriptions:       1B 63 设置正反向
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_63_Order(void)
+{
+	if (g_DriverAFlag == 0xaaaa)
+	{
+		m_GetData =  PrinterCore();
+		m_GetData =  PrinterCore();
+	}
+	else
+	{
+		m_GetData =  PrinterCore();
+		
+#ifdef REVERSE_PRINT_SOLUTION	
+		s_PrintParameters.m_PrintDir = PRINT_DIRECT_NOR;
+#else		
+		if((m_GetData & 1) == 1)
+		{
+			s_PrintParameters.m_PrintDir = PRINT_DIRECT_FX;
+		}
+		else
+		{
+			s_PrintParameters.m_PrintDir = PRINT_DIRECT_NOR;
+		}
+#endif		
+		if(g_CalcPrintPos == g_SavePrintPos)
+		{
+			p_ListPrease->m_PrintDir = s_PrintParameters.m_PrintDir;
+			return PROCESS_START;//跳转到ProcessStart
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		ESC J n
+		十六进制码	1B 4A n
+		十进制码		27 74 n
+[范围]	0 ≤n ≤ 255
+[描述]	打印缓冲区数据并走纸[ n × 纵向或横向移动单位] 英寸。
+[注释]	打印结束后，将当前打印位置置于行首。
+		走纸距离不受ESC 2 或ESC 3命令设置的影响。
+		横向和纵向移动单位由GS P设定。
+		标准模式下，使用纵向移动单位。
+		在页模式下，根据打印区域的方向和打印起始位置来选择使用纵向移动单位或横向
+		移动单位，其选择方式如下：
+		1、当打印起始位置由ESC T设置为打印区域的左上角或右下角时，使用纵向移动单位；
+		2、当打印起始位置由ESC T设置为打印区域的左下角或右上角时，使用横向移动单位；
+		最大走纸距离是956 mm。如果超出这个距离，取最大距离。
+[参考] GS P
+*******************************************************************************************************************
+*/
+unsigned int __ESC_4A_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)
+	{
+		g_MAP_DRIVE = 0xaa;
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;//打印一行数据
+
+	}
+	g_finishFlag = PROCESS_CONTINUE;
+	m_GetData =  PrinterCore();
+	
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1)
+	{
+		return PROCESS_CONTINUE;
+	}
+#endif	
+	
+	g_MAP_DRIVE = 0;
+	if(m_GetData < 0x19)
+	{
+		m_GetData = 0;
+	}
+	else
+	{
+		m_GetData -= 0x18;
+	}
+	if(m_GetData != 0)
+	{
+		p_ListPrease->m_PrintLineHigh = m_GetData;//默认一行的高度为8;
+		g_finishFlag = PROCESS_FINISH;//打印一行数据
+
+	}
+	return g_finishFlag;
+}
+
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		ESC d n
+		十六进制码	1B 64 n
+		十进制码		27 100 n
+[范围]	0 ≤n ≤ 255
+[描述]	打印缓冲区里的数据并向前走纸n行（字符行）。
+[注释]	该命令将打印机的打印起始位置设置在行首。
+		该命令不影响由ESC 2 或ESC 3设置的行间距。
+		最大走纸距离为1016 mm，当所设的值大于1016 mm时，取最大值。
+[参考] ESC 2, ESC 3
+*******************************************************************************************************************
+*/
+unsigned int __ESC_64_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		return PROCESS_FINISH;//打印一行数据
+	}
+	g_finishFlag = PROCESS_CONTINUE;
+	m_GetData =  PrinterCore();
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1)
+	{
+		return PROCESS_FINISH;
+	}
+#endif
+	if (m_GetData != 0)
+	{
+		p_ListPrease->m_PrintLineHigh = m_GetData * g_0D0AHigh;//默认一行的高度为8;
+		g_finishFlag = PROCESS_FINISH;//打印一行数据
+	}
+	return g_finishFlag;
+}
+
+/*********************************************************************************************************
+** Function name:       __ESC64Order
+** Descriptions:       //1B 66 n m 打印空格或空行
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_66_Order(void)
+{
+	m_GetData =  PrinterCore();
+	g_finishFlag = PROCESS_CONTINUE;
+	if (m_GetData == 1)
+	{
+		if (g_CalcPrintPos > g_SavePrintPos)
+		{
+			__SETPRIMASK();
+			Receive_count += 3;
+			//g_Order_count = m_OrderSave ;
+			(*p_OcAndGDAdr) = m_OrderSave;
+			__RESETPRIMASK();
+			return PROCESS_FINISH;//打印一行数据
+		}
+		m_GetData =  PrinterCore();
+		if (m_GetData != 0)
+		{
+			p_ListPrease->m_PrintLineHigh = m_GetData * g_0D0AHigh;//默认一行的高度为8;
+			return PROCESS_FINISH;//打印一行数据
+
+		}
+	}
+	else
+	{
+		m_GetData =  PrinterCore();
+		if (m_GetData != 0)
+		{
+			m_GetData = (g_HTCharSpace + s_PrintParameters.m_CharSpace) * m_GetData;//得到空格的宽度
+			if((g_CalcPrintPos + m_GetData)  >= m_SaverightPos)
+			{
+				g_finishFlag = PROCESS_FINISH;//打印一行数据
+			}
+			else
+			{
+				*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+				*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+				*p_ListDataDot++ = m_GetData;
+				g_CalcPrintPos += m_GetData;
+			}
+		}
+	}
+	return g_finishFlag;
+}
+//extern  unsigned short g_ProFlagVelue;
+//unsigned short prolabadvle(void)
+//{
+//	unsigned short i,data_L,data_H,k,j,com;
+//	unsigned short m_LabValue_H,m_LabValue_L,m_IFace;
+//	PRINTER_PDL.SYS._WDG_ReloadCounter();
+//	
+////SendChar(data_H);
+////SendChar(data_L);
+////SendChar(s_PrintrConfig.m_PE_LabValue_H);
+//	return 5;
+
+//}
+
+
+/*********************************************************************************************************
+** Function name:       __ESC6COrder
+** Descriptions:       1B 6C n 设置左限
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_6C_Order(void)
+{
+	m_GetData =  PrinterCore();
+	m_GetData = m_GetData *(g_HTCharSpace + s_PrintParameters.m_CharSpace);
+	if((s_PrintParameters.m_Righttpos - m_GetData) > 48)
+	{
+		s_PrintParameters.m_Liftpos = m_GetData;
+		if (g_SavePrintPos == g_CalcPrintPos)
+		{
+			g_SavePrintPos = s_PrintParameters.m_Liftpos;
+
+			p_ListPrease->m_LeftFreeDot = s_PrintParameters.m_Liftpos;
+			g_CalcPrintPos = s_PrintParameters.m_Liftpos;//打印数据的起始位置
+			g_SavePrintPos = g_CalcPrintPos;
+
+		}
+		if (s_PrintParameters.m_Liftpos > g_CalcPrintPos)
+		{
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+			*p_ListDataDot++ = m_GetData - g_CalcPrintPos;
+			g_CalcPrintPos = s_PrintParameters.m_Liftpos;
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC51Order
+** Descriptions:       1B 51 n 右限
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_51_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	m_GetData =  PrinterCore();
+	m_GetData = m_GetData *(g_HTCharSpace + s_PrintParameters.m_CharSpace);
+
+	m_Reg_R0 = PRINT_HEAD_LENGTH - (m_GetData + s_PrintParameters.m_LineSpace);
+
+	if (m_Reg_R0 > 48)
+	{
+		s_PrintParameters.m_Righttpos = PRINT_HEAD_LENGTH - m_GetData;
+		if (m_SaverightPos > g_CalcPrintPos)
+		{
+			m_SaverightPos = s_PrintParameters.m_Righttpos;
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC_31_Order
+** Descriptions:       1B 31 n 行间距
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_31_Order(void)
+{
+	m_GetData =  PrinterCore();
+	s_PrintParameters.m_LineSpace = m_GetData;
+	if (g_SavePrintPos == g_CalcPrintPos)
+	{
+		p_ListPrease->m_PrintLineSpace = s_PrintParameters.m_LineSpace;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC_55_Order
+** Descriptions:       1B 55 n 横向放大
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_55_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if((m_GetData < 9) &&(m_GetData >0))
+	{
+		s_PrintParameters.m_HoriZoomOut = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       __ESC_56_Order
+** Descriptions:       1B 56 n 纵向放大
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+
+unsigned int __ESC_56_Order(void)
+{
+//	m_GetData =  PrinterCore();
+//	if((m_GetData < 9) &&(m_GetData >0))
+//	{
+//		s_PrintParameters.m_VertZoomOut = m_GetData;
+//	}
+	
+	m_GetData = PrinterCore();
+	if(m_GetData & 1)
+	{
+		s_PrintParameters.m_RotDegree = 3;	
+	}
+	else
+	{
+		s_PrintParameters.m_RotDegree = 0;	
+	}
+	
+	return PROCESS_CONTINUE;
+}
+
+
+/*
+格式：ASCII： ESC V n1 n2 data.1～data.n2
+10 进制： 27 86 n1 n2 data.1～data.n2
+16 进制： 1B 56 n1 n2 data.1～data.n2
+n1: 最低两位有效，
+n1.0=1 时，打印机倍高打印当前图形
+n1.0=0 时，打印机以正常高度打印当前图形
+n1.1=1 时，打印机倍宽打印当前图形
+n1.1=0 时，打印机以正常宽度打印当前图形
+n2:每一点行发送数据的字节数。正常宽度打印时，n2
+最大可取 72（打满一点行为 576 个点，每 8 个点一个
+字节，8*72），倍宽打印时 n2 最大取 36.
+Data.1~data.n2：n2 个字节图形数据。
+该指令是完成水平一点行图形数据打印，可以完成液晶
+屏拷贝打印。
+
+
+发
+1F 28 63 0A 00 1B 40 32 9A 01 00 C4 8F 1B 40
+收
+53 E7 3D 08 30 96 01 26 
+53 00 00 00 00 07 05 51
+
+1F 28 70 00 
+*/
+const unsigned char ret53[]={0x53,0xE7,0x3D,0x08,0x30,0x96,0x01,0x26,0x53,0x00,0x00,0x00,0x00,0x07,0x05,0x51,0xFF};
+const unsigned char ret2870[]={
+0x5b,0x50,0x72,0x69,0x6e,0x74,0x65,0x72,0x20,0x50,0x61,0x72,0x61,0x6d,0x65,0x74,
+0x65,0x72,0x73,0x5d,0x0d,0x0a,0x56,0x45,0x52,0x53,0x49,0x4f,0x4e,0x3a,0x56,0x45,
+0x52,0x53,0x49,0x4f,0x4e,0x20,0x48,0x44,0x34,0x2e,0x30,0x33,0x20,0x32,0x30,0x32,
+0x31,0x2d,0x31,0x32,0x2d,0x32,0x30,0x64,0x54,0x46,0x0d,0x0a,
+0x4d,0x6f,0x64,0x65,0x6c,0x4e,0x61,0x6d,0x65,0x3a,0x50,0x72,0x69,0x6e,0x74,0x65,
+0x72,0x0d,0x0a,0x4d,0x6f,0x64,0x65,0x6c,0x53,0x4e,0x4f,0x3a,0x30,0x30,0x30,0x30,
+0x0d,0x0a,0x42,0x61,0x75,0x64,0x72,0x61,0x74,0x65,0x3a,0x31,0x31,0x35,0x32,0x30,
+0x30,0x0d,0x0a,0x48,0x65,0x61,0x74,0x20,0x44,0x65,0x6e,0x73,
+0x69,0x74,0x79,0x3a,0x4e,0x6f,0x72,0x6d,0x61,0x6c,0x0d,0x0a,0x44,0x65,0x66,0x61,
+0x75,0x6c,0x74,0x20,0x63,0x6f,0x64,0x65,0x20,0x70,0x61,0x67,0x65,0x3a,0x47,0x42,
+0x31,0x38,0x30,0x33,0x30,0x28,0x32,0x35,0x35,0x29,0x0d,0x0a,0x46,0x6f,0x6e,0x74,
+0x54,0x79,0x70,0x65,0x3a,0x31,0x32,0x78,0x32,0x34,0x0d,0x0a,
+0x4c,0x69,0x6e,0x65,0x20,0x46,0x65,0x65,0x64,0x20,0x43,0x6d,0x64,0x3a,0x30,0x41,
+0x0d,0x0a,0x49,0x64,0x6c,0x65,0x20,0x54,0x69,0x6d,0x65,0x3a,0x30,0x20,0x73,0x65,
+0x63,0x0d,0x0a,0x50,0x6f,0x77,0x65,0x72,0x20,0x44,0x6f,0x77,0x6e,0x20,0x54,0x69,
+0x6d,0x65,0x3a,0x30,0x20,0x73,0x65,0x63,0x0d,0x0a,0x46,0x65,
+0x65,0x64,0x20,0x4d,0x61,0x78,0x3a,0x32,0x30,0x30,0x20,0x6d,0x6d,0x0d,0x0a,0x50,
+0x61,0x67,0x65,0x20,0x4d,0x61,0x78,0x3a,0x32,0x30,0x30,0x20,0x6d,0x6d,0x0d,0x0a,
+0x4d,0x61,0x78,0x20,0x48,0x65,0x61,0x74,0x20,0x44,0x6f,0x74,0x73,0x3a,0x31,0x32,
+0x38,0x0d,0x0a,0x48,0x65,0x61,0x74,0x20,0x6f,0x6e,0x20,0x54,
+0x69,0x6d,0x65,0x3a,0x38,0x35,0x30,0x0d,0x0a,0x48,0x65,0x61,0x74,0x20,0x6f,0x66,
+0x66,0x20,0x54,0x69,0x6d,0x65,0x3a,0x31,0x30,0x30,0x0d,0x0a,0x53,0x70,0x65,0x65,
+0x64,0x4c,0x69,0x6d,0x69,0x74,0x3a,0x37,0x35,0x28,0x37,0x35,0x2e,0x31,0x29,0x20,
+0x6d,0x6d,0x2f,0x73,0x0d,0x0a,0x4e,0x6f,0x20,0x50,0x61,0x70,
+0x65,0x72,0x20,0x41,0x44,0x3a,0x30,0x78,0x32,0x30,0x20,0x30,0x2e,0x34,0x56,0x0d,
+0x0a,0x42,0x6c,0x61,0x63,0x6b,0x20,0x4d,0x61,0x72,0x6b,0x20,0x41,0x44,0x3a,0x30,
+0x78,0x38,0x30,0x20,0x31,0x2e,0x36,0x56,0x0d,0x0a,0x4e,0x6f,0x20,0x50,0x61,0x70,
+0x65,0x72,0x20,0x43,0x6c,0x65,0x61,0x72,0x20,0x42,0x75,0x66,
+0x3a,0x44,0x69,0x73,0x61,0x62,0x6c,0x65,0x0d,0x0a,0x55,0x53,0x42,0x20,0x54,0x79,
+0x70,0x65,0x3a,0x50,0x72,0x69,0x6e,0x74,0x65,0x72,0x0d,0x0a,0x55,0x53,0x42,0x20,
+0x56,0x49,0x44,0x3a,0x30,0x78,0x34,0x42,0x34,0x33,0x0d,0x0a,0x55,0x53,0x42,0x20,
+0x50,0x49,0x44,0x3a,0x30,0x78,0x33,0x35,0x33,0x38,0x0d,0x0a,
+0x55,0x53,0x42,0x20,0x56,0x65,0x6e,0x64,0x6f,0x72,0x3a,0x0d,0x0a,0x55,0x53,0x42,
+0x20,0x50,0x72,0x6f,0x64,0x75,0x63,0x74,0x3a,0x0d,0x0a,0x5b,0x4c,0x41,0x42,0x45,
+0x4c,0x20,0x50,0x61,0x72,0x61,0x6d,0x65,0x74,0x65,0x72,0x73,0x5d,0x0d,0x0a,0x4c,
+0x61,0x62,0x65,0x6c,0x20,0x4d,0x6f,0x64,0x65,0x3a,0x4e,0x6f,
+0x0d,0x0a,0x47,0x61,0x70,0x20,0x41,0x44,0x3a,0x30,0x78,0x46,0x46,0x20,0x33,0x2e,
+0x32,0x56,0x0d,0x0a,0x4d,0x61,0x78,0x20,0x50,0x61,0x67,0x65,0x20,0x4c,0x65,0x6e,
+0x3a,0x31,0x35,0x30,0x20,0x6d,0x6d,0x0d,0x0a,0x53,0x65,0x6e,0x73,0x6f,0x72,0x20,
+0x44,0x75,0x74,0x79,0x3a,0x37,0x30,0x25,0x0d,0x0a,0x4c,0x65,
+0x61,0x73,0x74,0x20,0x41,0x44,0x20,0x64,0x69,0x66,0x66,0x20,0x72,0x65,0x71,0x75,
+0x69,0x72,0x65,0x64,0x3a,0x30,0x78,0x31,0x38,0x20,0x30,0x2e,0x33,0x56,0x0d,0x0a,
+0x4c,0x61,0x62,0x65,0x6c,0x20,0x4c,0x61,0x6e,0x67,0x75,0x61,0x67,0x65,0x3a,0x4a,
+0x50,0x4c,0x0d,0x0a,0x4c,0x61,0x62,0x65,0x6c,0x20,0x43,0x61,
+0x6c,0x69,0x62,0x72,0x61,0x74,0x69,0x6f,0x6e,0x3a,0x41,0x55,0x54,0x4f,0x0d,0x0a,
+0x46,0x6f,0x72,0x63,0x65,0x20,0x47,0x61,0x70,0x20,0x73,0x65,0x61,0x72,0x63,0x68,
+0x3a,0x59,0x65,0x73,0x0d,0x0a,0x5b,0x42,0x54,0x20,0x50,0x61,0x72,0x61,0x6d,0x65,
+0x74,0x65,0x72,0x73,0x5d,0x0d,0x0a,0x42,0x54,0x20,0x4d,0x6f,
+0x64,0x65,0x3a,0x4e,0x6f,0x6e,0x65,0x0d,0x0a,0x42,0x54,0x20,0x4d,0x6f,0x64,0x75,
+0x6c,0x65,0x3a,0x59,0x43,0x31,0x30,0x32,0x31,0x0d,0x0a,0x4e,0x41,0x4d,0x45,0x3a,
+0x54,0x38,0x4c,0x2d,0x37,0x30,0x33,0x30,0x0d,0x0a,0x50,0x49,0x4e,0x3a,0x30,0x30,
+0x30,0x30,0x0d,0x0a,0x42,0x54,0x20,0x54,0x79,0x70,0x65,0x3a,
+0x38,0x30,0x30,0x36,0x30,0x34,0x0d,0x0a,0x42,0x44,0x41,0x3a,0x0d,0x0a,0x42,0x4c,
+0x45,0x20,0x50,0x61,0x69,0x72,0x61,0x62,0x6c,0x65,0x3a,0x4e,0x6f,0x0d,0x0a,0x00,
+};
+unsigned int __US_28_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	//unsigned short  m_vvalue,m_Hvalue;
+	unsigned short   i,k,count,m_prile,m_offset;
+//	unsigned short m_zerolen;
+	unsigned char m_dat;
+	unsigned char m_dotBuffer[64];
+	unsigned char mbuffer[128];
+	if(g_CurveCountFlag == 0)
+	{
+		if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+		{
+			__SETPRIMASK();
+			Receive_count += 2;
+			//g_Order_count = m_OrderSave ;
+			(*p_OcAndGDAdr) = m_OrderSave;
+			__RESETPRIMASK();
+			//m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+			return PROCESS_FINISH;
+		}
+	}
+	m_Reg_R0 = PrinterCore();
+	if(m_Reg_R0 == 0x63)
+	{//1F 28 63 0A 00 1B 40 32 9A 01 00 C4 8F 1B 40
+		
+		count = PrinterCore();
+		PrinterCore();
+		for(i=0;i<count;i++)
+		{
+			PrinterCore();
+		}
+		memset(mbuffer,0,128);
+		i = 0;
+		while(ret53[i] != 0xFF)
+		{
+			mbuffer[i] = ret53[i];
+			i++;
+		}
+		
+		if(g_ReturnEp == 0xA001)
+		{
+		 PRINTER_PDL.RS232._SendBuf((unsigned char *)mbuffer,i);
+		}
+		if(g_ReturnEp == 0xA002)
+		{
+
+		 PRINTER_PDL.TTL._SendBuf((unsigned char *)mbuffer,i);
+		}	
+		if(g_ReturnEp == 0xA003)
+		{
+			
+		 PRINTER_PDL.USB._ReturnNBytes((unsigned char *)mbuffer,i);
+
+		}	
+		Delay1ms(3);
+		return PROCESS_CONTINUE;		
+	}
+	if(m_Reg_R0 == 0x70)
+	{//1F 28 63 0A 00 1B 40 32 9A 01 00 C4 8F 1B 40
+		k = 0;
+		i = 0;
+		while(ret2870[k] != 0)
+		{
+			
+			mbuffer[i] = ret2870[k];
+			k++;
+			i++;
+			
+			if(i > 31)
+			{
+				
+				if(g_ReturnEp == 0xA001)
+				{
+				 PRINTER_PDL.RS232._SendBuf((unsigned char *)mbuffer,i);
+				}
+				if(g_ReturnEp == 0xA002)
+				{
+
+				 PRINTER_PDL.TTL._SendBuf((unsigned char *)mbuffer,i);
+				}	
+				if(g_ReturnEp == 0xA003)
+				{
+					
+				 PRINTER_PDL.USB._ReturnNBytes((unsigned char *)mbuffer,i);
+				}	
+				memset(mbuffer,0,128);
+	 			i = 0;
+				Delay1ms(3);		
+			}
+		}
+
+		if(i)
+		{
+			mbuffer[i++] = 0;
+			if(g_ReturnEp == 0xA001)
+			{
+			 PRINTER_PDL.RS232._SendBuf((unsigned char *)mbuffer,i);
+			}
+			if(g_ReturnEp == 0xA002)
+			{
+
+			 PRINTER_PDL.TTL._SendBuf((unsigned char *)mbuffer,i);
+			}	
+			if(g_ReturnEp == 0xA003)
+			{
+				
+			 PRINTER_PDL.USB._ReturnNBytes((unsigned char *)mbuffer,i);
+			}	
+			Delay1ms(3);	
+		}
+		return PROCESS_CONTINUE;		
+	}	
+	
+	
+	if(PrinterCore() != 0x50)
+	{
+		return PROCESS_CONTINUE;
+	}
+	m_len = PrinterCore();//得到一行字节个数
+	m_len |= PrinterCore()<< 8;//得到长度
+
+//	m_vvalue = 1;
+//	m_Hvalue = 1;
+//	
+
+	m_Reg_R0 = PrinterCore();
+	
+
+	
+	memset(m_dotBuffer,0,64);
+	count = m_Reg_R0/2;
+	m_offset = 0;
+	
+	if(m_Reg_R0 == 0)
+	{
+		for (k=0;k<(m_len-1);k++)
+		{
+			m_dotBuffer[m_offset++] = PrinterCore();
+
+		}		
+	}
+	else
+	{
+		for (i=0;i<count;i++)
+		{
+			m_dat = PrinterCore();
+			m_prile = PrinterCore();
+			for (k=0;k<m_prile;k++)
+			{
+				m_dotBuffer[m_offset++] = m_dat;
+				if(m_offset > (BUFFER_SHORT_LENGTH*2))
+				{
+					break;
+				}
+			}
+			
+		}
+	}
+	m_offset = 0;
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		Buffer_CodeBar[i] = m_dotBuffer[m_offset++] << 8;
+		Buffer_CodeBar[i] |= m_dotBuffer[m_offset++];
+	}
+
+	count = 24;
+	m_Wide = 48;
+	if(g_CurveCountFlag == 0)
+	{
+
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		p_MapCurListDataDot = p_ListDataDot;//得到数据存放的首地址
+
+		*p_ListDataDot++ = PRINT_MAP;//打印数据头
+		//-------------图形的宽度是有可能超过255的
+		*p_ListDataDot++ = ( PRINT_HEAD_LENGTH << 4) | 1;//字符宽度放大
+		*p_ListDataDot++ =  0x80 | 1;//高度跟随放大倍数变化
+		//-------------
+		*p_ListDataDot++ = 0 ;//上下对齐和字符间距
+		g_CurveCountFlag = 0xAA00;
+	}
+	p_ListPrease->m_PrintLineSpace = 0;
+	g_CurveCountFlag++;//行计数器加一
+	p_ListPrease->m_PrintLineHigh = (g_CurveCountFlag & 0xff)*1;//设置一行的高度
+
+	p_ListDataDot = p_MapCurListDataDot + 2;
+	*p_ListDataDot = ((g_CurveCountFlag & 0xff) << 4) | 1;//高度跟随放大倍数变化
+
+	p_ListDataDot = p_MapCurListDataDot + ((g_CurveCountFlag & 0xFF) - 1)*BUFFER_SHORT_LENGTH + 4;//得到数据存放的首地址
+
+
+
+	g_CalcPrintPos = s_PrintParameters.m_positions;//给满点
+
+	for (i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		*p_ListDataDot++ = Buffer_CodeBar[i];
+	}
+
+	if(g_CurveCountFlag < 0xAA18)
+	{
+		return PROCESS_CONTINUE;
+	}
+	else
+	{
+		g_CurveCountFlag = 0;
+		return PROCESS_FINISH;
+	}
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __ESC_57_Order(void)
+** Descriptions:       1B 57 n 横纵向放大
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_57_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if((m_GetData < 9) &&(m_GetData >0))
+	{
+		s_PrintParameters.m_VertZoomOut = m_GetData;
+		s_PrintParameters.m_HoriZoomOut = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_58_Order(void)
+** Descriptions:       1B 58 n 横纵向不同放大
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_58_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if((m_GetData < 9) &&(m_GetData >0))
+	{
+		s_PrintParameters.m_HoriZoomOut = m_GetData;
+	}
+	m_GetData =  PrinterCore();
+	if((m_GetData < 9) &&(m_GetData >0))
+	{
+		s_PrintParameters.m_VertZoomOut = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __ESC_5C_Order(void)
+** Descriptions:      1B 5C  nL nH 以横向或纵向移动单位设置横向相对位移。
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+[格式] ASCII 码 ESC \ nL nH 
+十六进制码 1B 5C nL nH 
+十进制码 27 92 nL nH 
+[范围] 0 ≤ nl ≤ 255，0 ≤ nH ≤ 255 
+[描述] 以横向或纵向移动单位设置横向相对位移。
+该命令将打印位置设置到距当前位置[(nL + nH × 256) × 横向或纵向移动单 位]处。
+[注释] ? 超出可打印区域的设置将被忽略。 
+当打印位置向右移动时：nL + nH × 256 = N。 
+当打印位置向左移动时采用补码：nL + nH × 256 = 65536 - N。
+打印起始位置从当前位置移动到[N × 横向移动单位或者纵向移动单位]。 
+横向和纵向移动单位由 GS P 命令设置。 ? 在标准模式下，使用横向移动单位
+*********************************************************************************************************/
+unsigned int __ESC_5C_Order(void)
+{
+ 	unsigned short i;
+	i =  PrinterCore();
+	m_GetData = PrinterCore();
+	i += m_GetData << 8;
+	m_GetData = i;
+	
+	if((g_CalcPrintPos + m_GetData) > 380)
+	{
+		return PROCESS_CONTINUE;
+	}
+	if(m_GetData != 0)
+	{
+		//**************************************************************************
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+		*p_ListDataDot++ = m_GetData;
+		g_CalcPrintPos += m_GetData;
+
+	}
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_44_Order(void)
+** Descriptions:       //1B 44 n 设置水平造表值
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_44_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	for(m_Reg_R0=0;m_Reg_R0<20;m_Reg_R0++)
+	{
+		HTValue[m_Reg_R0] = 0;
+	}
+	m_Reg_R0 = 0;
+	while (1)
+	{
+		m_GetData =  PrinterCore();
+		if(m_GetData == 0)
+		{
+			break;
+		}
+		HTValue[m_Reg_R0++] = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_44_Order(void)
+** Descriptions:       //1B 45 n 设置水平造表值
+[格式] ASCII 码 ESC E n 
+十六进制码 1B 45 n 
+十进制码 27 69 n 
+[范围] 0 ≤ n ≤ 255 
+[描述] 选择或取消加粗模式 
+当 n 的最低位为 0 时，取消加粗模式。
+当 n 的最低位为 1 时，选择加粗模式。 
+[注释] 
+n 只有最低位有效。 
+
+*********************************************************************************************************/
+unsigned int __ESC_45_Order(void)
+{
+	m_GetData =  PrinterCore();
+	//选择加粗模式
+	if((m_GetData & 1) == 0)
+	{
+		p_ListPrease->m_ThType = 0;
+		s_PrintParameters.m_boldface = VALUE_DISABLE;//取消加粗模式
+	}
+	else
+	{
+		p_ListPrease->m_ThType = 1;
+		s_PrintParameters.m_boldface = VALUE_ENABLE;//选择加粗模式
+	}
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_40_Order(void)
+** Descriptions:       1B 40 初始化
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_40_Order(void)
+{
+#ifdef BT_NACK
+	g_DiscardPrinting = 0;
+#endif	
+	PrinterParameterInt();
+	g_CRCValue = 0;
+	return PROCESS_START;
+}
+
+/*********************************************************************************************************
+[格式]	ASCII码		ESC p m t1 t2
+		十六进制码	1B 70 m t1 t2
+		十进制码		27 112 m t1 t2
+[范围]	m = 0, 1, 48, 49 0 ≤ t1 ≤ 255, 0 ≤ t2 ≤ 255
+[描述]	输出由t1 和t2 设定的钱箱开启脉冲到由m 指定的引脚：
+		M		连接引脚
+		0,48	钱箱插座的引脚2
+		1,49	钱箱插座的引脚5
+[注释]	钱箱开启脉冲高电平时间为[ t1 × 2 ms]，低点平时间为[ t2 × 2 ms]。
+		如果t2 < t1,低电平时间为[ t1 × 2 ms]。
+[参考] DLE DC4
+*********************************************************************************************************/
+extern void  Delay1ms(unsigned short mdelay);
+unsigned int __ESC_70_Order(void)
+{
+	unsigned short m_Htime,m_Ltime;
+//	unsigned short i,j,k;
+
+	PrinterCore();//得到钱箱驱动号
+
+	m_Htime = PrinterCore();//得到驱动时间
+
+	m_Ltime = PrinterCore();//得到驱动时间
+
+	
+//	PRINTER_PDL.SYS._BOX_EN();
+//	Delay1ms(m_Htime*2);			
+//	PRINTER_PDL.SYS._BOX_DIS();
+//	Delay1ms(m_Ltime*2);	
+//	
+
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_72_Order(void)
+** Descriptions:       1B 72 n 设置打印深度
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_72_Order(void)
+{
+	m_GetData =  PrinterCore();
+
+	if(m_GetData == 0x2D)
+	{
+		//表示--
+		m_GetData =  PrinterCore();
+		g_THDeep = PrinterCore() << 8;
+		g_THDeep |= m_GetData;
+		g_THDeep |= 0x8000;//表示--
+	}
+	else
+	{
+		//表示+
+		m_GetData =  PrinterCore();
+		g_THDeep = PrinterCore() << 8;
+		g_THDeep |= m_GetData;
+
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_73_Order(void)
+** Descriptions:       	1B 73 +/- 增加/减小当前加热深度
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_73_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if(m_GetData == 0x2D)//+
+	{
+		//表示+
+		m_GetData =  PrinterCore();
+		g_THDeep = m_GetData * 10;
+		g_THDeep |= 0x8000;//表示--
+	}
+	else if(m_GetData == 0x2B)//-
+	{
+		m_GetData =  PrinterCore();
+		g_THDeep = m_GetData * 10;
+	}
+	else
+	{
+		m_GetData =  PrinterCore();
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_2D_Order(void)
+** Descriptions:       	1B 2D n 上划线
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_2D_Order(void)
+{
+	m_GetData =  PrinterCore();
+
+	s_PrintParameters.m_Score_NOR &= 2;
+	
+	if(m_GetData & 3)
+	{
+		s_PrintParameters.m_Score_NOR |= 1;	
+		
+		
+		s_PrintParameters.m_Score_NOR |= (m_GetData & 3) << 4;	
+	}
+	
+	return PROCESS_CONTINUE;
+}
+
+unsigned int __ESC_2F_Order(void)
+{
+	m_GetData =  PrinterCore();
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_2E_Order(void)
+** Descriptions:       1B 2E n 下划线
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_2E_Order(void)
+{
+	m_GetData =  PrinterCore();
+
+	s_PrintParameters.m_Score_NOR &= 1;
+	
+	if(m_GetData & 3)
+	{
+		s_PrintParameters.m_Score_NOR |= 2;	
+		
+		
+		s_PrintParameters.m_Score_NOR |= (m_GetData & 3) << 4;	
+	}
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_2C_Order(void)
+** Descriptions:       	1B 2C n 设置流控方式
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_2C_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if(m_GetData & 1)
+	{
+		FlowFlag |= 0x40;
+	}
+	else
+	{
+		FlowFlag &= 0x3F;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_81_Order(void)
+** Descriptions:       	1B 2E n 配置机器工作模式
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_81_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	m_Reg_R0 =  PrinterCore();//修改位置个数
+
+
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	p_PrCon = &s_PrintrConfig.m_InterFace;
+	for(m_Wide=0;m_Wide<m_Reg_R0;m_Wide++)
+	{
+		m_GetData =  PrinterCore();
+		m_len = (PrinterCore() << 8);
+		m_len |= PrinterCore();
+		p_PrCon[m_GetData] = m_len;
+	}
+
+#ifndef PAPER_FEED_SOLUTION
+	SavePrinterConfig();//(Modify: Kajal 28 Mar 2026)
+#endif
+
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_82_Order(void)
+** Descriptions:       标签进纸
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_82_Order(void)
+{
+	unsigned short i;
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+
+//	SendChar(g_PaperRunToOut>>8);
+//	SendChar(g_PaperRunToOut);
+	p_ListPrease->m_LableFeedFlag = ENABLE_VAR;
+	i = g_PaperRunToOut/4;//默认一行的高度为8;
+	p_ListPrease->m_PrintLineHigh  = i;
+	if(i == 0)
+	{
+		p_ListPrease->m_PrintLineHigh  = 1;
+	}
+	return PROCESS_FINISH;
+
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_83_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_83_Order(void)
+{
+
+
+	return PROCESS_FINISH;
+}
+
+
+
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_61_Order(void)
+** Descriptions:       1B 61 n 对齐
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_61_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if(m_GetData < 3)
+	{
+		s_PrintParameters.m_alignType = m_GetData;
+	//	if(g_SavePrintPos == g_CalcPrintPos)
+		{
+			g_alignType = m_GetData;
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_3D_Order(void)
+** Descriptions:       1B 3D n 驱动打印标志
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_3D_Order(void)
+{
+	m_GetData = PrinterCore();
+	if(m_GetData & 1)
+	{
+		g_DriverAFlag = 0xaaaa;
+	}
+	else
+	{
+		g_DriverAFlag = 0;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_32_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_32_Order(void)
+{
+	s_PrintParameters.m_LineSpace = 0;
+	p_ListPrease->m_PrintLineSpace = 0;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_33_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_33_Order(void)
+{
+	if(g_PaperType == 0)
+	{
+			return PROCESS_CONTINUE;
+	}
+	m_GetData = PrinterCore();
+	if(m_GetData > 24)
+	{
+		m_GetData -= 24;
+	}
+	else
+	{
+		m_GetData = 0;
+	}
+	s_PrintParameters.m_LineSpace = m_GetData;
+	p_ListPrease->m_PrintLineSpace = m_GetData;
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_52_Order(void)
+[名称]     选择国际字符集
+[格式]     ASCII码         ESC     R    n
+十六进制码       1B     52    n
+十进制码         27     82    n
+[范围]     0 <= n <= 13
+[描述]     按照下表选择n的值设置国际字符集
+n		字符集
+0		美国
+1		法国
+2		德国
+3		英国
+4		丹麦 I
+5		瑞典
+6		意大利
+7		西班牙I
+8		日本
+9		挪威
+10		丹麦 II
+11		西班牙 II
+12		拉丁美洲
+13		韩国
+14		斯洛文尼亚
+15		中国
+*********************************************************************************************************/
+
+
+unsigned int __ESC_52_Order(void)
+{
+	m_GetData = PrinterCore();
+
+	g_InternationChar = m_GetData & 0xF;
+
+
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_74_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_74_Order(void)
+{
+	PrinterCore();
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_7B_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+[格式] ASCII 码 ES { n 
+十六进制码 1B 7B n 
+十进制码 27 123 n 
+[范围] 0 ≤ n ≤ 255 
+[描述] 选择/取消倒置打印模式。 
+当 n 的最低位为 0 时，取消倒置打印模式。 
+当 n 的最低位为 1 时，选择倒置打印模式。 
+[注释] 
+只有 n 的最低位有效。 
+该命令只在标准模式下的行首有效。 
+该命令在页模式下，只改变内部标志位。 
+该命令对页模式打印无影响。 
+在倒置打印模式下，打印机先将要打印的行旋转 180 度然后打印。 [默认值] n
+*********************************************************************************************************/
+unsigned int __ESC_7B_Order(void)
+{
+	m_GetData =  PrinterCore();
+
+#ifdef REVERSE_PRINT_SOLUTION
+	s_PrintParameters.m_PrintDir = PRINT_DIRECT_NOR;
+#else	
+	if((m_GetData & 1) == 1)
+	{
+		s_PrintParameters.m_PrintDir = PRINT_DIRECT_FX;
+	}
+	else
+	{
+		s_PrintParameters.m_PrintDir = PRINT_DIRECT_NOR;
+	}
+#endif	
+	if(g_CalcPrintPos == g_SavePrintPos)
+	{
+		p_ListPrease->m_PrintDir = s_PrintParameters.m_PrintDir;
+		return PROCESS_START;//跳转到ProcessStart
+	}
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_1D_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_1D_Order(void)
+{
+	m_GetData = PrinterCore();
+	while( m_GetData != 0x0D)
+	{
+		m_GetData = PrinterCore();
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_A0_Order(void)
+** Descriptions:       测试使用
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_A0_Order(void)
+{
+
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	p_ListPrease->m_MotoRunDir = MOTO_REVERSE;
+	p_ListPrease->m_PrintLineHigh = s_PrintrConfig.m_HotLineTOOUT/4;//默认一行的高度为8;
+	return PROCESS_FINISH;
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BA_Order(void)
+** Descriptions:       按地址写扇区
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+1B BA 53 AA 35 55 A0 A1 A2 A3 ...... (4K数据)
+1B BA 53 AA 35 55 00 00 1C 00
+*********************************************************************************************************/
+unsigned int __ESC_BA_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	unsigned short i,j,data;
+
+	i = PrinterCore();//0x53
+	if(i != 0x53)
+		return PROCESS_CONTINUE;
+	j = PrinterCore();//0xAA
+	if((j-i) != 0x57)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x35
+	if(i != 0x35)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x55
+	if(i != 0x55)
+		return PROCESS_CONTINUE;
+
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss = m_Reg_R0 ;
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 8);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 16);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += m_Reg_R0 << 24;
+
+//	ERASE_4K(m_GetDataAddrss);
+
+	for(j=0;j<8;j++)
+	{
+		m_Reg_R0 = 0;
+		for (i=0;i<256;i++)
+		{
+			m_GetData = PrinterCore() & 0xff;
+			g_CRCValue += m_GetData;
+			m_GetData = m_GetData << 8;
+			data = PrinterCore() & 0xff;;
+			g_CRCValue += data;
+			m_GetData |= data;
+
+			Buffer_writer_I[m_Reg_R0++] = m_GetData;
+		}
+		PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+		AT91F_DataFlashPageWrite (m_GetDataAddrss,Buffer_writer_I);
+		m_GetDataAddrss += 512;
+	}
+
+
+
+
+	PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+	return PROCESS_CONTINUE;
+
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BC_Order(void)
+** Descriptions:       测试使用
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+
+unsigned int __ESC_BC_Order(void)
+{
+	unsigned short i,k,j,com;
+	unsigned int	m_Reg_R0;
+	m_GetData = PrinterCore();//0x53
+	m_Reg_R0 = PrinterCore();//0xAA
+	m_GetData = m_Reg_R0 - m_GetData;
+	if(m_GetData == 0x57)
+	{
+		PRINTER_PDL.SYS._WDG_ReloadCounter();
+		
+
+		
+
+		p_PrCon = &s_PrintrConfig.m_InterFace;
+		for(i=0;i<CONFIG_PAR_LENGTH;i++)
+		{
+			j = 12;
+			for(com=0;com<4;com++)
+			{
+				k = (*(p_PrCon + i)>>j ) & 0x0F;
+				if(k < 0xA)
+				{
+					k += 0x30;
+				}
+				else
+				{
+					k += 0x37;
+				}
+				//receive_bufer[(*p_REAndSAcount)++] = k;
+				(*p_REAndSAcount)++;//缓冲区得到的数据个数
+				receive_bufer[(*p_SaveDrREcount)++] = k;
+				(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+				j -= 4;
+			}
+		}
+		//receive_bufer[(*p_REAndSAcount)++] = 0x0D;
+		//receive_bufer[(*p_REAndSAcount)++] = 0x0D;
+		for(com=0;com<4;com++)
+		{
+			(*p_REAndSAcount)++;//缓冲区得到的数据个数
+			receive_bufer[(*p_SaveDrREcount)++] = 0x0D;
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+		}
+		s_PrintParameters.m_HoriZoomOut = 2;//横向放大倍数为1
+		s_PrintParameters.m_VertZoomOut = 2;//纵向打印放大为1
+		s_PrintParameters.m_CharType = TYPE_LITTLECHAR;//默认为0表示打印的是汉字,小于80的表示打印的是字符
+		s_PrintParameters.m_Charlist = 1;//默认打印字符集1
+
+	}
+	return PROCESS_CONTINUE;
+
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BB_Order(void)
+** Descriptions:       测试使用
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __ESC_BB_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	m_GetData = PrinterCore();//0x53
+	m_Reg_R0 = PrinterCore();//0xAA
+	m_GetData = m_Reg_R0 - m_GetData;
+	if(m_GetData == 0x57)
+	{
+		PrinterConfigInt();
+#ifndef PAPER_FEED_SOLUTION		
+		SavePrinterConfig();
+#endif	
+	}
+	return PROCESS_CONTINUE;
+
+}
+
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BD_Order(void)
+** Descriptions:       测试使用,返回一个扇区的数据
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+1B BD A0 A1 A2 A3
+*********************************************************************************************************/
+unsigned int __ESC_BD_Order(void)
+{
+	unsigned short i,j;
+	unsigned int	m_Reg_R0;
+	Buffer_writer_I = &(s_ListParmeter_B.m_ListBuffer[700]);//设置指针位置
+
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss = m_Reg_R0 ;
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 8);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 16);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += m_Reg_R0 << 24;
+
+	for(j=0;j<8;j++)
+	{
+		AT91F_DataFlashADDRRead(m_GetDataAddrss+(256*j) ,256,Buffer_writer_I);//得到数据
+		for (i=0;i<256;i++)
+		{
+
+//			SendChar(Buffer_writer_I[i]>>8);
+//			SendChar(Buffer_writer_I[i]);
+		}
+
+	}
+	return PROCESS_CONTINUE;
+
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BE_Order(void)
+** Descriptions:       下载数据使用,打印CRC值
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+1B BD A0 A1 A2 A3
+*********************************************************************************************************/
+const char upgrade_list[]={"The upgrade is complete!\r\r\r"};
+unsigned int __ESC_BE_Order(void)
+{
+	unsigned short k,j,com,i;
+	j = 12;
+	i = 0;
+	CodeBarStr[i++] = 'C';
+	CodeBarStr[i++] = 'R';
+	CodeBarStr[i++] = 'C';
+	CodeBarStr[i++] = '=';
+
+	for(com=0;com<4;com++)
+	{
+		k = (g_CRCValue >>j ) & 0x0F;
+		if(k < 0xA)
+		{
+			k += 0x30;
+		}
+		else
+		{
+			k += 0x37;
+		}
+		CodeBarStr[i++] = k;
+
+		j -= 4;
+	}
+	CodeBarStr[i++] = 0x0D;
+	j = 0;
+	while(upgrade_list[j] != 0)
+	{
+		CodeBarStr[i] = upgrade_list[j];
+		i++;
+		j++;
+
+	}
+	s_PrintOrderstr.m_GetdataPos = i;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:       unsigned int __ESC_BF_Order(void)
+** Descriptions:      计算falsh累加和
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+1B BA 53 AA 35 55 A0 A1 A2 A3 ...... (4K数据)
+1B BA 53 AA 35 55 00 00 1C 00
+*********************************************************************************************************/
+unsigned int __ESC_BF_Order(void)
+{
+	unsigned int	m_Reg_R0;
+	unsigned short i,j;
+	unsigned int get_len;
+
+	i = PrinterCore();//0x53
+	if(i != 0x53)
+		return PROCESS_CONTINUE;
+	j = PrinterCore();//0xAA
+	if((j-i) != 0x57)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x35
+	if(i != 0x35)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x55
+	if(i != 0x55)
+		return PROCESS_CONTINUE;
+
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss = m_Reg_R0 ;
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 8);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += (m_Reg_R0 << 16);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	m_GetDataAddrss += m_Reg_R0 << 24;
+
+	m_Reg_R0 = PrinterCore() & 0xff;
+	get_len = m_Reg_R0 ;
+	m_Reg_R0 = PrinterCore() & 0xff;
+	get_len += (m_Reg_R0 << 8);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	get_len += (m_Reg_R0 << 16);
+	m_Reg_R0 = PrinterCore() & 0xff;
+	get_len += m_Reg_R0 << 24;
+
+	g_CRCValue = cal_crc(m_GetDataAddrss,get_len);
+
+	PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+	return PROCESS_CONTINUE;
+
+}
+
+// *********************************************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+// ******************************以下为1C命令解析函数***************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+
+
+/* ********************************************************************************************************
+** Function name:     unsigned int __FS_49_Order(void)
+** Descriptions:       1C 49 n字符旋转
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+******************************************************************************************************** */
+unsigned int __FS_49_Order(void)
+{
+	m_GetData = PrinterCore();
+	s_PrintParameters.m_RotDegree = m_GetData & 0x3;
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_72_Order(void)
+** Descriptions:       1C 72  选择上下标
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_72_Order(void)
+{
+	m_GetData = PrinterCore();
+	s_PrintParameters.m_AlignUPDown = 0;
+	if (m_GetData != 0)
+	{
+		s_PrintParameters.m_AlignUPDown = 0x8000;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_53_Order(void)
+** Descriptions:       1C 53 n 设置时间
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_53_Order(void)
+{
+#ifdef TIME_PRINTER
+	unsigned short i;
+	for(i=0;i<7;i++)
+	{
+		CodeBarStr[i] =  PrinterCore();
+	}
+
+	Set_timer(CodeBarStr);
+	CleanAlarm();
+#endif
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_54_Order(void)
+** Descriptions:       1C 54 n 打印时间
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_54_Order(void)
+{
+#ifdef TIME_PRINTER
+	unsigned char asc_dat_h,asc_dat_l;
+	unsigned char   data=0;
+	ReturnTime(CodeBarStr);
+ 	m_GetData =  PrinterCore();
+	switch(m_GetData)
+	{
+		case 8:			//读年
+			data=CodeBarStr[6];
+			break;
+		case 7:			//读月
+			data=CodeBarStr[5];
+			break;
+		case 5:			//读日
+			data=CodeBarStr[4];
+			break;
+		case 4:			//读时
+			data=CodeBarStr[2];
+			break;
+		case 3:
+			data=CodeBarStr[1];
+			break;
+		case 2:
+			data=CodeBarStr[0];
+			break;
+		case 6 :
+			data=CodeBarStr[3];
+			break;
+		default:
+			data=0xff;
+	}
+	if(data != 0xff)
+	{
+		asc_dat_h=(data>>4)+0x30;
+
+		asc_dat_l=(data&0x0f)+0x30;
+
+	}
+	CodeBarStr[0] = asc_dat_h;
+	CodeBarStr[1] = asc_dat_l;
+	s_PrintOrderstr.m_GetdataPos = 2;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+#endif
+	return PROCESS_CONTINUE;
+
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_55_Order(void)
+** Descriptions:       1C 55 n 返回时间
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_55_Order(void)
+{
+//	unsigned char i;
+#ifdef TIME_PRINTER
+	ReturnTime(CodeBarStr);
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[6]);//年
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[5]);//月
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[4]);//日
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[2]);//时
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[1]);//分
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[0]);//秒
+	PRINTER_PDL.RS232._SendChar(CodeBarStr[3]);//星期
+#endif
+	return PROCESS_CONTINUE;
+}
+
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_57_Order(void)
+** Descriptions:       1C 57 n 横纵向放大
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_57_Order(void)
+{
+	m_GetData =  PrinterCore();
+	if((m_GetData < 9) &&(m_GetData >0))
+	{
+		s_PrintParameters.m_VertZoomOut = m_GetData;
+		s_PrintParameters.m_HoriZoomOut = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_59_Order(void)
+** Descriptions:       1C 59 nL nH设置打印unicode编码
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_59_Order(void)
+{
+	g_unicodeType = PrinterCore();//得到长度低8位
+	g_unicodeType |= (PrinterCore() << 8) & 0xff00;
+	return PROCESS_CONTINUE;
+}
+
+
+void ProUnicodeChar(void)
+{
+	unsigned short m_CharCodeLow;
+	unsigned int	m_Reg_R0;
+	unsigned char prounBuffer[6];
+	if(g_unicodeType > 0)
+	{
+		g_unicodeType--;
+		m_GetData = PrinterCore();//得到字符高8位
+		m_CharCodeLow = PrinterCore();//得到汉字低8位内码
+
+		if(m_GetData == 0)
+		{
+			//得到ascii码地址
+			m_CharCodeLow = m_CharCodeLow << 1;//计算地址
+			m_GetDataAddrss = 0x110000 + m_CharCodeLow;
+
+			ReadNBytes(m_GetDataAddrss,prounBuffer,2);//读出1个字节
+			m_UnicodeToGBK[0] = prounBuffer[1] & 0xff;
+			s_PrintOrderstr.m_GetdataPos = 1;
+			s_PrintOrderstr.pSpecialposition = m_UnicodeToGBK;
+		}
+		else
+		{
+			m_Reg_R0 = m_GetData  << 8;
+			m_Reg_R0 += m_CharCodeLow;
+			m_Reg_R0 = m_Reg_R0 << 1;
+			m_GetDataAddrss = 0x110000 + m_Reg_R0;
+			ReadNBytes(m_GetDataAddrss,prounBuffer,2);//读出1个字节
+
+			m_UnicodeToGBK[0] = prounBuffer[0] & 0xff;
+			m_UnicodeToGBK[1] = prounBuffer[1] & 0xff;
+			s_PrintOrderstr.m_GetdataPos = 2;
+			s_PrintOrderstr.pSpecialposition = m_UnicodeToGBK;
+		}
+	}
+
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_56_Order(void)
+** Descriptions:       1C 56 垂直制表并打印
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+ASCII ：FS V
+十进制 ：28 86 m LP1...LPm n IP1...IPn FT1 D11...D1k 0...FTn Dn1...Dnk 0
+十六进制 ：1C 56 m LP1...LPm n IP1...IPn FT1 D11...D1k 0...FTn Dn1...Dnk 0
+m 表格竖线数：0 ≤ m ≤ 17；
+LP1...LPm 表格竖线坐标：0 ≤ LPm ≤ 48；
+n 表格项数：0 ≤ n ≤ 16；
+IP1...IPn 表项坐标：0 ≤ IPn ≤ 45；
+FT1 第一个表项的字体类型：（字体可多选）
+位 		功能 		值
+				0		1
+0 		正 常 	取消 	设定
+1 		加 粗 	取消 	设定
+2 		下划线	取消 	设定
+3 		反白	取消	设定
+4-7 保 留
+注意：此处的字体不受ESC !命令控制，也不会影响ESC !命令；
+D11...D1k 0 第一个表项内容，0x00为结束标志：0 ≤ k ≤ 20；
+……
+FTn 第n个表项的字体类型，说明同FT1；
+Dn1...Dnk 0 第n个表项内容，0x00为结束标志：0 ≤ k ≤ 20；
+注：
+*坐标以打印纸进纸方向右边为0参考；
+*表项字节数不需要相等，以0x00结束即可，每个表项最多10个汉字（20个字符）（可接受定制加大允许字符数）；
+*不需要打印表格边框时把m = 0，“LP1...LPm”不需要填充
+1C 56 00
+05
+00 03 06 09 0C
+01 31 32 33 34 35 00
+00 36 37 38 39 3A 00
+00 40 41 42 43 44 00
+00 45 46 47 48 49 00
+00 4A 4B 4C 4D 4E 00
+0D
+*********************************************************************************************************/
+#define LIST_DATA_LENGTH	30//定义存储数据的长度
+#define LIST_DATA_STATUE	1//定义存储数据前数据格式的字节个数
+#define LIST_TERM_COUNT		16//定义的表格最大项目数
+#define LIST_SACOUNT_MAX	8//表格数据循环最大数
+#define LIST_SAVE_LENGTH	((LIST_DATA_LENGTH + LIST_DATA_STATUE)*LIST_TERM_COUNT)//表格数据的最大长度
+unsigned short g_ListControlFor;//字符控制字格式
+unsigned short g_ListPrintFinish;//是否打印完成
+
+unsigned char g_ListSaveToFlashCount;//数据存储到FLash位置偏移量计数
+
+unsigned char g_ListPrintSpace[20];//
+
+unsigned short g_ListTable[BUFFER_SHORT_LENGTH];//
+
+unsigned short g_Min,g_Max;
+unsigned int __FS_56_Order(void)
+{
+	unsigned int m_ListSaveAddr;
+	unsigned short i,temp1,temp2,temp3,j;
+	//unsigned short * p_SetDatArry;
+	unsigned char dat_temp[32];
+	g_Min = 0xFF;
+	g_Max = 0x00;
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[300]);
+
+	m_GetData =  PrinterCore();
+	if(m_GetData == 0)
+	{
+		g_Min = 0x00;
+	}
+	//----打印竖线个数
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		g_ListTable[i] = 0;
+	}
+	if((m_GetData>0)&&(m_GetData < 18))
+	{
+		//得到打印竖线的个数
+		for(i=0;i<m_GetData;i++)
+		{
+			temp1 = PrinterCore() * 8;//得到位置表
+			if(g_Min > temp1)
+			{
+				g_Min = temp1;
+			}
+			if(g_Max < temp1)
+			{
+				g_Max = temp1;
+			}
+
+
+			if(temp1 != 0)
+			{
+				temp1--;
+			}
+			temp1 = (PRINT_HEAD_LENGTH - 1 - temp1);
+			temp2 = (temp1 / 16);
+			temp3 = (temp1 % 16);
+			g_ListTable[temp2] |= (1 << (15- temp3));
+		}
+	}
+	temp2 =  PrinterCore();//得到打印项目数
+	for(i = 0;i<20;i++)
+	{
+		g_ListPrintSpace[i] = 0xFF;//得到位置表
+	}
+	if((temp2>0)&&(temp2 < 17))
+	{
+		//表项坐标
+		for(i = 0;i<temp2;i++)
+		{
+			g_ListPrintSpace[i] = PrinterCore();//得到位置表
+		}
+	}
+	for(i = 0;i < 256;i++)
+	{
+		Buffer_writer_I[i] = 0;
+	}
+	temp1 = 0;
+	if((temp2>0)&&(temp2 < 17))
+	{
+		//存储表项数据
+		for(i = 0;i<temp2;i++)
+		{
+			temp1 = i * 16;
+
+			for(temp3 = 0;temp3 < 32;temp3++)
+			{
+				dat_temp[temp3] = 0;
+			}
+			temp3 = 0;
+			m_GetData = PrinterCore();//得到打印项目数据 格式
+			dat_temp[temp3++] = m_GetData;
+			while(1)
+			{
+				m_GetData = PrinterCore();//得到打印项目数据
+				dat_temp[temp3++] = m_GetData;//得到打印项目数据
+				if(m_GetData ==0)
+				{
+					break;
+				}
+			}
+			j = 0;
+			for(temp3 = 0;temp3 < 16;temp3++)
+			{
+
+				Buffer_writer_I[temp1] = dat_temp[j++] << 8;
+				Buffer_writer_I[temp1++] |= dat_temp[j++];
+			}
+		}
+	}
+	if(g_ListSaveToFlashCount == 0)
+	{
+		ERASE_4K(LIST_DATA_ADDR);//擦除字符表存放缓冲区
+	}
+
+
+
+	m_ListSaveAddr = LIST_DATA_ADDR + g_ListSaveToFlashCount * 512;//得到存放数据地址
+	AT91F_DataFlashPageWrite(m_ListSaveAddr,Buffer_writer_I);
+
+
+	CodeBarStr[0] = 0x12;
+	CodeBarStr[1] = 0xAC;
+	CodeBarStr[2] = 0x12;
+	CodeBarStr[3] = 0xAA;
+	CodeBarStr[4] = g_ListSaveToFlashCount;//存储扇区
+	CodeBarStr[5] = temp2;//打印项数
+	CodeBarStr[6] = 0;//打印到第几项
+	CodeBarStr[7] = 0;
+
+	for(i=8;i<40;i++)
+	{
+		CodeBarStr[i] = 0;
+	}
+	g_ListPrintFinish = 0;//总共打印项数
+	for(i=0;i<temp2;i++)
+	{
+		g_ListPrintFinish |= (1 << i);
+	}
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		p_ListPrease->m_LineProArry[i] = g_ListTable[i];
+	}
+
+
+
+	s_PrintOrderstr.m_GetdataPos = 8;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	g_ListSaveToFlashCount++;
+	g_ListSaveToFlashCount &= 7;
+
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __DC2_AA_Order(void)
+** Descriptions:       按造表位置打印
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+
+unsigned int __DC2_AA_Order(void)
+{
+	unsigned short reg0,reg1,reg3,temp_L,temp_H,m_temp_H,m_temp_M,m_temp_L;
+	unsigned short j,k;
+	unsigned char * p_ParGet;
+	unsigned int  m_ListGetAddr;
+	unsigned char ChaChiBuffer[32];
+	p_ParGet = &CodeBarStr[8];//得到参数指针
+
+	if(s_PrintrConfig.m_ChineseLib == TYPE_GB2312)//判断系统字库
+	{
+		m_temp_H = 0xA1;
+		m_temp_M = 0;
+		m_temp_L = 0xA1;
+	}
+	else
+	{
+		m_temp_H = 0x81;
+		m_temp_M = 0x7F;
+		m_temp_L = 0x40;
+
+	}
+
+	reg3 = PrinterCore();//得到打印数据存储的扇区
+	reg0 = PrinterCore();//得到打印的总项数
+	reg1 = PrinterCore();//得到打印的当前项数
+
+	g_PrintListOrNorm = 0xAA55;
+
+	m_GetData = g_ListPrintSpace[reg1];
+	if(m_GetData != 255)
+	{
+		m_GetData = m_GetData * 8;
+		if (m_GetData > g_CalcPrintPos)
+		{
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+			*p_ListDataDot++ = m_GetData - g_CalcPrintPos;
+			g_CalcPrintPos = m_GetData;
+		}
+	}
+
+
+	m_ListGetAddr = LIST_DATA_ADDR + reg3 * 512;//计算字符存放的区域
+
+	m_ListGetAddr += (reg1 * 32);//计算数据所在的位置
+
+
+	ReadNBytes(m_ListGetAddr,ChaChiBuffer,32);//读出32个字节
+/*
+	for(j=0;j<32;j++)
+	{
+		SendChar(ChaChiBuffer[j]);
+	}*/
+
+
+	p_ParGet += (reg1 * 2);//得表项数据处理格式
+
+	j = *p_ParGet;//得到数据存放的偏移量
+	j++;//得到实际数据存放的偏移量 因为第一个字节存放的是整个表项的属性
+
+	temp_H = ChaChiBuffer[j];//得到数据,有可能是一个小于0x80的字符,也有可能是一个汉字
+
+	g_ListControlFor = (ChaChiBuffer[0] & 0x00FF);//得到汉字字符打印的格式
+	k = 0;
+	if(temp_H == 0)
+	{
+
+
+		g_ListPrintFinish &= ~(1 << reg1);
+
+
+		if(g_ListPrintFinish == 0x00)
+		{
+			//表示打印完成
+			CodeBarStr[0] = 0x12;
+			CodeBarStr[1] = 0xAC;
+			CodeBarStr[2] = 0x12;
+			CodeBarStr[3] = 0xAB;
+			CodeBarStr[4] = 0x00;
+			s_PrintOrderstr.m_GetdataPos = 5;
+			s_PrintOrderstr.pSpecialposition = CodeBarStr;
+			return PROCESS_CONTINUE;
+		}
+	}
+	else
+	{
+		if(s_PrintParameters.m_CharType == TYPE_ENGLISH)
+		{
+			CodeBarStr[k++] = temp_H;
+			*p_ParGet += 1;//字符位置+1
+			*(p_ParGet + 1) = 0;//字符默认为0			
+		}
+		else
+		{
+			if(temp_H < m_temp_H)//判断是否是字符
+			{
+				//表示是字符
+				CodeBarStr[k++] = temp_H;
+				*p_ParGet += 1;//字符位置+1
+				*(p_ParGet + 1) = 0;//字符默认为0
+			}
+			else
+			{
+				CodeBarStr[k++] = temp_H;
+				//表示可能是汉字,需要查看后面一个字节是否符合要求
+				temp_L = ChaChiBuffer[j+1]	  ;
+				if ((temp_L < m_temp_L)||(temp_L == m_temp_M))
+				{
+					//表示不是汉字
+					CodeBarStr[k++] = 0x00;//补0表示不是汉字
+					*p_ParGet += 1;//字符位置+1
+					*(p_ParGet + 1) = 0;//字符默认为0
+				}
+				else
+				{
+					CodeBarStr[k++] = temp_L;//得到汉字的后一个字符
+					//需要判断是打印某一个区域
+					j = *(p_ParGet + 1);//得到汉字打印上下半区标志
+					if(j == 0)
+					{
+						//表示打印当前汉字的上半区
+
+						//打印数据的位置不变
+						*(p_ParGet + 1) = 1;//下次循环打印下半区
+
+					}
+					else
+					{
+						g_ListControlFor |= 0x0100;//表示打印汉字的下半区
+						//打印当前汉字的下半区汉字偏移量要增加2
+						*p_ParGet += 2;//汉字位置加2
+						*(p_ParGet + 1) = 0;//打印上半区
+					}
+				}
+
+			}
+		}
+	}
+
+	reg1++;
+	if(reg1 > (reg0 -1 ))
+	{
+		reg1 = 0;
+		CodeBarStr[k++] = 0x0D;
+	}
+	CodeBarStr[k++] = 0x12;
+	CodeBarStr[k++] = 0xAA;
+	CodeBarStr[k++] = reg3;//存储扇区
+	CodeBarStr[k++] = reg0;//打印项数
+	CodeBarStr[k++] = reg1;//打印到第几项
+
+	s_PrintOrderstr.m_GetdataPos = k;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __DC2_AD_Order(void)
+** Descriptions:       设置DUMP模式
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __DC2_AD_Order(void)
+{
+
+	while(s_PrinterMOTOPar.m_StopPrint == DISABLE_VAR	)
+	{
+
+	};
+	g_DetPaperNoprint = 0;//清停机标志
+	g_DetPaperGapSpace = 0;//清纸缝位置检测标志
+	return PROCESS_CONTINUE;
+}
+unsigned int __DC2_13_Order(void)
+{
+	//12 13 53 AA
+	#ifdef PRINTER_LABEL
+	unsigned int	m_Reg_R0;
+	m_GetData = PrinterCore();//0x53
+	m_Reg_R0 = PrinterCore();//0xAA
+	m_GetData = m_Reg_R0 - m_GetData;
+	if(m_GetData == 0x57)
+	{
+		//RunFeedLabPaper_order();
+	}
+	#endif
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __DC2_AD_Order(void)
+** Descriptions:       设置DUMP模式
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无 12 AE 53 AA 35 55
+*********************************************************************************************************/
+unsigned int __DC2_AE_Order(void)
+{
+	unsigned short i,j;
+	i = PrinterCore();//0x53
+	if(i != 0x53)
+		return PROCESS_CONTINUE;
+	j = PrinterCore();//0xAA
+	if((j-i) != 0x57)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x35
+	if(i != 0x35)
+		return PROCESS_CONTINUE;
+	i = PrinterCore();//0x55
+	if(i != 0x55)
+		return PROCESS_CONTINUE;
+
+//	SendChar('O');
+//	SendChar('K');
+	for(i=0;i<0x1000;i++);
+
+//	#ifdef RD_USART1_EN
+//		USART1_InitConfig(0xAAAA);
+//	#endif
+//	#ifdef RD_USART2_EN
+//		USART2_InitConfig(0xAAAA);
+//	#endif
+//	#ifdef RD_USART3_EN
+//		USART3_InitConfig(0xAAAA);
+//	#endif
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_38_Order(void)
+** Descriptions:       设置打印英文字符
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __DC2_AB_Order(void)
+{
+	unsigned char i;
+	for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+	{
+		g_ListTable[i] = 0;
+	}
+	if(g_SavePrintPos == g_CalcPrintPos)
+	{
+		for(i=0;i<BUFFER_SHORT_LENGTH;i++)
+		{
+			p_ListPrease->m_LineProArry[i] = 0;
+		}
+	}
+	g_PrintListOrNorm = 0;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_38_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __DC2_AC_Order(void)
+{
+	unsigned short Crev1_min,Crev2_max,i,j;
+	if((g_Max|g_Min) == 0)
+	{
+		return PROCESS_CONTINUE;
+	}
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_CURVE;//打印数据头
+	//-------------图形的宽度是有可能超过255的
+	*p_ListDataDot++ = p_ListPrease->m_PrintDir;//打印方向
+	p_ListSave = p_ListDataDot;
+	p_ListPrease->m_PrintLineHigh = 1;//纵向放大倍数
+
+	for (m_Wide=BUFFER_SHORT_LENGTH;m_Wide>0;m_Wide--)
+	{
+		*p_ListSave++ = 0;
+	}
+	//	SendChar(g_Max);
+	//	SendChar(g_Min);
+
+	Crev1_min = g_Max;
+	Crev2_max = g_Min;
+	if(Crev1_min != 0)
+	{
+		Crev1_min--;
+	}
+
+	Crev1_min = (PRINT_HEAD_LENGTH - 1 - Crev1_min);
+
+	if(Crev2_max != 0)
+	{
+		Crev2_max--;
+	}
+
+	Crev2_max = (PRINT_HEAD_LENGTH - 1 - Crev2_max) + 1;
+	PRINTER_PDL.SYS._WDG_ReloadCounter();
+	while(Crev1_min < Crev2_max)
+	{
+
+		i = (Crev1_min >> 4);
+		j = (Crev1_min & 0xF);
+		*(p_ListDataDot + i) |= (1 << (15- j));
+		Crev1_min++;
+
+	}
+	g_CalcPrintPos = s_PrintParameters.m_positions;//给满点
+	p_ListDataDot += BUFFER_SHORT_LENGTH;
+	return PROCESS_FINISH;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_38_Order(void)
+** Descriptions:       设置打印英文字符
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_38_Order(void)
+{
+	s_PrintParameters.m_CharType = TYPE_ENGLISH;
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_21_Order(void)
+** Descriptions:       
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+
+位 	1/0 	十六进制码 	十进制码 	功能 
+0,1 	? 	-- 	-- 	未定义 
+2 	0 	00 	0 	取消倍宽 
+	1 	04 	4 	选择倍宽 
+3 	0 	00 	0 	取消倍高 
+	1 	08 	8 	选择倍高 
+4-6 	? 	--- 	--- 	未定义 
+7 	0 	00 	0 	取消下划线 
+	1 	80 	128 	选择下划线 
+
+*********************************************************************************************************/
+
+unsigned int __FS_21_Order4(void)
+{
+	m_GetData =  PrinterCore();
+	//选择字体
+
+	//选择倍高模式
+	if((m_GetData & 0x8) == 0)
+	{
+		s_PrintParameters.m_VertZoomOut = 1;//取消备高
+	}
+	else
+	{
+		s_PrintParameters.m_VertZoomOut = 2;//设备备高
+	}
+	//选择倍宽模式
+	if((m_GetData & 0x4) == 0)
+	{
+		s_PrintParameters.m_HoriZoomOut = 1;//取消倍宽
+	}
+	else
+	{
+		s_PrintParameters.m_HoriZoomOut = 2;//设置倍宽
+	}
+	//选择下划线
+	if((m_GetData & 0x80) == 0)
+	{
+		s_PrintParameters.m_Score_NOR &= 0x1;//取消下划线
+	}
+	else
+	{
+		s_PrintParameters.m_Score_NOR &= 0x1;
+		s_PrintParameters.m_Score_NOR |= 2;//选择下划线
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_26_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_26_Order(void)
+{
+	s_PrintParameters.m_CharType = TYPE_CHINESE;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_2E_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_2E_Order(void)
+{
+	s_PrintParameters.m_CharType = TYPE_ENGLISH;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_04_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+//版权所有，北京荣达创新科技有限公司
+//1C 04 AA 55 A5 5A 11 77 77 77 2E 72 64 2D 63 6E 2E 63 6F 6D 00
+*********************************************************************************************************/
+unsigned int __FS_04_Order(void)
+{
+//打印公司信息
+unsigned int	m_Reg_R0;
+unsigned short com,i;
+	com = 0;
+	mapHigh = m_GetData * 8;
+	while(1)
+	{
+		m_GetData =  PrinterCore();
+		if(m_GetData != 0xAA)
+			break;
+		m_GetData =  PrinterCore();
+		if(m_GetData != 0x55)
+			break;
+		m_GetData =  PrinterCore();
+		if(m_GetData != 0xA5)
+			break;
+		m_GetData =  PrinterCore();
+		if(m_GetData != 0x5A)
+			break;
+		m_GetData =  PrinterCore();
+		if(m_GetData != 0x11)
+			break;
+		com = 0x55;
+		break;
+	}
+	i =0;
+	while(com != 0)
+	{
+		m_GetData =  PrinterCore();
+		m_Reg_R0 = COM_P[i++];
+		if(m_Reg_R0 == 0x00)
+		{
+			Receive_count = 0;
+			g_Order_count = 0;
+			g_Receive_count = 0;
+			i=0;
+			while(COM_P1[i])
+			{
+				receive_bufer[Receive_count++] = COM_P1[i++]+mapHigh;
+			}
+			receive_bufer[Receive_count++] = 0x0D;
+			i=0;
+			while(COM_P[i])
+			{
+				receive_bufer[Receive_count++] = COM_P[i++]+0x10;
+			}
+			receive_bufer[Receive_count++] = 0x0D;
+			receive_bufer[Receive_count++] = 0x0D;
+			receive_bufer[Receive_count++] = 0x0D;
+			receive_bufer[Receive_count++] = 0x0D;
+			g_Receive_count = Receive_count;
+			break;
+		}
+		if((m_Reg_R0+0x10) != m_GetData)
+		{
+			break;
+		}
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __FS_70_Order(void)
+** Descriptions:       1C 70 打印NV位图
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_70_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+		//m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+		return PROCESS_FINISH;
+	}
+	//正式处理图形
+	m_GetData = PrinterCore();//得到图形编号
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	if(m_GetData == 0)
+	{
+		PrinterCore();//
+		return PROCESS_IN_LOOP;
+	}
+	m_GetData -= 1;
+	m_GetData = m_GetData * 4;//得到地址偏移量
+
+//	Getdata_ok = 0;
+	AT91F_DataFlashADDRRead(NV_MAP_LIST_ADDR + m_GetData,2,Buffer_writer_I);
+//	while(Getdata_ok == 0);
+	g_NVMapPrintAddr = Buffer_writer_I[0] << 16;
+	g_NVMapPrintAddr += Buffer_writer_I[1];
+	if(g_NVMapPrintAddr == 0xFFFFFFFF)
+	{
+		return PROCESS_IN_LOOP;
+	}
+	m_GetData = PrinterCore();//得到图形格式控制字
+
+	if((m_GetData == 0) || (m_GetData == 48))
+	{
+		m_charType = 0x11;//高4位为宽 低 4位为高
+	}
+	else if((m_GetData == 1) || (m_GetData == 49))
+	{
+		m_charType = 0x21;//高4位为宽 低 4位为高
+	}
+	else if((m_GetData == 2) || (m_GetData == 50))
+	{
+		m_charType = 0x12;//高4位为宽 低 4位为高
+	}
+	else
+	{
+		m_charType = 0x22;//高4位为宽 低 4位为高
+	}
+
+	AT91F_DataFlashADDRRead(g_NVMapPrintAddr,2,Buffer_writer_I);
+
+
+	m_len = Buffer_writer_I[0];//得到总宽度
+	m_high = Buffer_writer_I[1] * 8;
+	
+
+	
+
+	if((m_len == 0) ||(m_high == 0))
+	{
+		return PROCESS_IN_LOOP;
+	}
+	if(m_len == 0xFFFF)
+	{
+		return PROCESS_IN_LOOP;
+	}
+	if(m_high == 0xFFFF)
+	{
+		return PROCESS_IN_LOOP;
+	}
+
+	m_CharWide = BUFFER_SHORT_LENGTH * 2;
+	if((m_charType & 0xf0) == 0x20)
+	{
+		m_CharWide = BUFFER_SHORT_LENGTH;
+	}
+	if (m_len > m_CharWide)
+	{
+		m_Wide = m_CharWide;
+	}
+	else
+	{
+		m_Wide = m_len;
+	}
+
+	g_NVMapPrintAddr += 4;//收据存放地址
+
+	CodeBarStr[0] = 0x1D;
+	CodeBarStr[1] = 0xFA;
+	CodeBarStr[2] = m_charType;
+	CodeBarStr[3] = m_len;//实际数据存放宽度字节数
+	CodeBarStr[4] = m_Wide;//打印宽度字节数
+	CodeBarStr[5] = (m_high >> 8) & 0xff;//打印高度
+	CodeBarStr[6] = m_high & 0xff;//打印高度
+	m_GetData = 0;
+	s_PrintOrderstr.m_GetdataPos = 7;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	s_PrintParameters.m_CharType = TYPE_ENGLISH;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:    unsigned int __FS_71_Order(void)
+** Descriptions:       1C 71下载多个NV位图
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __FS_71_Order(void)
+{
+	/*
+	Define NV bit image
+	FS q n [xL xH yL yH d1...dk]1...[ xL xH yL yH d1...dk]n
+	1C 71 n [xL xH yL yH d1...dk]1...[ xL xH yL yH d1...dk]n
+	Total defined data area = 150K bytes
+	n 下载图形总个数
+	xL xH 横向宽度 字节  宽度等于 (xH*256 + xL)*8;
+	 yL yH 纵向高度 字节 高度等于 (yH*256 + yL)*8;
+
+	*/
+	unsigned int	m_Reg_R0;
+	unsigned short k,i,com;
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	Erase_Sector = 0;
+	k = PrinterCore();//图形个数
+	for (i=0;i<256;i++)
+	{
+		Buffer_writer_I[i]= 0;
+	}
+	if(k == 0)
+	{
+
+		AT91F_DataFlashPageWrite (NV_MAP_LIST_ADDR,Buffer_writer_I);//保存NVMAP地址信息
+		return PROCESS_IN_LOOP;
+	}
+	m_GetDataAddrss = (U32)NV_MAP_TEMP_BUFF;
+
+	for(mapHigh=0;mapHigh < k;mapHigh++ )
+	{
+		//NVMAP_TEMP_Addr NVMAP_SAVE_Addr
+
+		NVMAP_TEMP_Addr[mapHigh] = m_GetDataAddrss;//数据保存临时地址
+
+		m_Wide = PrinterCore();//得到图形的宽度 宽度 ＝ m_Wide × 8;
+		m_Wide += PrinterCore() << 8;
+
+		m_high = PrinterCore();//得到高度字节数高度的点数为 m_high × 8
+		m_high += PrinterCore() << 8;
+
+		NVMAP_WL_List[mapHigh*2] = m_Wide;//宽度
+		NVMAP_WL_List[mapHigh*2+1] = m_high;//高度
+
+
+		m_len = m_Wide * m_high * 8;//得到字节总长度
+		m_CharWide = m_Wide * 8;//得到图形宽度
+
+
+		m_Reg_R0 = 0;
+
+		m_Charhigh = m_high >> 1;
+		if((m_high & 1)== 1)
+		{
+			m_Charhigh++;
+		}
+		for (com=0;com<m_CharWide;com++)
+		{
+			m_len = 0;
+			for(m_CharDegree=0;m_CharDegree<m_Charhigh;m_CharDegree++)
+			{
+				m_GetData = (PrinterCore() << 8) & 0xff00;
+				m_len++;
+				if(m_len < m_high)
+				{
+					m_GetData |= PrinterCore() & 0x00ff;
+				}
+				m_len++;
+				Buffer_writer_I[m_Reg_R0++] = m_GetData;
+				if(m_Reg_R0 > 255)
+				{
+					PRINTER_PDL.SYS._LED_Stauts_Trig();
+					
+					m_Reg_R0 = 0;
+					AT91F_DataFlashPageWrite (m_GetDataAddrss,Buffer_writer_I);
+					//for(i=0;i<0x13BFF;i++);//在等于0x13BFF延时约等于50ms
+					m_GetDataAddrss += 0x200;
+				}
+			}
+		}
+		if (m_Reg_R0>0)
+		{
+
+			PRINTER_PDL.SYS._LED_Stauts_Trig();
+			AT91F_DataFlashPageWrite (m_GetDataAddrss,Buffer_writer_I);
+			//for(i=0;i<0x13BFF;i++);//在等于0x13BFF延时约等于50ms
+			m_GetDataAddrss += 0x200;
+		}
+	}
+
+	g_MAP_ADDR_G = NV_MAP_BUFF_ADDR;
+
+	for(mapHigh=0;mapHigh < k;mapHigh++ )
+	{
+
+		m_Wide = NVMAP_WL_List[mapHigh*2];//宽度
+		m_high = NVMAP_WL_List[mapHigh*2+1];//高度
+
+		if((m_Wide * 8)  > PRINT_HEAD_LENGTH)
+		{
+			m_Wide = 48;
+		}
+		//================数据整理======================================
+		NVMAP_SAVE_Addr[mapHigh] = g_MAP_ADDR_G;
+
+		m_GetDataAddrss = NVMAP_TEMP_Addr[mapHigh];
+
+		PRINTER_PDL.SYS._LED_Stauts_Trig();
+		ProcessNVBitMap(m_GetDataAddrss,g_MAP_ADDR_G,m_Wide,m_high,&(p_ListPrease->m_ListBuffer[0]));
+	}
+	//保存图形数据起始地址
+	for (i=0;i<256;i++)
+	{
+		Buffer_writer_I[i]= 0;
+	}
+	i=0;
+	for(mapHigh=0;mapHigh < k;mapHigh++ )
+	{
+		Buffer_writer_I[i++] = (NVMAP_SAVE_Addr[mapHigh] >> 16) & 0xffff;
+		Buffer_writer_I[i++] = NVMAP_SAVE_Addr[mapHigh] & 0xffff;
+	}
+	PRINTER_PDL.SYS._LED_Stauts_Trig();
+	AT91F_DataFlashPageWrite (NV_MAP_LIST_ADDR,Buffer_writer_I);//保存NVMAP地址信息
+//	AT91F_WDTRestart(pWDTC) ;
+	//for(i=0;i<0x13BFF;i++);//在等于0x13BFF延时约等于50ms
+//	AT91F_WDTRestart(pWDTC) ;
+	//SET_H_LED;						// turn LED1 (DS1) on
+
+	PRINTER_PDL.SYS._LED_Stauts_OFF();
+
+
+	return PROCESS_CONTINUE;
+}
+
+// *********************************************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+// ******************************以下为1D命令解析函数***************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+// *********************************************************************************************************
+/*
+*******************************************************************************************************************
+[格式]	ASCII码		GS ! n
+		十六进制码	1D 21 n
+		十进制码		29 33 n
+[范围] 0 ≤ n ≤ 255 （1 ≤ 纵向放大倍数 ≤ 8，1 ≤ 横向放大倍数 ≤ 8） 
+[描述] 一个 byte 有 8 位，用 0 到 2 位选择字符高度，4 到 6 位选择字符宽度
+
+
+
+*******************************************************************************************************************
+**/
+//1B 21 n 选择打印模式
+
+unsigned int __GS_21_Order(void)
+{
+	m_GetData =  PrinterCore();
+
+	//选择高
+
+	s_PrintParameters.m_VertZoomOut = (m_GetData&0x7) + 1;//设备备高
+
+	//选择宽
+
+	s_PrintParameters.m_HoriZoomOut = ((m_GetData >> 4)&0x7) + 1;//取消倍宽
+
+
+	return PROCESS_CONTINUE;
+}
+
+
+/* ********************************************************************************************************
+** Function name:     unsigned int __GS_76_Order(void)
+** Descriptions:       打印光栅图形
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+******************************************************************************************************** */
+unsigned int __GS_76_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+	//	m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+		return PROCESS_FINISH;
+		//goto ProcessEnd;
+	}
+	m_GetData = PrinterCore();
+
+	if(m_GetData == 0x30)	// GS v 0 
+	{
+				/* One GS v 0 command is one application label in the captured
+		 * Bluetooth stream. Its rows are parsed in 24-row chunks. */
+		/* Start tracking this GS v 0 raster label so it can be paused only after its final block. */
+#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+		g_ThermalRasterLabelActive = 1;
+		g_ThermalRasterFinalChunkQueued = 0;
+		g_ThermalRasterFinalBuffer = 0;
+#endif
+		//正式处理图形
+
+		m_GetData = PrinterCore();//得到图形格式控制字
+		if((m_GetData == 0) || (m_GetData == 48))
+		{
+			m_charType = 0x11;//高4位为宽 低 4位为高
+		}
+		else if((m_GetData == 1) || (m_GetData == 49))
+		{
+			m_charType = 0x21;//高4位为宽 低 4位为高
+		}
+		else if((m_GetData == 2) || (m_GetData == 50))
+		{
+			m_charType = 0x12;//高4位为宽 低 4位为高
+		}
+		else
+		{
+			m_charType = 0x22;//高4位为宽 低 4位为高
+		}
+
+		m_len = PrinterCore();//宽度低8位
+		m_Wide = PrinterCore() ;//宽度高8位
+		m_len += m_Wide << 8;//得到总宽度
+		m_Wide = BUFFER_SHORT_LENGTH * 2 ;
+		if((m_charType & 0xf0) == 0x20)
+		{
+			m_Wide = BUFFER_SHORT_LENGTH;
+		}
+		if (m_len > m_Wide)
+		{
+			m_Wide = m_len - m_Wide;
+			m_len = m_len - m_Wide;
+		}
+		else
+		{
+			m_Wide = 0;
+		}
+
+
+		CodeBarStr[0] = 0x1D;
+		CodeBarStr[1] = 0xAA;
+		CodeBarStr[2] = m_charType;
+		CodeBarStr[3] = m_len;//打印宽度
+		CodeBarStr[4] = m_Wide;//多余字节
+		CodeBarStr[5] = PrinterCore();//打印高度
+		CodeBarStr[6] = PrinterCore();//打印高度
+		
+#ifdef BT_NACK
+		{
+			unsigned short incomingHeight = (unsigned short)CodeBarStr[5] | ((unsigned short)CodeBarStr[6] << 8);
+			if (label_length_mm > 0) {//if (g_label_size_final > 0) {   //Modify by kajal for Label size buffer overflow command to send to the application (21 Jule 2026 @11:50AM)
+				unsigned short limitDots = (unsigned short)label_length_mm * 8;//unsigned short limitDots = (unsigned short)g_label_size_final * 8;  //Modify by kajal for Label size buffer overflow command to send to the application (21 Jule 2026 @11:50AM)
+				if (incomingHeight > limitDots)
+				{ 						
+#ifdef BT_CMD_REQ
+						Get_Oversize_Detection_BT_Response((incomingHeight/8),label_length_mm);
+#endif		
+					if (ShowSizeMismatchPrompt() == 0) { 
+						unsigned int totalSwallow = (unsigned int)(m_len + m_Wide) * incomingHeight;
+						unsigned int s;
+						unsigned int m_w;
+						extern unsigned char GetStr8x16Wide(char * pstr,unsigned char m_Type);
+						extern void ClearDisplayBuf(void);
+						extern void DisplayStr8x16char(char * pstr,unsigned char x,unsigned char y,unsigned char m_Type);
+						extern void DisplayBufEn(void);
+						extern void OLED_RestoreHomeScreen(void);						
+						
+						g_DiscardPrinting = 1; 
+						//  Display  feedback for Discarding
+						ClearDisplayBuf();
+						m_w = GetStr8x16Wide((char*)"Discarding Data", 0);
+						DisplayStr8x16char("Discarding Data", (128-m_w)/2, 0, 0);
+						m_w = GetStr8x16Wide((char*)"R: SIZE OVRFLW", 0);
+						DisplayStr8x16char("R: SIZE OVRFLW", (128-m_w)/2, 16, 0);
+						DisplayBufEn();											
+						
+						Delay1ms(2000); // Show feedback for 2 seconds
+						ClearDisplayBuf();
+						for (s = 0; s < totalSwallow; s++) {
+							PrinterCore();
+							PRINTER_PDL.SYS._WDG_ReloadCounter();
+						}
+						
+						// Swallow trailing print/feed commands (LF, CR, FF, ESC i)
+						// while data is still in the buffer
+						while (Receive_count > 0) {
+							unsigned char nextByte = PrinterCore();
+							if (nextByte == 0x0C || nextByte == 0x0A || nextByte == 0x0D) {
+								continue;
+							} else if (nextByte == 0x1B) {
+								if (Receive_count > 0) {
+									unsigned char subByte = PrinterCore();
+									if (subByte == 0x69) {
+										continue;
+									} else {
+										// Not 'i', put both back
+										__SETPRIMASK();
+										Receive_count += 2;
+										g_Order_count = (g_Order_count - 2) & MASK_DATA;
+										__RESETPRIMASK();
+										break;
+									}
+								} else {
+									// Put back ESC
+									__SETPRIMASK();
+									Receive_count += 1;
+									g_Order_count = (g_Order_count - 1) & MASK_DATA;
+									__RESETPRIMASK();
+									break;
+								}
+							} else {
+								// Not a feed command, put it back
+								__SETPRIMASK();
+								Receive_count++;
+								g_Order_count = (g_Order_count - 1) & MASK_DATA;
+								__RESETPRIMASK();
+								break;
+							}
+						}
+						
+						OLED_RestoreHomeScreen();
+						//g_DiscardPrinting = 0; 
+						
+						return PROCESS_START; // Silently finish and reset parser state
+					} else { 
+						g_DiscardPrinting = 0; 
+					}
+				} else {
+					g_DiscardPrinting = 0;
+				}
+			}
+		}
+#endif	
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+        if (((unsigned short)CodeBarStr[5] | ((unsigned short)CodeBarStr[6] << 8)) != 0 && m_len != 0)
+            BatteryLowCharge_LabelStarted();
+#endif		
+		
+		m_GetData = 0;
+		s_PrintOrderstr.m_GetdataPos = 7;
+		s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_AA_Order(void)
+** Descriptions:       打印位图
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_AA_Order(void)
+{
+	unsigned short i,com,k;
+	unsigned int	m_Reg_R0;
+	//**************************************************************************
+	
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 1) //If discard printing then finish process
+	{
+		return PROCESS_FINISH;
+	}
+/*	
+	if(g_Lab_head_Feed == 0xA537)
+	{
+		if(g_DiscardPrinting == 5)   //No Discard 
+		{
+			  *p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	      *p_ListDataDot++ = PRINT_MAP;
+//				unsigned short align_steps = s_PrintrConfig.m_HotLineTOOUT*32 + 32;
+//				g_Lab_head_Feed = 0x5523;
+//				PRINTER_PDL.SYS._Drive_Power_EN();
+//				PRINTER_PDL.MOTO._MotoRun_FX(&g_MotoAll, align_steps);
+//				PRINTER_PDL.SYS._Drive_Power_DIS();
+//				for(i=0;i<32;i++)
+//				{
+//					Delay1ms(2);
+//					SetFreValue(PRINTER_PDL.SYS._PaperGapDet());
+//				}
+		}
+		else{
+				unsigned short align_steps = s_PrintrConfig.m_HotLineTOOUT*32 + 32;
+				g_Lab_head_Feed = 0x5523;
+				PRINTER_PDL.SYS._Drive_Power_EN();
+				PRINTER_PDL.MOTO._MotoRun_FX(&g_MotoAll, align_steps);
+				PRINTER_PDL.SYS._Drive_Power_DIS();
+				for(i=0;i<32;i++)
+				{
+					Delay1ms(2);
+					SetFreValue(PRINTER_PDL.SYS._PaperGapDet());
+				}
+		}
+	}	*/
+  *p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_MAP;
+
+/*	if (g_DiscardPrinting == 0)
+	{
+		if(g_Lab_head_Feed == 0xA537)
+		{
+			unsigned short align_steps = s_PrintrConfig.m_HotLineTOOUT*32 + 32;
+			g_Lab_head_Feed = 0x5523;
+			PRINTER_PDL.SYS._Drive_Power_EN();
+			PRINTER_PDL.MOTO._MotoRun_FX(&g_MotoAll, align_steps);
+			PRINTER_PDL.SYS._Drive_Power_DIS();
+			for(i=0;i<32;i++)
+			{
+				Delay1ms(2);
+				SetFreValue(PRINTER_PDL.SYS._PaperGapDet());
+			}
+		}
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		*p_ListDataDot++ = PRINT_MAP;
+	}	*/
+#else	
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_MAP;//打印数据头
+#endif		
+	//-------------图形的宽度是有可能超过255的
+	m_charType = PrinterCore();//得到放大系数
+	m_len =  PrinterCore();//得到打印宽度系数
+	m_Reg_R0 = m_len * 8;
+
+	m_Wide = (m_charType >> 4) & 0xf;
+	k = m_Wide;
+#ifdef BT_NACK
+	if (g_DiscardPrinting == 0)
+#endif	
+	*p_ListDataDot++ = (m_Reg_R0 << 4) | m_Wide;//字符宽度放大
+	m_Wide = PrinterCore();//得到多余字节
+
+	mapHigh = PrinterCore();//高度低8位
+	mapHigh += (PrinterCore() << 8);//高度高8位
+
+	if (mapHigh > 24)
+	{
+		if ((mapHigh - 24) < 24)
+		{
+			g_mapCount = mapHigh >> 1;
+		}
+		else
+		{
+			g_mapCount = 24;
+		}
+	}
+	else
+	{
+
+		g_mapCount = mapHigh;
+	}
+	m_high = mapHigh - g_mapCount;
+
+	m_charType = m_charType & 0xf;//高度放大倍数
+
+	*p_ListDataDot++ = ((g_mapCount) << 4) | m_charType;//图形的高度不发生变化
+	*p_ListDataDot++ = 0;
+	//-------------
+#ifdef BT_NACK
+   if (g_DiscardPrinting == 0)
+	 {
+		 g_CalcPrintPos += m_Reg_R0 * k;
+		 p_ListPrease->m_PrintLineHigh = g_mapCount * m_charType;
+	 }
+#else
+	g_CalcPrintPos += m_Reg_R0 * k;
+
+	p_ListPrease->m_PrintLineHigh = g_mapCount * m_charType;
+#endif
+	for (i=0;i<g_mapCount;i++)
+	{
+		for (com=0;com < m_len;com++)
+		{
+			if ((com &1) == 0)
+			{
+				m_GetData = PrinterCore();
+			}
+
+			if ((com &1) == 1)
+			{
+#ifdef BT_NACK
+				if (g_DiscardPrinting == 1) {
+					PrinterCore(); // Swallow
+				} 
+				else
+					*p_ListDataDot++ = (m_GetData << 8) | PrinterCore();
+#else				
+				*p_ListDataDot++ = (m_GetData << 8) | PrinterCore();
+#endif				
+			}
+
+		}
+		if ((m_len &1) == 1)
+		{
+#ifdef BT_NACK
+			if (g_DiscardPrinting == 1) {
+		                // Already swallowed in the first half of the byte loop
+		  } 
+			else
+				*p_ListDataDot++ = m_GetData;
+#else			
+			*p_ListDataDot++ = m_GetData;
+#endif		
+		}
+		for (com=0;com<m_Wide;com++)
+		{
+			PrinterCore();
+		}
+	}
+	if (m_high != 0)
+	{
+		CodeBarStr[5] = m_high & 0xff;//打印高度
+		CodeBarStr[6] = (m_high>>8) & 0xff;//打印高度
+		m_GetData = 0;
+		s_PrintOrderstr.m_GetdataPos = 7;
+		s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	}
+	else
+	{
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+        BatteryLowCharge_LabelFinalQueued((p_ListPrease == &s_ListParmeter_A) ? 1 : 2);
+#endif
+		/* Record which list buffer contains the label's final raster rows for boundary-safe stopping. */
+#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+		/* This list buffer contains the final rows of the current GS v 0
+		 * label. ProcessMotoLineData stops only after it is physically done. */
+		g_ThermalRasterFinalChunkQueued = 1;
+		g_ThermalRasterFinalBuffer = (p_ListPrease == &s_ListParmeter_A) ? 1 : 2;
+#endif
+	}
+	p_ListPrease->m_PrintLineSpace = 0;
+	return PROCESS_FINISH;
+}
+
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_28_Order(void)
+** Descriptions:       打印QR条码
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+ ASCII： GS ( 1 ml mh v e [d] 
+十进制： 29 40 49 ml mh v e [d] 
+十六进制： 1D 28 31 ml mh v e [d] 
+说明：1、mh×256+ml 数据字节数（含 v,e） 2、v=1～9，QR 码版本号（0 表示自动选择版本）
+3、e=0～3，ECC 纠错级别(依次对应 L:7%, M:15%,Q:25%,H:30%) 
+4、[d] 数据(任意内容)； 5、QR 码符号模块的大小为一维条码窄条尺寸的 3 倍。
+*********************************************************************************************************/
+char	QRStrBuffer[1024];//条码缓冲区
+unsigned char g_QRLevel,g_Version;
+unsigned short g_QRLen;
+QRcode *qrcode=NULL;
+unsigned int __GS_28_Order(void)
+{
+
+	int i,k;
+
+	unsigned int	m_Reg_R0;
+
+	unsigned char m_pL,m_pH,m_cn,m_fn;
+	
+	
+	if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+	//	m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+		return  PROCESS_FINISH;
+	}
+	m_charType = PrinterCore();
+	#ifdef QR_ENCODE_ENABLE	
+//	s_CodeBarCon.m_CharSpace;
+	if(m_charType == 49)
+	{
+		m_Wide = PrinterCore();
+		m_Wide += (PrinterCore() << 8)&0xff00;	
+	
+		s_PrintParameters.m_QRZoom = 4;		
+//		while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR)
+//		{
+//		}
+		//for(i=0;i<1024;i++)
+		//{
+		//	QRStrBuffer[i] = 0;
+		//}
+		m_Reg_R0 = PrinterCore();//得到版本号
+		mapHigh  = PrinterCore();//得到纠错等级
+
+
+		//m_Wide -= 2;
+		for(i=0;i<m_Wide;i++)
+		{
+			QRStrBuffer[i] = PrinterCore();
+		}
+
+		QRStrBuffer[i] = 0;
+		
+		QRcode_free(qrcode);
+		qrcode = QRcode_encodeString(QRStrBuffer, m_Reg_R0,(QRecLevel)mapHigh, QR_MODE_8, 1);
+		if(qrcode != NULL)
+		{
+			//***************************************************
+			if(s_CodeBarCon.m_BarSpace > g_CalcPrintPos)
+			{
+				*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+				*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+				*p_ListDataDot++ = s_CodeBarCon.m_BarSpace - g_CalcPrintPos;
+				g_CalcPrintPos = s_CodeBarCon.m_BarSpace;
+			}
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_MAP;//打印数据头
+			//-------------图形的宽度是有可能超过255的
+			*p_ListDataDot++ = (qrcode->width << 4) | s_PrintParameters.m_QRZoom;//字符宽度放大
+			*p_ListDataDot++ = ((qrcode->width+4) << 4) | s_PrintParameters.m_QRZoom;//高度跟随放大倍数变化
+			//-------------
+			*p_ListDataDot++ = 0;
+			if (p_ListPrease->m_PrintLineHigh < ((qrcode->width+4)  * s_PrintParameters.m_QRZoom) )
+			{
+				p_ListPrease->m_PrintLineHigh = ((qrcode->width+4)  * s_PrintParameters.m_QRZoom);
+			}
+			//**************************************************************************
+
+			m_Reg_R0 = ((qrcode->width)>> 4);
+			if((qrcode->width) & 0xf)
+			{
+				m_Reg_R0++;
+			}
+			p_QRListDataDot = p_ListDataDot;
+			for(i=0;i<2000;i++)
+			{
+				*p_QRListDataDot++ = 0;
+			}
+
+			g_CalcPrintPos += qrcode->width *  s_PrintParameters.m_QRZoom;
+
+			if (p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+			{//台序
+				for (i = 0; i < qrcode->width; ++i)
+				{
+					for (k = 0; k < qrcode->width; ++k)
+					{
+						if(qrcode->data[i*qrcode->width+k]&0x01)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							m_Wide = k >> 4;
+							p_QRListDataDot += m_Wide;
+							m_Wide = k & 0xf;
+							m_GetData = *p_QRListDataDot;
+							m_GetData |= 1 <<  (15-m_Wide);
+							*p_QRListDataDot = m_GetData;
+						}
+					}
+					if(qrcode->width & 0xf)
+					{
+						p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+						k = qrcode->width >> 4;
+						p_QRListDataDot += k;
+						m_GetData = *p_QRListDataDot ;
+						k = 16 - (qrcode->width & 0xf);
+						*p_QRListDataDot = m_GetData >> k;
+					}
+				}
+			}
+			else
+			{//面板序
+				for (i = 0; i < qrcode->width; ++i)
+				{
+					for (k = 0; k < qrcode->width; ++k)
+					{
+						if(qrcode->data[(qrcode->width - i - 1)*qrcode->width+(qrcode->width - k - 1)]&0x01)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							m_Wide = k >> 4;
+							p_QRListDataDot += m_Wide;
+							m_Wide = k & 0xf;
+							m_GetData = *p_QRListDataDot;
+							m_GetData |= 1 <<  (15-m_Wide);
+							*p_QRListDataDot = m_GetData;
+						}
+					}
+					if(qrcode->width & 0xf)
+					{
+						p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+						k = qrcode->width >> 4;
+						p_QRListDataDot += k;
+						m_GetData = *p_QRListDataDot ;
+						k = 16 - (qrcode->width & 0xf);
+						*p_QRListDataDot = m_GetData >> k;
+					}
+				}
+				
+			}
+			p_ListDataDot += m_Reg_R0 * (qrcode->width+4);
+			QRcode_free(qrcode);
+			return PROCESS_FINISH;
+		}
+
+	}
+#endif
+
+	if(m_charType == 0x48)
+	{
+		i = PrinterCore();
+		i += PrinterCore()<<8;
+		if(i != 6)
+		{
+			return PROCESS_CONTINUE;
+		}
+		if(PrinterCore() != 48)
+		{
+			return PROCESS_CONTINUE;
+		}
+		if(PrinterCore() != 48)
+		{
+			return PROCESS_CONTINUE;
+		}
+		
+		i = 0;
+		g_returnBuffer[i++] =  0x37;
+		g_returnBuffer[i++] =  0x22;
+		g_returnBuffer[i++] =  PrinterCore();
+		g_returnBuffer[i++] =  PrinterCore();
+		g_returnBuffer[i++] =  PrinterCore();
+		g_returnBuffer[i++] =  PrinterCore();
+		if(g_ReturnEp == 0xA001)
+		{
+			PRINTER_PDL.RS232._SendBuf(g_returnBuffer,i);
+		}
+		if(g_ReturnEp == 0xA002)
+		{
+			PRINTER_PDL.TTL._SendBuf(g_returnBuffer,i);
+		}	
+		if(g_ReturnEp == 0xA003)
+		{
+		 PRINTER_PDL.USB._ReturnNBytes(g_returnBuffer,i);
+		}	
+		Delay1ms(3);
+	}
+	else if(m_charType == 0x6B)
+	{
+		m_pL = PrinterCore();//pL
+		m_pH = PrinterCore();//pH
+		m_cn = PrinterCore();//cn
+		m_fn = PrinterCore();//fn
+		
+		//QR码：选择型号 (cn = 49 , fn = 65)
+		if((m_cn==49)&&(m_fn == 65))
+		{
+			
+			PrinterCore();//n1
+			PrinterCore();//n2
+		}
+		//QR码：设定模块大小 (cn = 49 , fn = 67)
+		else if((m_cn==49)&&(m_fn == 67))
+		{
+			
+			m_Reg_R0 = PrinterCore();//n
+			if(m_Reg_R0 == 0)
+			{
+				m_Reg_R0 = 3;
+			}
+			s_PrintParameters.m_QRZoom = m_Reg_R0;
+		}
+		//QR码：选择错误校正等级 (cn = 49 , fn = 69)
+		else if((m_cn==49)&&(m_fn == 69))
+		{
+			
+			g_QRLevel = PrinterCore() & 3;//n
+			g_Version = 0;
+		}		
+		//QR码：保存符号存储区域的数据 (cn = 49 , fn = 80)
+		else if((m_cn==49)&&(m_fn == 80))
+		{
+			if(PrinterCore() != 48)
+			{
+				return PROCESS_CONTINUE;
+			}
+			g_QRLen = 	(m_pL + m_pH*256) - 3;
+			memset(QRStrBuffer,0,1024);
+			
+			for(i=0;i<g_QRLen;i++)
+			{
+				QRStrBuffer[i] = PrinterCore();
+			}
+			//处理二维码
+
+			
+			QRcode_free(qrcode);
+			qrcode = QRcode_encodeString(QRStrBuffer, g_Version,(QRecLevel) g_QRLevel, QR_MODE_8, 1);
+			if(qrcode != NULL)
+			{
+				//***************************************************
+				g_QR_enable = 0x123;
+
+				return PROCESS_CONTINUE;
+			}				
+			
+		}
+		//QR码：打印符号存储区域的符号数据 (cn = 49 , fn = 81)
+		else if((m_cn==49)&&(m_fn == 81))
+		{
+			if(PrinterCore() != 48)
+			{
+				return PROCESS_CONTINUE;
+			}
+			//打印二维码
+		//	g_QR_enable |= 0xA000;
+		//	g_QR_SpaceCount = 0;
+			if(g_QR_enable == 0x123)
+			{
+				g_QR_enable = 0;
+				//***************************************************
+				if(s_CodeBarCon.m_BarSpace > g_CalcPrintPos)
+				{
+					*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+					*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+					*p_ListDataDot++ = s_CodeBarCon.m_BarSpace - g_CalcPrintPos;
+					g_CalcPrintPos = s_CodeBarCon.m_BarSpace;
+				}
+				//**************************************************************************
+				*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+				*p_ListDataDot++ = PRINT_MAP;//打印数据头
+				//-------------图形的宽度是有可能超过255的
+				*p_ListDataDot++ = (qrcode->width << 4) | s_PrintParameters.m_QRZoom;//字符宽度放大
+				*p_ListDataDot++ = ((qrcode->width+4) << 4) | s_PrintParameters.m_QRZoom;//高度跟随放大倍数变化
+				//-------------
+				*p_ListDataDot++ = 0;
+				if (p_ListPrease->m_PrintLineHigh < ((qrcode->width+4)  * s_PrintParameters.m_QRZoom) )
+				{
+					p_ListPrease->m_PrintLineHigh = ((qrcode->width+4)  * s_PrintParameters.m_QRZoom);
+				}
+				//**************************************************************************
+
+				m_Reg_R0 = ((qrcode->width)>> 4);
+				if((qrcode->width) & 0xf)
+				{
+					m_Reg_R0++;
+				}
+				p_QRListDataDot = p_ListDataDot;
+				for(i=0;i<2000;i++)
+				{
+					*p_QRListDataDot++ = 0;
+				}
+
+				g_CalcPrintPos += qrcode->width *  s_PrintParameters.m_QRZoom;
+
+				if (p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+				{//台序
+					for (i = 0; i < qrcode->width; ++i)
+					{
+						for (k = 0; k < qrcode->width; ++k)
+						{
+							if(qrcode->data[i*qrcode->width+k]&0x01)
+							{
+								p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+								m_Wide = k >> 4;
+								p_QRListDataDot += m_Wide;
+								m_Wide = k & 0xf;
+								m_GetData = *p_QRListDataDot;
+								m_GetData |= 1 <<  (15-m_Wide);
+								*p_QRListDataDot = m_GetData;
+							}
+						}
+						if(qrcode->width & 0xf)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							k = qrcode->width >> 4;
+							p_QRListDataDot += k;
+							m_GetData = *p_QRListDataDot ;
+							k = 16 - (qrcode->width & 0xf);
+							*p_QRListDataDot = m_GetData >> k;
+						}
+					}
+				}
+				else
+				{//面板序
+					for (i = 0; i < qrcode->width; ++i)
+					{
+						for (k = 0; k < qrcode->width; ++k)
+						{
+							if(qrcode->data[(qrcode->width - i - 1)*qrcode->width+(qrcode->width - k - 1)]&0x01)
+							{
+								p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+								m_Wide = k >> 4;
+								p_QRListDataDot += m_Wide;
+								m_Wide = k & 0xf;
+								m_GetData = *p_QRListDataDot;
+								m_GetData |= 1 <<  (15-m_Wide);
+								*p_QRListDataDot = m_GetData;
+							}
+						}
+						if(qrcode->width & 0xf)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							k = qrcode->width >> 4;
+							p_QRListDataDot += k;
+							m_GetData = *p_QRListDataDot ;
+							k = 16 - (qrcode->width & 0xf);
+							*p_QRListDataDot = m_GetData >> k;
+						}
+					}
+					
+				}
+				p_ListDataDot += m_Reg_R0 * (qrcode->width+4);
+				//m_ProcessFlag = PROCESS_FINISH;
+				QRcode_free(qrcode);
+				return PROCESS_FINISH;
+			}			
+			
+		}
+		//QR码：传送符号存储区域的符号数据大小信息 (cn = 49 , fn = 82)
+		else if((m_cn==49)&&(m_fn == 82))
+		{
+			if(PrinterCore() != 48)
+			{
+				return PROCESS_CONTINUE;
+			}
+			//处理二维码
+			QRcode_free(qrcode);
+			qrcode = QRcode_encodeString(QRStrBuffer, g_Version, (QRecLevel)g_QRLevel, QR_MODE_8, 1);
+			if(qrcode != NULL)
+			{
+				//***************************************************
+				g_QR_enable = 0x123;
+
+				return PROCESS_CONTINUE;
+			}		
+		}
+		
+	}		
+	
+	
+	
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_6B_Order(void)
+** Descriptions:       打印一维条码
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_6B_Order(void)
+{
+#ifdef QR_ENCODE_ENABLE
+	int i,k;
+	char	QRStrBuffer[1024];//条码缓冲区
+
+	unsigned int	m_Reg_R0;
+#endif
+#ifdef PDF417_ENCODE_ENABLE
+	unsigned int	m_Reg_R0;
+	int i,k,m,m_pdfSize;
+	int cols;
+	pdf417param p;
+	char	PDFStrBuffer[1024];//条码缓冲区
+#endif
+
+	if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+	//	m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+		return  PROCESS_FINISH;
+	}
+//	s_CodeBarCon.m_CharSpace;
+	m_charType = PrinterCore();//得到条码区别码
+	if (m_charType == 0x49)//code128
+	{
+//		CODE128_encode
+
+		m_charType = 0;
+		if(ProcessCode128() != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 2) ||(m_charType == 67)) //EAN13
+	{
+		if (ProcessEAN13(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 3) ||(m_charType == 68)) //EAN8
+	{
+		if (ProcessEAN8(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 0) ||(m_charType == 65)) //UPC-A
+	{
+		if (ProcessUPCA(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 1) ||(m_charType == 66)) //UPC-E
+	{
+		if (ProcessUPCE(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 4) ||(m_charType == 69)) //UPC-E
+	{
+		if (ProcessCODE39(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if(m_charType == 72) //CODE93
+	{
+		if (ProcessCODE93() != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 5) ||(m_charType == 70))//ITF25
+	{
+		if (ProcessITF25(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+	if((m_charType == 6) ||(m_charType == 71))//CODABAR
+	{
+		if (ProcessCODABAR(m_charType) != 0)
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+		}
+		else
+		{
+			m_charType = 0xaa;
+		}
+	}
+
+	if (m_charType == 0xAA)//条码处理
+	{
+		m_charType = s_CodeBarCon.m_CharSpace ;
+		if (p_ListPrease->m_PrintDir ==PRINT_DIRECT_FX)
+		{
+			m_charType = 3 - m_charType;
+		}
+		if(m_charType == 1)//先打印条码字符
+		{
+			CodeBarStr[s_PrintOrderstr.m_GetdataPos++] = 0x1D;
+			CodeBarStr[s_PrintOrderstr.m_GetdataPos++] = 0x6B;
+			CodeBarStr[s_PrintOrderstr.m_GetdataPos++] = 0xFF;
+		}
+		else if(m_charType == 2)//后打印条码字符
+		{
+			m_charType = 0xff;
+
+		}
+		else//不打印条码字符
+		{
+			s_PrintOrderstr.m_GetdataPos = 0;
+			m_charType = 0xff;
+		}
+
+	}
+	if (m_charType == 0xff)//打印条码
+	{
+		*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+		*p_ListDataDot++ = PRINT_CURVE;//打印数据头
+		//-------------图形的宽度是有可能超过255的
+		*p_ListDataDot++ = p_ListPrease->m_PrintDir;//打印方向
+		p_ListPrease->m_PrintLineHigh =  s_CodeBarCon.m_BarHigh;//纵向放大倍数
+
+		if(p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+		{
+			for(m_charType = 0;m_charType < BUFFER_SHORT_LENGTH;m_charType++)
+			{
+				*p_ListDataDot++ = Buffer_CodeBar[m_charType];
+			}
+		}
+		else
+		{
+			ChangeBuffer();
+			for(m_charType = 0;m_charType < BUFFER_SHORT_LENGTH;m_charType++)
+			{
+				*p_ListDataDot++ = Buffer_Dataflash[m_charType];
+			}
+
+		}
+
+		g_CalcPrintPos = s_PrintParameters.m_positions;//给满点
+		return PROCESS_FINISH;
+	}
+#ifdef QR_ENCODE_ENABLE
+	if((m_charType == 32) ||(m_charType == 97))//CODABAR
+	{
+		while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR)
+		{
+		}
+		//for(i=0;i<1024;i++)
+		//{
+		//	QRStrBuffer[i] = 0;
+		//}
+		m_Reg_R0 = PrinterCore();//得到版本号
+		mapHigh  = PrinterCore();//得到纠错等级
+
+
+		if(m_charType == 32)
+		{
+			m_Wide = 0;
+			i = 0;
+			m_GetData = 1;
+			while(m_GetData != 0)
+			{
+				m_GetData = PrinterCore();
+				QRStrBuffer[i++] = m_GetData;
+				m_Wide++;
+			}
+			m_Wide--;
+		}
+		else
+		{
+			m_Wide = PrinterCore();
+			m_Wide += (PrinterCore() << 8)&0xff00;
+			for(i=0;i<m_Wide;i++)
+			{
+				QRStrBuffer[i] = PrinterCore();
+			}
+		}
+		QRStrBuffer[i] = 0;
+		QRcode_free(qrcode);
+		qrcode = QRcode_encodeString(QRStrBuffer, m_Reg_R0, (QRecLevel)mapHigh, QR_MODE_8, 1);
+		if(qrcode != NULL)
+		{
+			//***************************************************
+			if(s_CodeBarCon.m_BarSpace > g_CalcPrintPos)
+			{
+				*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+				*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+				*p_ListDataDot++ = s_CodeBarCon.m_BarSpace - g_CalcPrintPos;
+				g_CalcPrintPos = s_CodeBarCon.m_BarSpace;
+			}
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_MAP;//打印数据头
+			//-------------图形的宽度是有可能超过255的
+			*p_ListDataDot++ = (qrcode->width << 4) | s_PrintParameters.m_QRZoom;//字符宽度放大
+			*p_ListDataDot++ = ((qrcode->width+4) << 4) | s_PrintParameters.m_QRZoom;//高度跟随放大倍数变化
+			//-------------
+			*p_ListDataDot++ = 0;
+			if (p_ListPrease->m_PrintLineHigh < ((qrcode->width+4)  * s_PrintParameters.m_QRZoom) )
+			{
+				p_ListPrease->m_PrintLineHigh = ((qrcode->width+4)  * s_PrintParameters.m_QRZoom);
+			}
+			//**************************************************************************
+
+			m_Reg_R0 = ((qrcode->width)>> 4);
+			if((qrcode->width) & 0xf)
+			{
+				m_Reg_R0++;
+			}
+			p_QRListDataDot = p_ListDataDot;
+			for(i=0;i<2000;i++)
+			{
+				*p_QRListDataDot++ = 0;
+			}
+
+			g_CalcPrintPos += qrcode->width *  s_PrintParameters.m_QRZoom;
+
+			if (p_ListPrease->m_PrintDir == PRINT_DIRECT_NOR)
+			{//台序
+				for (i = 0; i < qrcode->width; ++i)
+				{
+					for (k = 0; k < qrcode->width; ++k)
+					{
+						if(qrcode->data[i*qrcode->width+k]&0x01)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							m_Wide = k >> 4;
+							p_QRListDataDot += m_Wide;
+							m_Wide = k & 0xf;
+							m_GetData = *p_QRListDataDot;
+							m_GetData |= 1 <<  (15-m_Wide);
+							*p_QRListDataDot = m_GetData;
+						}
+					}
+					if(qrcode->width & 0xf)
+					{
+						p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+						k = qrcode->width >> 4;
+						p_QRListDataDot += k;
+						m_GetData = *p_QRListDataDot ;
+						k = 16 - (qrcode->width & 0xf);
+						*p_QRListDataDot = m_GetData >> k;
+					}
+				}
+			}
+			else
+			{//面板序
+				for (i = 0; i < qrcode->width; ++i)
+				{
+					for (k = 0; k < qrcode->width; ++k)
+					{
+						if(qrcode->data[(qrcode->width - i - 1)*qrcode->width+(qrcode->width - k - 1)]&0x01)
+						{
+							p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+							m_Wide = k >> 4;
+							p_QRListDataDot += m_Wide;
+							m_Wide = k & 0xf;
+							m_GetData = *p_QRListDataDot;
+							m_GetData |= 1 <<  (15-m_Wide);
+							*p_QRListDataDot = m_GetData;
+						}
+					}
+					if(qrcode->width & 0xf)
+					{
+						p_QRListDataDot = p_ListDataDot + m_Reg_R0 * (i+4);
+						k = qrcode->width >> 4;
+						p_QRListDataDot += k;
+						m_GetData = *p_QRListDataDot ;
+						k = 16 - (qrcode->width & 0xf);
+						*p_QRListDataDot = m_GetData >> k;
+					}
+				}
+				
+			}
+			p_ListDataDot += m_Reg_R0 * (qrcode->width+4);
+			//m_ProcessFlag = PROCESS_FINISH;
+				QRcode_free(qrcode);
+			return PROCESS_FINISH;
+		}
+
+	}
+#endif
+#ifdef PDF417_ENCODE_ENABLE
+	if((m_charType == 33) ||(m_charType == 99))//CODABAR
+	{
+
+
+		if(m_charType == 33)
+		{
+			m_Wide = 0;
+			i = 0;
+			m_GetData = 1;
+			while(m_GetData != 0)
+			{
+				m_GetData = PrinterCore();
+				PDFStrBuffer[i++] = m_GetData;
+				m_Wide++;
+			}
+			m_Wide--;
+		}
+		else
+		{
+			m_Wide = PrinterCore();
+			m_Wide += (PrinterCore() << 8)&0xff00;
+			for(i=0;i<m_Wide;i++)
+			{
+				PDFStrBuffer[i] = PrinterCore();
+			}
+		}
+		PDFStrBuffer[i] = 0;
+
+	//	SendChar(0xaa);
+		pdf417init(&p);
+		p.text = PDFStrBuffer;
+		p.options = PDF417_INVERT_BITMAP;
+		paintCode(&p);
+		if (p.error)
+		{
+			pdf417free(&p);
+		}
+		else
+		{
+			cols = p.bitColumns / 8 + 1;
+
+		//	SendChar(cols);
+		//	SendChar(p.lenBits);
+		//	SendChar(p.lenBits >> 8);
+
+
+			if((p.lenBits % cols) != 0 )
+			{
+				cols--;
+			}
+			m_pdfSize = cols * 8;
+			m_high = p.lenBits/cols;
+
+			//***************************************************
+			if(s_CodeBarCon.m_BarSpace > g_CalcPrintPos)
+			{
+				*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+				*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+				*p_ListDataDot++ = s_CodeBarCon.m_BarSpace - g_CalcPrintPos;
+				g_CalcPrintPos = s_CodeBarCon.m_BarSpace;
+			}
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_MAP;//打印数据头
+			//-------------图形的宽度是有可能超过255的
+			*p_ListDataDot++ = (m_pdfSize << 4) | 2;//字符宽度放大
+			*p_ListDataDot++ = (m_high << 4) | 8;//高度跟随放大倍数变化
+			//-------------
+			*p_ListDataDot++ = 0;
+			if (p_ListPrease->m_PrintLineHigh < (m_high  * 8) )
+			{
+				p_ListPrease->m_PrintLineHigh = (m_high  * 8);
+			}
+			m = 0;
+
+		//	for (k = 0; k < p.lenBits; ++k)
+		//	{
+		//		SendChar((int)p.outBits[k] & 0xff);
+		//	}
+			for(i=0;i<m_high;i++)
+			{
+				PRINTER_PDL.SYS._WDG_ReloadCounter();
+				for(k=0;k<cols;k++)
+				{
+					m_GetData = ((unsigned char)p.outBits[m++]);
+
+					if((k&1)==0)
+					{
+						m_Reg_R0 = (~m_GetData)&0xFF;
+					}
+					if(k&1)
+					{
+						m_Reg_R0 = m_Reg_R0 << 8;
+						m_GetData = (~m_GetData)&0xFF;;
+						m_Reg_R0 |= m_GetData;
+						*p_ListDataDot++ = m_Reg_R0;
+					}
+				}
+				if(cols & 1)
+				{
+					*p_ListDataDot++ = m_Reg_R0;
+				}
+
+			}
+			g_CalcPrintPos += m_pdfSize *  2;
+
+		    pdf417free(&p);
+		    return PROCESS_FINISH;
+	 	}
+	}
+#endif
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __DC2_6A_Order(void)
+** Descriptions:      旋转
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+
+0 --- 0
+1 --- 90
+2 --- 180
+3 --- 270
+*********************************************************************************************************/
+
+
+unsigned int __DC2_6A_Order(void)
+{
+	
+
+	g_BarCodeDegree =  PrinterCore() & 3;
+	
+	
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_6B_Order(void)
+** Descriptions:      设置坐标
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+
+
+unsigned int __DC2_6B_Order(void)
+{
+	m_GetData = PrinterCore();
+	m_GetData |= PrinterCore()<<8;
+	if(m_GetData < 360)
+	{
+		g_BarCode_x = m_GetData;
+	}
+	m_GetData = PrinterCore();
+	m_GetData |= PrinterCore()<<8;
+	g_BarCode_y	= m_GetData;
+		
+	g_BarCode_SpaceCount = 0;
+	
+	
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_6C_Order(void)
+** Descriptions:      设置坐标
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+
+
+unsigned int __GS_6C_Order(void)
+{
+	m_GetData = PrinterCore();
+	m_GetData |= PrinterCore()<<8;
+	if(m_GetData < 360)
+	{
+		g_QR_x = m_GetData;
+	}
+	m_GetData = PrinterCore();
+	m_GetData |= PrinterCore()<<8;
+	g_QR_y	= m_GetData;
+		
+	g_QR_SpaceCount = 0;
+	
+	
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_6B_Order(void)
+** Descriptions:       打印一维条码
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+1B 73 2D 18 1D 48 01 12 6A 03 12 6B 20 00 00 00 1D 6E 49 0E 7B 41 34 30 30 30 2D 38 35 30 2D 38 38 30 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 0D 
+
+1D 48 02 12 6A 00 12 6B 00 00 00 00 1D 6E 49 0E 7B 41 34 30 30 30 2D 38 35 30 2D 38 38 30 0D
+*********************************************************************************************************/
+
+
+
+
+unsigned int __GS_6E_Order(void)
+{
+	unsigned short m_alignType;
+#ifdef QR_ENCODE_ENABLE
+	int i;
+	char	QRStrBuffer[1024];//条码缓冲区
+
+	unsigned int	m_Reg_R0;
+#endif
+	s_CodeBarCon.m_BarSpace = 0;
+	m_charType = PrinterCore();//得到条码区别码
+	while(s_PrinterMOTOPar.m_StopPrint != ENABLE_VAR);
+	m_alignType = g_alignType;
+	g_alignType = 0;
+	if (m_charType == 0x49)//code128
+	{
+//		CODE128_encode
+		if(ProcessCode128() == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+	}
+	if((m_charType == 2) ||(m_charType == 67)) //EAN13
+	{
+		if (ProcessEAN13(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+	}
+	if((m_charType == 3) ||(m_charType == 68)) //EAN8
+	{
+		if (ProcessEAN8(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if((m_charType == 0) ||(m_charType == 65)) //UPC-A
+	{
+		if (ProcessUPCA(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if((m_charType == 1) ||(m_charType == 66)) //UPC-E
+	{
+		if (ProcessUPCE(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if((m_charType == 4) ||(m_charType == 69)) //UPC-E
+	{
+		if (ProcessCODE39(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if(m_charType == 72) //CODE93
+	{
+		if (ProcessCODE93() == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if((m_charType == 5) ||(m_charType == 70))//ITF25
+	{
+		if (ProcessITF25(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	if((m_charType == 6) ||(m_charType == 71))//CODABAR
+	{
+		if (ProcessCODABAR(m_charType) == 0)
+		{
+			//
+			g_BarCodeLen = g_BarLen;
+			g_BarCode_enable = 0xA123;
+			g_BarCode_SpaceCount = 0;
+			g_BarCodeHigh = s_CodeBarCon.m_BarHigh + g_BarCharHigh + BAR_CHAR_SPACE;
+			SetCharToBarCodeBuf();
+			g_BarCodeHigh_Pro = g_BarCodeHigh;
+			if(g_BarCodeDegree&1)
+			{
+					g_BarCodeHigh_Pro = g_BarCodeLen;
+			}
+		}
+
+	}
+	s_PrintOrderstr.m_GetdataPos = 0;
+	s_PrintOrderstr.pSpecialposition = 0;				
+
+	
+	g_alignType = m_alignType;
+#ifdef QR_ENCODE_ENABLE
+	if((m_charType == 32) ||(m_charType == 97))//CODABAR
+	{
+		m_Reg_R0 = PrinterCore();//得到版本号
+		mapHigh  = PrinterCore();//得到纠错等级
+
+		if(m_charType == 32)
+		{
+			m_Wide = 0;
+			i = 0;
+			m_GetData = 1;
+			while(m_GetData != 0)
+			{
+				m_GetData = PrinterCore();
+				QRStrBuffer[i++] = m_GetData;
+				m_Wide++;
+			}
+			m_Wide--;
+		}
+		else
+		{
+			m_Wide = PrinterCore();
+			m_Wide += (PrinterCore() << 8)&0xff00;
+			for(i=0;i<m_Wide;i++)
+			{
+				QRStrBuffer[i] = PrinterCore();
+			}
+		}
+		QRStrBuffer[i] = 0;
+
+
+
+		QRcode_free(qrcode);
+		qrcode = QRcode_encodeString(QRStrBuffer, m_Reg_R0, (QRecLevel)mapHigh, QR_MODE_8, 1);
+		if(qrcode != NULL)
+		{
+			//***************************************************
+			g_QR_enable = 0xA123;
+			g_QR_SpaceCount = 0;
+			//m_ProcessFlag = PROCESS_FINISH;
+			return PROCESS_CONTINUE;
+		}
+
+	}
+#endif
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_42_Order(void)
+** Descriptions:      1D 42  n  打印反白
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_42_Order(void)
+{
+	m_GetData = PrinterCore();
+	s_PrintParameters.m_Inverse = m_GetData & 1;
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_48_Order(void)
+** Descriptions:      1D 48  n  打印条码字符
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+
+[格式] ASCII 码 GS H n 
+十六进制码 1D 48 n 
+十进制码 29 72 n 
+[范围] 0 ≤ n ≤ 3, 48 ≤ n ≤ 51 
+[描述] 打印条码时，为 HRI 字符选择打印位置。 
+n 指定 HRI 打印位置： 
+n 打印位置 
+0, 48 不打印 
+1, 49 条码上方 
+2, 50 条码下方 
+3, 51 条码上、下方都打印
+
+*********************************************************************************************************/
+unsigned int __GS_48_Order(void)
+{
+	m_GetData = PrinterCore();
+	s_CodeBarCon.m_CharSpace = m_GetData & 3;
+	if((m_GetData & 3) == 0)
+	{
+		g_BarCharHigh = 0;
+	}
+	else if((m_GetData & 3) == 3)
+	{
+		g_BarCharHigh = 48;
+	}
+	else
+	{
+		g_BarCharHigh = 24;
+	}
+	
+	
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_4C_Order(void)
+** Descriptions:      1D 4C  nL nH 设置左侧空白点
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+用 nL 和 nH 设置左边距； 
+左边距设置为[(nL + nH × 256) 
+在标准模式下，该命令只有在行首才有效。 
+如果设置超出了最大可用打印宽度，则取最大可用打印宽度。 
+横向和纵向移动单位是由 GS P 命令设置的，改变纵向和横向移动单位不影响当 前的左边距。
+*********************************************************************************************************/
+unsigned int __GS_4C_Order(void)
+{
+ 	unsigned short i;
+	i =  PrinterCore();
+	m_GetData = PrinterCore();
+	i += m_GetData << 8;
+	m_GetData = i;
+	if(m_GetData != 0)
+	{
+		if (m_GetData > g_CalcPrintPos)
+		{
+			//**************************************************************************
+			*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+			*p_ListDataDot++ = PRINT_SPACE;//打印数据头
+			*p_ListDataDot++ = m_GetData - g_CalcPrintPos;
+			g_CalcPrintPos = m_GetData;
+			p_ListPrease->m_PrintLineHigh = 24;//默认一行的高度为8;
+			s_PrintParameters.m_Liftpos = m_GetData;
+		}
+
+	}
+	else
+	{
+
+		p_ListPrease->m_LeftFreeDot = s_PrintParameters.m_Liftpos;
+		g_CalcPrintPos = s_PrintParameters.m_Liftpos;//打印数据的起始位置
+		g_SavePrintPos = g_CalcPrintPos;		
+
+	}
+	return PROCESS_CONTINUE;
+}
+
+
+
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_57_Order(void)
+** Descriptions:      1D 48  n  打印条码字符
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_57_Order(void)
+{
+	m_GetData = PrinterCore();
+	if((m_GetData > 0)&&(m_GetData<8))
+	{
+		s_PrintParameters.m_QRZoom = m_GetData;
+	}
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_51_Order(void)
+** Descriptions:      设置横向和纵向移动单位 
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_50_Order(void)
+{
+	
+	PrinterCore();
+	PrinterCore();
+
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_51_Order(void)
+** Descriptions:      1D 51  n  打印条码位置
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_51_Order(void)
+{
+	m_GetData = PrinterCore();
+	s_CodeBarCon.m_BarSpace = m_GetData&0xff;
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:    unsigned int __GS_77_Order(void)
+** Descriptions:      1D 77  n  打印条码宽度
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_77_Order(void)
+{
+	m_GetData = PrinterCore();
+	if (m_GetData == 0)
+	{
+		m_GetData = 1;
+	}
+	s_CodeBarCon.m_Barwide = m_GetData & 0xF;
+	s_PrintParameters.m_QRZoom = m_GetData & 0xF;
+	return PROCESS_CONTINUE;
+}
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_68_Order(void)
+** Descriptions:       1D 68  n  打印条码高度
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_68_Order(void)
+{
+	m_GetData = PrinterCore();
+	if (m_GetData == 0)
+	{
+		m_GetData = 50;
+	}
+	s_CodeBarCon.m_BarHigh = m_GetData&0x7F;
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_56_Order(void)
+** Descriptions:       走纸切纸
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_56_Order(void)
+{
+	m_GetData = PrinterCore();
+	if(m_GetData < 65)
+	{
+		return PROCESS_CONTINUE;
+	}
+	
+	PrinterCore();
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:    unsigned int __GS_74_Order(void)
+** Descriptions:     1D 74
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+Specification A
+n	Code Page 													n 	Code Page
+0 	Normal* 													32 	Codepage 1252 (Windows Latin-1)
+1 	CodePage437 (USA, Std. Europe) 		33 	Codepage 1250 (Windows Latin-2)
+2 	Katakana 													34 	Codepage 1251 (Windows Cyrillic)
+3 	CodePage437 (USA, Std. Europe) 		64 	Codepage 3840 (IBM-Russian)
+4 	Codepage 858 (Multilingual) 			65 	Codepage 3841 (Gost)
+5 	Codepage 852 (Latin-2) 						66 	Codepage 3843 (Polish)
+6 	Codepage 860 (Portuguese) 				67 	Codepage 3844 (CS2)
+7 	Codepage 861 (Icelandic) 					68 	Codepage 3845 (Hungarian)
+8 	Codepage 863 (Canadian French) 		69 	Codepage 3846 (Turkish)
+9 	Codepage 865 (Nordic) 						70 	Codepage 3847 (Brazil-ABNT)
+10	Codepage 866 (Cyrillic Russian) 	71 	Codepage 3848 (Brazil-ABICOMP)
+11 	Codepage 855 (Cyrillic Bulgarian) 72 	Codepage 1001 (Arabic)
+12 	Codepage 857 (Turkey) 						73 	Codepage 2001 (Lithuanian-KBL)
+13 	Codepage 862 (Israel (Hebrew) ) 	74 	Codepage 3001 (Estonian-1)
+14 	Codepage 864 (Arabic) 						75 	Codepage 3002 (Estonian-2)
+15 	Codepage 737 (Greek) 							76 	Codepage 3011 (Latvian-1)
+16 	Codepage 851 (Greek) 							77 	Codepage 3012 (Latvian-2)
+17 	Codepage 869 (Greek) 							78 	Codepage 3021 (Bulgarian)
+18 	Codepage 928 (Greek) 							79 	Codepage 3041 (Maltese)
+19 	Codepage 772 (Lithuanian) 				255 User Setting Blank Code Page
+20 	Codepage 774 (Lithuanian)
+21 	Codepage 874 (Thai)
+
+
+
+*********************************************************************************************************/
+
+
+unsigned int __GS_74_Order(void)
+{
+	m_GetData = PrinterCore();
+	if(m_GetData < 22)
+	{
+		g_CodePage = m_GetData;
+	}
+	else if((31 < m_GetData) && (m_GetData < 35))
+	{
+		g_CodePage = m_GetData - 10;//-32 + 22
+	}
+	else if((63 < m_GetData) && (m_GetData < 80))
+	{
+		g_CodePage = m_GetData - 39;// - 64 + 25
+	}
+	else if( m_GetData == 35)
+	{
+		g_CodePage = 41;// - 64 + 25
+	}
+	else if( m_GetData == 30)
+	{
+		g_CodePage = 30;// - 64 + 25
+	}
+	else if( m_GetData == 31)
+	{
+		g_CodePage = 31;// - 64 + 25
+	}
+	else
+	{
+		g_CodePage = 0;
+	}
+
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_62_Order(void)
+** Descriptions:       1D 62
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_62_Order(void)
+{
+	PrinterCore();
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_45_Order(void)
+** Descriptions:
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_45_Order(void)
+{
+	PrinterCore();
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_2F_Order(void)
+** Descriptions:       打印自定义图形
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_2F_Order(void)
+{
+	if (g_CalcPrintPos > g_SavePrintPos)////判断是否大于起始位置
+	{
+		__SETPRIMASK();
+		Receive_count += 2;
+		//g_Order_count = m_OrderSave ;
+		(*p_OcAndGDAdr) = m_OrderSave;
+		__RESETPRIMASK();
+	//	m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+		return PROCESS_FINISH;
+	}
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	//正式处理图形
+	m_GetData = PrinterCore();//得到图形格式控制字
+	if((m_GetData == 0) || (m_GetData == 48))
+	{
+		m_charType = 0x11;//高4位为宽 低 4位为高
+	}
+	else if((m_GetData == 1) || (m_GetData == 49))
+	{
+		m_charType = 0x21;//高4位为宽 低 4位为高
+	}
+	else if((m_GetData == 2) || (m_GetData == 50))
+	{
+		m_charType = 0x12;//高4位为宽 低 4位为高
+	}
+	else
+	{
+		m_charType = 0x22;//高4位为宽 低 4位为高
+	}
+	AT91F_DataFlashADDRRead(TEMP_MAP_BUFF_ADDR,2,Buffer_writer_I);
+
+
+	m_len = Buffer_writer_I[0];//得到总宽度
+	m_high = Buffer_writer_I[1] * 8;
+
+	if((m_len == 0) ||(m_high == 0))
+	{
+		return PROCESS_IN_LOOP;
+	}
+	if(m_len == 0xFFFF)
+	{
+		return PROCESS_IN_LOOP;
+	}
+	if(m_high == 0xFFFF)
+	{
+		return PROCESS_IN_LOOP;
+	}
+
+	m_CharWide = BUFFER_SHORT_LENGTH * 2;
+	if((m_charType & 0xf0) == 0x20)
+	{
+		m_CharWide = BUFFER_SHORT_LENGTH;
+	}
+
+	if (m_len > m_CharWide)
+	{
+		m_Wide = m_CharWide;
+	}
+	else
+	{
+		m_Wide = m_len;
+	}
+
+	g_NVMapPrintAddr = TEMP_MAP_BUFF_ADDR + 4;//收据存放地址
+
+	CodeBarStr[0] = 0x1D;
+	CodeBarStr[1] = 0xFA;
+	CodeBarStr[2] = m_charType;
+	CodeBarStr[3] = m_len;//实际数据存放宽度字节数
+	CodeBarStr[4] = m_Wide;//打印宽度字节数
+	CodeBarStr[5] = (m_high >> 8) & 0xff;//打印高度
+	CodeBarStr[6] = m_high & 0xff;//打印高度
+	m_GetData = 0;
+	s_PrintOrderstr.m_GetdataPos = 7;
+	s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	return PROCESS_CONTINUE;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_FA_Order(void)
+** Descriptions:       打印存储图形
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_FA_Order(void)
+{
+	unsigned short i;
+	unsigned int	m_Reg_R0;
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_MAP;//打印数据头
+	//-------------图形的宽度是有可能超过255的
+	m_charType = PrinterCore();//得到放大系数
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	m_len =  PrinterCore();//得到一行数据的宽度 字节数
+
+	m_CharWide = m_len >> 1;
+	m_CharWide += m_len & 1;
+	m_Wide = PrinterCore();//打印的实际宽度， 字节数
+
+	m_Reg_R0 = m_Wide * 8;//得到打印宽度的实际宽度
+
+	*p_ListDataDot++ = (m_Reg_R0 << 4) | ((m_charType >> 4) & 0xf);//字符宽度放大
+
+
+	mapHigh = (PrinterCore() << 8);//高度高8位
+	mapHigh += PrinterCore();//高度低8位
+
+	if (mapHigh > 30)//56
+	{
+		if ((mapHigh - 30) < 24)
+		{
+			g_mapCount = mapHigh >> 1;
+		}
+		else
+		{
+			g_mapCount = 30;
+		}
+	}
+	else
+	{
+		g_mapCount = mapHigh;
+	}
+	m_high = mapHigh - g_mapCount;
+
+	g_CalcPrintPos += m_Reg_R0 * ((m_charType >> 4) & 0xf);
+	m_charType = m_charType & 0xf;//高度放大倍数
+
+	*p_ListDataDot++ = ((g_mapCount) << 4) | m_charType;//图形的高度不发生变化
+	*p_ListDataDot++ = 0;
+	//-------------
+
+
+	p_ListPrease->m_PrintLineHigh = g_mapCount * m_charType;
+
+
+	i = m_Wide >> 1;
+	i += m_Wide & 1;
+
+	if(m_Wide == m_len)
+	{
+		m_Reg_R0 = g_mapCount * i;
+		AT91F_DataFlashADDRRead(g_NVMapPrintAddr,m_Reg_R0,p_ListDataDot);
+		g_NVMapPrintAddr += m_Reg_R0 *2 ;
+		p_ListDataDot += m_Reg_R0;
+	}
+	else
+	{
+		while(g_mapCount > 0)
+		{
+			AT91F_DataFlashADDRRead(g_NVMapPrintAddr,i,p_ListDataDot);
+			g_NVMapPrintAddr += m_CharWide * 2;
+			p_ListDataDot += i;
+			g_mapCount--;
+		}
+	}
+
+	if (m_high != 0)
+	{
+		CodeBarStr[5] = (m_high>>8) & 0xff;//打印高度
+		CodeBarStr[6] = (m_high) & 0xff;//打印高度
+		m_GetData = 0;
+		s_PrintOrderstr.m_GetdataPos = 7;
+		s_PrintOrderstr.pSpecialposition = CodeBarStr;
+	}
+	p_ListPrease->m_PrintLineSpace = 0;
+
+	return PROCESS_FINISH;
+}
+
+
+/*********************************************************************************************************
+** Function name:     unsigned int __GS_2A_Order(void)
+** Descriptions:       1D 2A  n  图形下载程序
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __GS_2A_Order(void)
+{
+	/*
+	[名称] 定义下传位图
+	[格式] ASCII码 GS * x y d1…dk
+	十六进制码 1D 2A x y d1…dk
+	十进制码 29 42 x y d1…dk
+	[范围] 1 ≤ x ≤ 255
+	1 ≤ y ≤ 8
+	x × y ≤ 1536
+	0 ≤ d ≤ 255
+	k=x*y*8 ≤0x3000
+	[描述] 用x 和y 指定的点数定义下传位图。
+	. x*8 为水平方向点数。
+	. y*8 为垂直方向点数。
+	[注意] . 如果x . y 超出了指定范围，则禁止该命令。
+	. d 表示位图数据。数据(d) 指定打印位为1，不打印位为0。
+	m_charType
+	m_Reg_R0
+	m_Reg_R0
+	*/
+	unsigned int	m_Reg_R0;
+	 unsigned short i,com;
+	m_Wide = PrinterCore();//得到图形的宽度 宽度 ＝ m_Wide × 8;
+	m_high = PrinterCore();//得到高度字节数高度的点数为 m_high × 8
+	m_len = m_Wide * m_high * 8;//得到字节总长度
+	m_CharWide = m_Wide * 8;//得到图形宽度
+	Buffer_writer_I = &(p_ListPrease->m_ListBuffer[700]);
+	//=将图形索引保存另外一个索引区====================
+	Erase_Sector = 0;
+	for (i=0;i<256;i++)
+	{
+		Buffer_writer_I[i]= 0;
+	}
+	if((m_Wide == 0) || (m_high == 0) )
+	{
+		AT91F_DataFlashPageWrite (TEMP_MAP_BUFF_ADDR,Buffer_writer_I);//保存NVMAP地址信息
+		//for(i=0;i<0x13BFF;i++);//在等于0x13BFF延时约等于50ms
+		return PROCESS_IN_LOOP;
+	}
+
+	//=================================================
+
+
+	//======大于12.5K数据 忽略此命令============================================
+	if(m_len > 0x3100)
+	{
+		while(m_len > 0)
+		{
+			PrinterCore();//丢掉数据
+		}
+	}
+	else
+	{
+		m_GetDataAddrss = (U32)NV_MAP_TEMP_BUFF;
+		m_Reg_R0 = 0;
+		for (i=0;i<256;i++)
+		{
+			Buffer_writer_I[i]= 0;
+		}
+		m_Reg_R0 = 0;
+
+		m_Charhigh = m_high >> 1;
+		if((m_high & 1)== 1)
+		{
+			m_Charhigh++;
+		}
+		for (com=0;com<m_CharWide;com++)
+		{
+			m_len = 0;
+			for(m_CharDegree=0;m_CharDegree<m_Charhigh;m_CharDegree++)
+			{
+				m_GetData = (PrinterCore() << 8) & 0xff00;
+				m_len++;
+				if(m_len < m_high)
+				{
+					m_GetData |= PrinterCore() & 0x00ff;
+				}
+				m_len++;
+				Buffer_writer_I[m_Reg_R0++] = m_GetData;
+				if(m_Reg_R0 > 255)
+				{
+					m_Reg_R0 = 0;
+					AT91F_DataFlashPageWrite (m_GetDataAddrss,Buffer_writer_I);
+					m_GetDataAddrss += 0x200;
+				}
+			}
+		}
+		if (m_Reg_R0>0)
+		{
+			AT91F_DataFlashPageWrite (m_GetDataAddrss,Buffer_writer_I);
+		}
+
+		if((m_Wide * 8)  > PRINT_HEAD_LENGTH)
+		{
+			m_Wide = 48;
+		}
+
+		//================数据整理======================================
+		ProcessNVBitMap(NV_MAP_TEMP_BUFF,TEMP_MAP_BUFF_ADDR,m_Wide,m_high,&(p_ListPrease->m_ListBuffer[0]));
+
+	}
+	return PROCESS_CONTINUE;
+}
+
+/*********************************************************************************************************
+** Function name:     unsigned unsigned int __PrcessCharCh(void)
+** Descriptions:       打印字符
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned int __PrcessCharCh(void)
+{
+
+	/*
+		字符图形存放格式
+	WORD-0		打印命令类型标识
+	WORD-1		图形放大后宽度
+	WORD-2		图形的高度      高8位图形原始高度,低8位图形放大倍数
+	WORD-3		上下对齐 字间距 最高位为赏析对齐标志 低15位为字间距
+	WORD-4		点阵数据存放 按照放大后的数据排列
+	*/
+	unsigned int i,m_CharIndexAddr;
+	unsigned int DotArry[32];
+	unsigned short m_HoriZoomOut,m_VertZoomOut,m_temp_H,m_temp_M,m_temp_L;
+	unsigned short m_Score,m_CharSpace,m_ChineseCharType,m_CharRepertoire,m_ChineseLib,m_boldface,m_Inverse,m_ListScore;
+	unsigned short*	p_S_ListDataDot;
+	unsigned short*	p_T_ListDataDot;//保存链表中字符图形的存放位置
+	unsigned char ReadData[3];
+	unsigned int	m_Reg_R0;
+	unsigned char m_flagflashl;
+	unsigned char m_CharSpro;
+	unsigned short m_CodePage;
+	unsigned short m_ChinCode;
+	unsigned short m_GetDatCount;	
+	
+	g_finishFlag = PROCESS_CONTINUE;
+	m_GetDatCount = 1;
+
+	g_printChar = 0xAA55;
+
+
+	m_flagflashl = 0;
+
+	m_CodePage = g_CodePage;
+
+	if(g_PrintListOrNorm != 0xAA55)
+	{
+		m_ChineseCharType = s_PrintParameters.m_ChineseCharType;
+		m_CharRepertoire = s_PrintParameters.m_CharRepertoire;
+		m_CharDegree = s_PrintParameters.m_RotDegree;
+		m_CharSpace = s_PrintParameters.m_CharSpace;
+		m_boldface = s_PrintParameters.m_boldface;
+		m_Inverse = s_PrintParameters.m_Inverse;
+		m_VertZoomOut = s_PrintParameters.m_VertZoomOut;//
+		m_HoriZoomOut = s_PrintParameters.m_HoriZoomOut;
+		m_ChineseLib = s_PrintrConfig.m_ChineseLib;
+		m_charType = s_PrintParameters.m_CharType;//得到字符类型
+		m_Score = 0;
+		if(s_PrintParameters.m_PrintDir == PRINT_DIRECT_FX)
+		{
+			if(s_PrintParameters.m_Score_NOR & 1)
+			{
+				m_Score |= 2;
+			}
+			if(s_PrintParameters.m_Score_NOR & 2)
+			{
+				m_Score |= 1;
+			}
+			m_Score |= s_PrintParameters.m_Score_NOR & 0xF0;
+		}
+		else
+		{
+			m_Score = s_PrintParameters.m_Score_NOR;
+		}
+	}
+	else
+	{
+		/*
+位 		功能 		值
+				0		1
+0 		正 常 	取消 	设定
+1 		加 粗 	取消 	设定
+2 		下划线	取消 	设定
+3 		反白	取消	设定
+		*/
+		m_Score = 0;
+		g_Char24_17 = 0;
+		m_boldface = VALUE_DISABLE;
+		if(g_ListControlFor & 2)
+		{
+			m_boldface = VALUE_ENABLE;
+		}
+		m_Inverse = 0;
+		if(g_ListControlFor & 8)
+		{
+			m_Inverse = 1;
+		}
+		m_ListScore = 0;
+		if(g_ListControlFor & 4)
+		{
+			m_ListScore = 1;
+		}
+		if(g_ListControlFor & 1)
+		{
+			m_Inverse = 0;
+			m_boldface = VALUE_DISABLE;
+		}
+		m_ChineseCharType = s_PrintParameters.m_ChineseCharType;
+		m_CharRepertoire = s_PrintParameters.m_CharRepertoire;
+		m_CharDegree = 1;
+		m_CharSpace = 0;
+
+
+		m_VertZoomOut = 1;//
+		m_HoriZoomOut = 1;
+		m_ChineseLib = s_PrintrConfig.m_ChineseLib;
+		m_charType = s_PrintParameters.m_CharType;//得到字符类型
+	}
+
+	if(g_Char24_17 == 1)
+	{
+		m_CharRepertoire = TYPE_ASC9X17;
+	}
+	else
+	{
+		m_CharRepertoire = TYPE_ASC12X24;
+	}
+	m_CharSpro = m_GetData;
+	
+	if(g_DumpReceiveFlage != 0xAAAA)
+	{
+		m_charType = TYPE_ENGLISH;
+	}
+	
+	
+	if(m_charType == TYPE_ENGLISH)
+	{
+		
+		
+		
+	if(m_CharRepertoire == TYPE_ASC9X17)
+		{
+			m_Charhigh = 17;
+			m_CharWide = 9;
+			m_high = 17;
+			m_Wide = 9;
+			m_GetDataAddrss = (m_GetData - 0x20) * 30 ;
+
+		}		
+		else
+		{
+			m_Charhigh = 24;
+			m_CharWide = 12;
+			m_high = 24;
+			m_Wide = 12;
+			m_GetDataAddrss = (U32)((m_GetData - 0x20) * 36 );
+			
+		}
+	}
+	if (m_charType == TYPE_LITTLECHAR)
+	{
+
+		m_Charhigh = 8;
+		m_CharWide = 6;
+		m_high = 8;
+		m_Wide = 6;
+		m_len = m_GetData - 0x20;
+		m_len = m_len << 1;
+		if (s_PrintParameters.m_Charlist == 1)
+		{
+			DotArry[0] = CHAR_6X8_1[m_len] & 0xFF000000;
+			DotArry[1] = (CHAR_6X8_1[m_len] &0x00FF0000)<<8;
+			DotArry[2] = (CHAR_6X8_1[m_len] &0x0000FF00)<<16;
+			DotArry[3] = (CHAR_6X8_1[m_len] &0x000000FF)<<24;
+			DotArry[4] = CHAR_6X8_1[m_len+1]&0xFF000000;
+			DotArry[5] = (CHAR_6X8_1[m_len+1]&0x00FF0000)<<8;
+		}
+		else
+		{
+			DotArry[0] = CHAR_6X8_2[m_len] & 0xFF000000;
+			DotArry[1] = (CHAR_6X8_2[m_len] &0x00FF0000)<<8;
+			DotArry[2] = (CHAR_6X8_2[m_len] &0x0000FF00)<<16;
+			DotArry[3] = (CHAR_6X8_2[m_len] &0x000000FF)<<24;
+			DotArry[4] = CHAR_6X8_2[m_len+1]&0xFF000000;
+			DotArry[5] = (CHAR_6X8_2[m_len+1]&0x00FF0000)<<8;
+		}
+
+		m_len = 3;
+	}
+	if (p_ListPrease->m_PrintDir == PRINT_DIRECT_FX)
+	{
+		//所有角度以台序打印方向为准
+		//面板打印方向与台序相差180度
+		m_CharDegree = (m_CharDegree + 2) & 3;
+	}
+	if ((m_CharDegree & 1) == 1)
+	{
+		m_Reg_R0 = m_Charhigh ;
+		m_Charhigh = m_CharWide;
+		m_CharWide = m_Reg_R0;
+	}
+
+
+	if ((g_CalcPrintPos + (m_CharWide * m_HoriZoomOut)) > m_SaverightPos)
+	{
+
+		if(s_PrintOrderstr.m_DataFlag == 0)
+		{
+			__SETPRIMASK();
+//			if (m_charType == TYPE_CHINESE)
+//				Receive_count += m_GetDatCount;
+//			else
+				Receive_count += m_GetDatCount;
+			//g_Order_count = m_OrderSave ;
+			(*p_OcAndGDAdr) = m_OrderSave;
+			__RESETPRIMASK();
+
+			//m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+			//goto ProcessEnd;
+
+			return PROCESS_FINISH;
+		}
+		else
+		{
+//			if (m_charType == TYPE_CHINESE)
+//			{
+//				*s_PrintOrderstr.pSpecialposition--;
+//				*s_PrintOrderstr.pSpecialposition--;
+//				s_PrintOrderstr.m_GetdataPos += 2;
+//			}
+//			else
+			{
+				*s_PrintOrderstr.pSpecialposition--;
+				s_PrintOrderstr.m_GetdataPos += 1;
+			}
+
+			//m_ProcessFlag = PROCESS_FINISH;//打印一行数据
+			//goto ProcessEnd;
+
+			return PROCESS_FINISH;
+		}
+
+	}
+	g_CalcPrintPos += m_CharWide * m_HoriZoomOut;
+	//*******得到点阵数据************************************************
+
+	if (m_charType != TYPE_LITTLECHAR)
+	{
+		if(m_CharRepertoire == TYPE_ASC9X17)
+		{
+			ReadIntAndDeg917(m_GetDataAddrss,m_Wide,m_high,DotArry);
+		}
+		else
+		{
+			ReadInFlashAndDeg(m_GetDataAddrss,m_Wide,m_high,DotArry);
+		}
+	}
+codep30:
+	//============高度设置
+	m_Reg_R0 = m_Charhigh;
+	if(m_Score & 3) 
+	{
+	//	m_Reg_R0++; //如果有划线预先增加字符的高度
+		m_Reg_R0 += (m_Score>>4)&3;
+	}
+	i = m_VertZoomOut * m_Reg_R0;
+	//********处理表格***************************************
+	if(g_PrintListOrNorm == 0xAA55)
+	{
+		i = 12;//半个汉字高度
+	}
+
+
+	if (p_ListPrease->m_PrintLineHigh < i )
+	{
+		p_ListPrease->m_PrintLineHigh = i;
+	}
+
+	//********形成链表***************************************
+	//保存索引
+	*p_IndexListData++ = p_ListDataDot - p_ListPrease->m_ListBuffer;
+	*p_ListDataDot++ = PRINT_DATA;//打印数据头
+	*p_ListDataDot++ = (m_CharWide << 4) | m_HoriZoomOut;//字符宽度放大
+	*p_ListDataDot++ = (m_Reg_R0 << 4) | (m_VertZoomOut);//高度和纵向放大倍数
+	if ((g_CalcPrintPos + m_CharSpace) <= m_SaverightPos)
+	{
+		*p_ListDataDot++ = m_UPDown | m_CharSpace;//上下对齐和字符间距
+		g_CalcPrintPos += m_CharSpace;
+	}
+	else
+	{
+		g_finishFlag = PROCESS_FINISH;
+		*p_ListDataDot++ = m_UPDown |(m_SaverightPos - g_CalcPrintPos);//上下对齐和字符间距
+		g_CalcPrintPos = m_SaverightPos;
+	}
+	p_S_ListDataDot = p_ListDataDot;
+	p_T_ListDataDot = p_ListDataDot;
+	//************数据处理***********************************
+	//while (Getdata_ok == 0);//等待点阵数据接收完成
+	if(m_boldface == VALUE_ENABLE)//取消加粗模式
+	{
+		if(m_CharSpro != 0x6D)
+		{
+			for (i=31;i>0;i--)
+			{
+				DotArry[i] |= DotArry[i-1];
+			}
+		}
+		else
+		{
+			for (i=31;i>0;i--)
+			{
+				DotArry[i] |= DotArry[i] << 1;
+			}			
+		}
+	}
+
+
+	if (m_Inverse != 0)
+	{
+		for (i=0;i<32;i++)
+		{
+			DotArry[i] = ~DotArry[i];
+		}
+	}
+
+	//************按照旋转和放大倍数处理点阵数据***********************************
+	m_Reg_R0 = (m_high << 8) | m_Wide;
+	m_CharDegree &= 3;
+	if((m_Score & 1) == 1)
+	{
+		*p_ListDataDot++ = 0xffff;
+		if (m_CharWide > 16)
+		{
+			*p_ListDataDot++ = 0xffff;
+		}
+		if((m_Score&0x30) == 0x20)
+		{
+			*p_ListDataDot++ = 0xffff;
+			if (m_CharWide > 16)
+			{
+				*p_ListDataDot++ = 0xffff;
+			}
+		}		
+		
+	}
+	//处理点阵数据
+	CharProDotPro(m_Wide,m_high,m_CharDegree,DotArry);
+	//******************************************************************************
+	if((m_Score & 2) == 2)
+	{
+		*p_ListDataDot++ = 0xffff;
+		if (m_CharWide > 16)
+		{
+			*p_ListDataDot++ = 0xffff;
+		}
+		if((m_Score&0x30) == 0x20)
+		{
+			*p_ListDataDot++ = 0xffff;
+			if (m_CharWide > 16)
+			{
+				*p_ListDataDot++ = 0xffff;
+			}
+		}
+	}
+
+	if(g_PrintListOrNorm == 0xAA55)
+	{
+		if(m_ListScore != 0)
+		{
+			m_ListScore = 12;
+			if (m_charType == TYPE_CHINESE)
+			{
+				m_ListScore = 24;
+			}
+
+			for (i=0;i<m_ListScore;i++)
+			{
+				*(p_T_ListDataDot + i * 2) |= 0x80;
+			}
+
+		}
+	}
+	if (m_charType == TYPE_CHINESE)
+	{
+		if(g_PrintListOrNorm == 0xAA55)
+		{
+			if((g_ListControlFor & 0x0100) == 0x0100)
+			{
+				p_S_ListDataDot += 24;
+				for (i=0;i<12;i++)
+				{
+					*p_T_ListDataDot++ = *p_S_ListDataDot++;
+					*p_T_ListDataDot++ = *p_S_ListDataDot++;
+				}
+
+			}
+		}
+
+	}
+
+	return g_finishFlag;
+}
+
+
+
+
+
+
+
+
+/****************************************************************************
+* 函数名：ProcessNVBitMap()
+* 功  能：将下载flash中的数据转换成标准位图格式
+*
+* 说  明：unsigned int TempBufferNV 数据预存起始地址
+		  unsigned int NVmapStarAddr NV位图标准格式存放起始地址
+		  unsigned int NVmapWide 位图宽度NVmapWide * 8
+		  unsigned int NVmaphigh 位图高度NVmaphigh * 8
+
+
+****************************************************************************/
+void ProcessNVBitMap(unsigned int TempBufferNV,unsigned int NVmapStarAddr,unsigned int NVmapWide,unsigned int NVmaphigh,unsigned short * Data_Temp_Buffer)
+{
+	unsigned int Byte_Src;
+	unsigned int Byte_Process1;
+	unsigned int Byte_Process2;
+	unsigned int Byte_Process3;
+	unsigned int Byte_Process4;
+	unsigned int Byte_Process5;
+	unsigned int Byte_Process6;
+	unsigned int Byte_Process7;
+	unsigned int Byte_Process8;
+	unsigned int Byte_Process9;
+	unsigned int Byte_Process10;
+	unsigned int Byte_Process11;
+	unsigned int Byte_Process12;
+	unsigned int Byte_Process13;
+	unsigned int Byte_Process14;
+	unsigned int Byte_Process15;
+	unsigned int Byte_Process16;
+
+	unsigned int m_TempNVAddr;
+
+	unsigned int i,m_SAVENVAddr,counter;
+
+	unsigned short m_NVprohig,m_NVhigh,m_NVwide,m_SaveSpaceCount;
+	unsigned short m_shortcount,m_NVHLen,m_Space,m_NVcount;
+	unsigned short *p_ListNVMap,*p_ListNV_TEMP;//NVMAP数据指针
+	m_NVwide = NVmapWide * 8;//图形的实际宽度 像素点
+
+	m_NVHLen = NVmapWide >> 1;
+	m_NVHLen += NVmapWide & 1;
+
+	m_NVprohig = NVmaphigh;//图形的高度  按字节算
+
+	m_NVhigh = m_NVprohig >> 1;//图形的高度 按字算
+	m_NVhigh += m_NVprohig & 1;//得到数据存放区间长度  不足一个字 按照一个字算
+
+	m_SAVENVAddr = NVmapStarAddr;
+
+	p_ListNVMap = Data_Temp_Buffer;
+	p_ListNV_TEMP = Data_Temp_Buffer;
+	m_NVcount = 0;
+
+	*p_ListNVMap++ = NVmapWide;//图形宽度按字节
+	*p_ListNVMap++ = NVmaphigh;//图形高度按字节
+
+	PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+	m_SaveSpaceCount = 2;
+//Table of Contents
+
+	while(m_NVprohig > 0)
+	{
+		m_TempNVAddr = TempBufferNV + m_NVcount;//得到数据的起始地址
+
+		m_NVcount += 2;//指向下个字地址
+
+		m_shortcount = 0;
+		m_Space = 0;
+
+		Byte_Process1 = 0;
+		Byte_Process2 = 0;
+		Byte_Process3 = 0;
+		Byte_Process4 = 0;
+		Byte_Process5 = 0;
+		Byte_Process6 = 0;
+		Byte_Process7 = 0;
+		Byte_Process8 = 0;
+		Byte_Process9 = 0;
+		Byte_Process10 = 0;
+		Byte_Process11 = 0;
+		Byte_Process12 = 0;
+		Byte_Process13 = 0;
+		Byte_Process14 = 0;
+		Byte_Process15 = 0;
+		Byte_Process16 = 0;
+
+		for(i=0;i<m_NVwide;i++)
+		{
+			AT91F_DataFlashADDRRead(m_TempNVAddr,1,Buffer_Dataflash);//得到数据
+			Byte_Src = Buffer_Dataflash[0];
+//8888888888888888
+//		*AT91C_US1_THR = Byte_Src >> 8;
+//		AT91F_WDTRestart(pWDTC) ;
+//		for(counter=0;counter<0xfff;counter++);
+//		*AT91C_US1_THR = Byte_Src;
+//		AT91F_WDTRestart(pWDTC) ;
+//		for(counter=0;counter<0xfff;counter++);
+//8888888888888888
+
+			Byte_Process1  = (Byte_Process1<<1)|((Byte_Src>>15) & 0x1);
+			Byte_Process2  = (Byte_Process2<<1)|((Byte_Src>>14) & 0x1);
+			Byte_Process3  = (Byte_Process3<<1)|((Byte_Src>>13) & 0x1);
+			Byte_Process4  = (Byte_Process4<<1)|((Byte_Src>>12) & 0x1);
+			Byte_Process5  = (Byte_Process5<<1)|((Byte_Src>>11) & 0x1);
+			Byte_Process6  = (Byte_Process6<<1)|((Byte_Src>>10) & 0x1);
+			Byte_Process7  = (Byte_Process7<<1)|((Byte_Src>>9) & 0x1);
+			Byte_Process8  = (Byte_Process8<<1)|((Byte_Src>>8) & 0x1);
+			if(m_NVprohig > 1)
+			{
+				Byte_Process9  = (Byte_Process9<<1)|((Byte_Src>>7) & 0x1);
+				Byte_Process10 = (Byte_Process10<<1)|((Byte_Src>>6) & 0x1);
+				Byte_Process11 = (Byte_Process11<<1)|((Byte_Src>>5) & 0x1);
+				Byte_Process12 = (Byte_Process12<<1)|((Byte_Src>>4) & 0x1);
+				Byte_Process13 = (Byte_Process13<<1)|((Byte_Src>>3) & 0x1);
+				Byte_Process14 = (Byte_Process14<<1)|((Byte_Src>>2) & 0x1);
+				Byte_Process15 = (Byte_Process15<<1)|((Byte_Src>>1) & 0x1);
+				Byte_Process16 = (Byte_Process16<<1)|((Byte_Src) & 0x1);
+			}
+			m_shortcount++;
+			if(m_shortcount == 32)
+			{
+				m_shortcount = 0;
+
+				*(p_ListNVMap + m_Space) = Byte_Process1 >> 16;
+				*(p_ListNVMap + m_Space+1) = Byte_Process1 ;
+
+				*(p_ListNVMap + m_NVHLen + m_Space) = Byte_Process2 >> 16;
+				*(p_ListNVMap + m_NVHLen + m_Space+1) = Byte_Process2;
+
+				*(p_ListNVMap + m_NVHLen*2 + m_Space) = Byte_Process3 >> 16;
+				*(p_ListNVMap + m_NVHLen*2 + m_Space+1) = Byte_Process3;
+
+				*(p_ListNVMap + m_NVHLen*3 + m_Space) = Byte_Process4 >> 16;
+				*(p_ListNVMap + m_NVHLen*3 + m_Space+1) = Byte_Process4;
+
+				*(p_ListNVMap + m_NVHLen*4 + m_Space) = Byte_Process5 >> 16;
+				*(p_ListNVMap + m_NVHLen*4 + m_Space+1) = Byte_Process5;
+
+				*(p_ListNVMap + m_NVHLen*5 + m_Space) = Byte_Process6 >> 16;
+				*(p_ListNVMap + m_NVHLen*5 + m_Space+1) = Byte_Process6;
+
+				*(p_ListNVMap + m_NVHLen*6 + m_Space) = Byte_Process7 >> 16;
+				*(p_ListNVMap + m_NVHLen*6 + m_Space+1) = Byte_Process7;
+
+				*(p_ListNVMap + m_NVHLen*7 + m_Space) = Byte_Process8 >> 16;
+				*(p_ListNVMap + m_NVHLen*7 + m_Space+1) = Byte_Process8;
+				if(m_NVprohig > 1)
+				{
+					*(p_ListNVMap + m_NVHLen*8 + m_Space) = Byte_Process9 >> 16;
+					*(p_ListNVMap + m_NVHLen*8 + m_Space+1) = Byte_Process9;
+
+					*(p_ListNVMap + m_NVHLen*9 + m_Space) = Byte_Process10 >> 16;
+					*(p_ListNVMap + m_NVHLen*9 + m_Space+1) = Byte_Process10;
+
+					*(p_ListNVMap + m_NVHLen*10 + m_Space) = Byte_Process11 >> 16;
+					*(p_ListNVMap + m_NVHLen*10 + m_Space+1) = Byte_Process11;
+
+					*(p_ListNVMap + m_NVHLen*11 + m_Space) = Byte_Process12 >> 16;
+					*(p_ListNVMap + m_NVHLen*11 + m_Space+1) = Byte_Process12;
+
+					*(p_ListNVMap + m_NVHLen*12 + m_Space) = Byte_Process13 >> 16;
+					*(p_ListNVMap + m_NVHLen*12 + m_Space+1) = Byte_Process13;
+
+					*(p_ListNVMap + m_NVHLen*13 + m_Space) = Byte_Process14 >> 16;
+					*(p_ListNVMap + m_NVHLen*13 + m_Space+1) = Byte_Process14;
+
+					*(p_ListNVMap + m_NVHLen*14 + m_Space) = Byte_Process15 >> 16;
+					*(p_ListNVMap + m_NVHLen*14 + m_Space+1) = Byte_Process15;
+
+					*(p_ListNVMap + m_NVHLen*15 + m_Space) = Byte_Process16 >> 16;
+					*(p_ListNVMap + m_NVHLen*15 + m_Space+1) = Byte_Process16;
+				}
+				m_Space += 2;
+
+				Byte_Process1 = 0;
+				Byte_Process2 = 0;
+				Byte_Process3 = 0;
+				Byte_Process4 = 0;
+				Byte_Process5 = 0;
+				Byte_Process6 = 0;
+				Byte_Process7 = 0;
+				Byte_Process8 = 0;
+				Byte_Process9 = 0;
+				Byte_Process10 = 0;
+				Byte_Process11 = 0;
+				Byte_Process12 = 0;
+				Byte_Process13 = 0;
+				Byte_Process14 = 0;
+				Byte_Process15 = 0;
+				Byte_Process16 = 0;
+			}
+			m_TempNVAddr += m_NVhigh * 2;//列偏移量
+		}//for
+		if(m_shortcount > 16)
+		{
+			m_shortcount = 0;
+
+			*(p_ListNVMap + m_Space) = Byte_Process1 >> 8;
+			*(p_ListNVMap + m_Space+1) = Byte_Process1 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen + m_Space) = Byte_Process2 >> 8;
+			*(p_ListNVMap + m_NVHLen + m_Space+1) = Byte_Process2 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*2 + m_Space) = Byte_Process3 >> 8;
+			*(p_ListNVMap + m_NVHLen*2 + m_Space+1) = Byte_Process3 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*3 + m_Space) = Byte_Process4 >> 8;
+			*(p_ListNVMap + m_NVHLen*3 + m_Space+1) = Byte_Process4 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*4 + m_Space) = Byte_Process5 >> 8;
+			*(p_ListNVMap + m_NVHLen*4 + m_Space+1) = Byte_Process5 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*5 + m_Space) = Byte_Process6 >> 8;
+			*(p_ListNVMap + m_NVHLen*5 + m_Space+1) = Byte_Process6 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*6 + m_Space) = Byte_Process7 >> 8;
+			*(p_ListNVMap + m_NVHLen*6 + m_Space+1) = Byte_Process7 & 0xff ;
+
+			*(p_ListNVMap + m_NVHLen*7 + m_Space) = Byte_Process8 >> 8;
+			*(p_ListNVMap + m_NVHLen*7 + m_Space+1) = Byte_Process8 & 0xff ;
+			if(m_NVprohig > 1)
+			{
+				*(p_ListNVMap + m_NVHLen*8 + m_Space) = Byte_Process9 >> 8;
+				*(p_ListNVMap + m_NVHLen*8 + m_Space+1) = Byte_Process9 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*9 + m_Space) = Byte_Process10 >> 8;
+				*(p_ListNVMap + m_NVHLen*9 + m_Space+1) = Byte_Process10 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*10 + m_Space) = Byte_Process11 >> 8;
+				*(p_ListNVMap + m_NVHLen*10 + m_Space+1) = Byte_Process11 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*11 + m_Space) = Byte_Process12 >> 8;
+				*(p_ListNVMap + m_NVHLen*11 + m_Space+1) = Byte_Process12 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*12 + m_Space) = Byte_Process13 >> 8;
+				*(p_ListNVMap + m_NVHLen*12 + m_Space+1) = Byte_Process13 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*13 + m_Space) = Byte_Process14 >> 8;
+				*(p_ListNVMap + m_NVHLen*13 + m_Space+1) = Byte_Process14 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*14 + m_Space) = Byte_Process15 >> 8;
+				*(p_ListNVMap + m_NVHLen*14 + m_Space+1) = Byte_Process15 & 0xff ;
+
+				*(p_ListNVMap + m_NVHLen*15 + m_Space) = Byte_Process16 >> 8;
+				*(p_ListNVMap + m_NVHLen*15 + m_Space+1) = Byte_Process16 & 0xff ;
+			}
+
+		}
+		if(m_shortcount > 0)
+		{
+			m_shortcount = 0;
+
+			*(p_ListNVMap + m_Space) = Byte_Process1;
+
+			*(p_ListNVMap + m_NVHLen + m_Space) = Byte_Process2;
+
+			*(p_ListNVMap + m_NVHLen*2 + m_Space) = Byte_Process3;
+
+			*(p_ListNVMap + m_NVHLen*3 + m_Space) = Byte_Process4;
+
+			*(p_ListNVMap + m_NVHLen*4 + m_Space) = Byte_Process5;
+
+			*(p_ListNVMap + m_NVHLen*5 + m_Space) = Byte_Process6;
+
+			*(p_ListNVMap + m_NVHLen*6 + m_Space) = Byte_Process7;
+
+			*(p_ListNVMap + m_NVHLen*7 + m_Space) = Byte_Process8;
+
+			if(m_NVprohig > 1)
+			{
+				*(p_ListNVMap + m_NVHLen*8 + m_Space) = Byte_Process9;
+
+				*(p_ListNVMap + m_NVHLen*9 + m_Space) = Byte_Process10;
+
+				*(p_ListNVMap + m_NVHLen*10 + m_Space) = Byte_Process11;
+
+				*(p_ListNVMap + m_NVHLen*11 + m_Space) = Byte_Process12;
+
+				*(p_ListNVMap + m_NVHLen*12 + m_Space) = Byte_Process13;
+
+				*(p_ListNVMap + m_NVHLen*13 + m_Space) = Byte_Process14;
+
+				*(p_ListNVMap + m_NVHLen*14 + m_Space) = Byte_Process15;
+
+				*(p_ListNVMap + m_NVHLen*15 + m_Space) = Byte_Process16;
+			}
+
+		}
+		//**********************************************************************
+		//取完一整行 数据存入flash
+		//m_NVHLen 一行所占字节数  根据 m_NVprohig 判断高度
+		if(m_NVprohig > 1)
+		{
+			counter = m_NVHLen * 16;
+		}
+		else
+		{
+			counter = m_NVHLen * 8;
+		}
+		counter += m_SaveSpaceCount;
+		m_SaveSpaceCount = 0;
+		p_ListNV_TEMP = Data_Temp_Buffer;
+		if(counter > 256)
+		{
+			p_ListNVMap = Data_Temp_Buffer;
+			while(counter > 256)
+			{
+				PRINTER_PDL.SYS._LED_Stauts_Trig();
+
+				AT91F_DataFlashPageWrite (m_SAVENVAddr,p_ListNVMap);
+				//for(i=0;i<0x9E00;i++);//在等于0x9E00延时约等于50ms
+				p_ListNVMap += 256;
+				counter -= 256;
+				m_SAVENVAddr += 512;
+			}
+			m_SaveSpaceCount = counter;
+			while(counter > 0)
+			{
+				*p_ListNV_TEMP++ = *p_ListNVMap++;
+				counter--;
+			}
+			p_ListNVMap = p_ListNV_TEMP;
+		}
+		else
+		{
+			m_SaveSpaceCount = counter;
+			p_ListNVMap = Data_Temp_Buffer + counter;
+		}
+
+		//--------------------------
+		if(m_NVprohig > 1)
+		{
+			m_NVprohig -= 1;
+		}
+		m_NVprohig -= 1;
+		PRINTER_PDL.SYS._WDG_ReloadCounter();  // reload the watchdog 重装载看门狗定时器
+	}
+	if(m_SaveSpaceCount > 0)
+	{
+
+		PRINTER_PDL.SYS._LED_Stauts_Trig();
+		p_ListNVMap = Data_Temp_Buffer;
+		AT91F_DataFlashPageWrite (m_SAVENVAddr,p_ListNVMap);
+		//for(i=0;i<0x9E00;i++);//在等于0x9E00延时约等于50ms
+		m_SAVENVAddr += 512;
+	}
+	g_MAP_ADDR_G = m_SAVENVAddr;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif /* PSF20_R002_ESC_POS_PROTOCOL */

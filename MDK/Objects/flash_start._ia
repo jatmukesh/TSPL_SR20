@@ -1,0 +1,4 @@
+--cpu Cortex-M0 --li -g --apcs=interwork --pd "__MICROLIB SETA 1"
+-IC:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\Device\ARM\ARMCM0\Include
+--pd "__UVISION_VERSION SETA 534" --pd "ARMCM0 SETA 1"
+--list .\listings\flash_start.lst --xref -o .\objects\flash_start.o --depend .\objects\flash_start.d "..\Librarier\startup\flash_start.s"

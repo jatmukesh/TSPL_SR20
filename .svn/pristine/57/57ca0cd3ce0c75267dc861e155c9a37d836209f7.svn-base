@@ -1,0 +1,9 @@
+.\objects\system.o: ..\Librarier\core\system.c
+.\objects\system.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\system.o: ..\Librarier\core\system.h
+.\objects\system.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\system.o: ..\Librarier\sdk\yc_uart.h
+.\objects\system.o: ..\Librarier\core\yc3121.h
+.\objects\system.o: ..\Librarier\core\type.h
+.\objects\system.o: ..\Librarier\core\system.h
+.\objects\system.o: ..\Librarier\core\rom_api.h

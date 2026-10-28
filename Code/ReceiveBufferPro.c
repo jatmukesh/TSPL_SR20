@@ -1,0 +1,2139 @@
+#include "ReceiveBufferPro.h"
+#include "PDL.h"
+#include "HP12832_01_SSD1306_I2C.h"
+#include "macros.h"
+#ifdef PSF20_R002_TSPL_PROTOCOL
+#include "TsplNative.h"
+#include "TsplFirmware.h"
+#endif
+#include "Audio_Indication.h"
+
+/**********************************New Firmware Modification**************/
+#ifdef BT_NACK
+uint8_t g_bt_overflow_nack_sent = 0; 
+uint8_t g_usb_overflow_nack_sent = 0;
+extern unsigned char g_DiscardPrinting;
+extern unsigned char g_SelfTestStartFlag;
+#endif
+
+#ifdef BT_CMD_REQ
+extern uint16_t label_length_mm;
+const char Get_Label_Size_cmd[] = "GET_LABEL_HEIGHT\r\n";
+#endif
+
+#ifdef TEMP_STATUS_ACK_TO_SOFTWARE_APP
+extern unsigned short Thermal_Head_Temperature;
+const char Get_Printer_Temp_cmd[] = "GET_TEMPERATURE\r\n";
+#endif
+
+extern unsigned int LID_Detection_Flag;
+
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+extern void BatteryLowCharge_Service(void);
+extern unsigned char BatteryLowCharge_PrintWarning(void);
+#endif
+
+#ifdef DISPLAY_FREEZE_ISSUE_SOLUTION	
+extern unsigned int g_Display_freeze_issue_flag;
+#endif
+//----------------------------------------------------------------------
+
+extern unsigned short	g_MotoAll;//电机走步索引
+extern _PDL		PRINTER_PDL ;
+
+unsigned short g_ReceiveBusyFlag;//保存数据个数的指针
+
+unsigned short g_judgeData;
+extern unsigned short g_LPSStatus,g_PE_Standard;//缺纸检测器状态
+extern PrintControl	s_PrinterMOTOPar;//打印机步进电机参数
+unsigned short g_ReturnBusy;
+extern unsigned char  receive_bufer[BUFFERSIZE];
+extern GetOrderPoint	s_PrintOrderstr;//取命令结构
+
+	unsigned short g_printChar;
+
+	
+#ifdef PRINTER_AND_USB
+void returnstatus(unsigned char flag);
+#endif
+extern PrintrConfig	s_PrintrConfig;//打印机配置参数
+extern unsigned int FlowFlag;//波特率
+unsigned short g_printLabFlag;
+extern PrinterStruct	s_PrintParameters;//打印机参数
+
+extern unsigned short g_PaperType;
+unsigned char (*PrinterCore)(void);
+extern void DisplayBTPro(void);
+extern const unsigned short VolRUNTime[];
+extern const unsigned short VolTHSTB[];
+extern const unsigned short VolRUNPWM[];
+extern const unsigned short VolFreeTime[];
+extern const unsigned short VolTHSTB_2[];
+extern const unsigned short VolTemAdd[];
+extern const unsigned short VolTemSubb[];
+unsigned short	g_receiveFlage;
+	#ifdef PRINTER_LABEL
+extern void FeedLabPaper(void);
+#endif
+extern void SetPrtintDataBaud(unsigned char baudvalue);
+extern void SavePrinterConfig(void);
+extern void ProKeySetModel(void);
+extern void DisplayBatty(unsigned char x,unsigned char y);
+/* The temperature-display readings are only shown when this macro is enabled*/
+#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+extern void DisplayTemp(unsigned char x,unsigned char y);
+#endif
+// *******************************************************************************
+extern void PrinterLPS(void);
+extern unsigned short g_TimeOutFlag;
+extern void RunFeedLabPaper(void);
+
+unsigned int g_SaveDataToFlashAddr;//存储数据的当前地址
+unsigned int g_GetDataFromFlashAddr;//从flash中取数据的地址
+
+unsigned int g_SaveDataOffset;//存储数据的当前偏移量
+unsigned int g_GetDataOffset;//得到储数据的当前偏移量
+
+unsigned short g_InterFaceBufferCount;//端口接收数据缓冲区接收到的数据个数
+
+unsigned int 	Receive_count;
+unsigned int	g_Receive_count;//数据接收
+unsigned int	g_Order_count;//取命令计数器
+
+unsigned int *p_OcAndGDAdr;//得到数据的指针
+
+unsigned int *p_REAndSAcount;//保存数据个数的指针
+
+unsigned int *p_SaveDrREcount;//存储数据到缓冲区的偏移量
+
+extern unsigned short	g_DumpReceiveFlage;
+
+extern unsigned short gDelay1ms;
+extern void  Delay1ms(unsigned short mdelay);
+unsigned short 	g_ReturnStatusFlag;
+
+void SetTestData(void);
+extern void GetLabPaperSta(void);
+/*******************************************************************************
+* Function Name  :
+* Description    : 串口数据接收
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DumpProReceiveData(unsigned char Rdata)
+{
+	unsigned char data0;
+
+	data0 = (Rdata & 0xF0) >> 4;
+	if(data0 < 0xA)
+	{
+		data0 += 0x30;
+	}
+	else
+	{
+		data0 += 0x37;
+	}
+	(*p_REAndSAcount)++;//缓冲区得到的数据个数
+	receive_bufer[(*p_SaveDrREcount)++] = data0;
+	(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+	data0 = Rdata & 0x0F;
+	if(data0 < 0xA)
+	{
+		data0 += 0x30;
+	}
+	else
+	{
+		data0 += 0x37;
+	}
+	(*p_REAndSAcount)++;//缓冲区得到的数据个数
+	receive_bufer[(*p_SaveDrREcount)++] = data0;
+	(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+	(*p_REAndSAcount)++;//缓冲区得到的数据个数
+	receive_bufer[(*p_SaveDrREcount)++] = 0x20;
+	(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+}
+unsigned short g_ReturnEp;
+#ifdef RD_TYPE_SERIAL
+const unsigned char EnCodeDatList[]={
+0x30,
+0xB0,
+0x10,
+0xC0,
+0x40,
+0x70,
+0xA0,
+0x50,
+0x80,
+0x20,
+0xE0,
+0x60,
+0x90,
+0xD0,
+0xF0,
+0x00,
+};
+
+unsigned char EncodeReceiveDat(unsigned char dat)
+{
+	unsigned char i;
+	i = dat & 0x0F;
+	i = EnCodeDatList[i];
+	return (dat ^ i);
+}
+
+
+unsigned char DecodeReceiveDat(unsigned char dat)
+{
+	unsigned char i;
+	i = dat & 0x0F;
+	i = EnCodeDatList[i];
+	return (dat ^ i);
+}
+unsigned int g_ProTe485;
+
+/*******************************************************************************
+* Function Name  : USART1_IRQHandler  MP系列打印机使用串口1
+* Description    : 串口数据接收
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+#ifdef PRINTER_TYPE_RS232
+void RS232_USART_Handler(void)      //串口1 中断服务程序
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA001U;
+    while (PRINTER_PDL.RS232._IsRXFIFONotEmpty()) {
+        TsplReceive_Byte(PRINTER_PDL.RS232._ReceivedChar());
+    }
+#else // legacy flow
+
+
+   unsigned char data,data2;
+	
+   //读取串口状态
+   while(PRINTER_PDL.RS232._IsRXFIFONotEmpty()) // read interrupt
+   {
+		data = PRINTER_PDL.RS232._ReceivedChar();
+		if(s_PrintrConfig.m_PrintEnCode == 0xA123)	
+		{
+			data = DecodeReceiveDat(data);
+		}
+		g_judgeData = (g_judgeData << 8) | data;
+		g_ProTe485 = (g_ProTe485 << 8) | data;
+		if(g_judgeData == 0x1B76)
+		{
+			data2 = 0;
+			if(g_LPSStatus < g_PE_Standard)
+			{
+				data2 |= 1; //等于1表示缺纸
+			}
+			if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+			{
+				data2 |= 2;//=2表示打印机正在运行
+			}
+			#ifdef RD_W2C1PRINTER
+			if(GET_TAKE_PAPER)
+			{
+				data2 |= 8;
+			}				
+			#endif
+			#ifdef TYPE_485
+			
+			g_ReturnStatusFlag = 0xA112;
+			#endif
+					
+			PRINTER_PDL.RS232._WriteChar(data2);
+			
+			
+			data = 0;
+		}
+		#ifdef NO_DUMP
+		g_DumpReceiveFlage = 0;
+		#endif
+		
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(data);
+			return;
+		}
+
+
+
+#ifdef PRINTER_PROTOCOL
+		
+#ifdef PRINTER_PROTOCOL_9A9A		
+		if(g_judgeData == 0x9A9A)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_judgeData == 0x9D9D)
+		{
+			g_receiveFlage = 0;
+		}
+#endif
+#ifdef PRINTER_PROTOCOL_0355		
+		
+		if(g_judgeData == 0x0355)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_judgeData == 0x03AA)
+		{
+			g_receiveFlage = 0;
+		}
+#endif	
+
+
+#ifdef PRINTER_PROTOCOL_1B392A3030		
+		
+		if(g_ProTe485 == 0x392A3030)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_ProTe485 == 0x392A3131)
+		{
+			g_receiveFlage = 0;
+		}
+#endif	
+
+
+
+
+
+		
+		if(g_receiveFlage == 0xAAAA)
+#endif
+		{
+		//	Receive_count++;
+		//	receive_bufer[g_Receive_count++] = data;
+		//	g_Receive_count = g_Receive_count & MASK_DATA;
+
+			(*p_REAndSAcount)++;//缓冲区得到的数据个数
+			receive_bufer[(*p_SaveDrREcount)++] = data;
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+		}
+
+		if (Receive_count > PRINTER_RECEIVE_L )
+		{
+			if(FlowFlag & 0x40)
+			{
+			//	if(GET_BUSY_S == 0)
+				{
+					//USART1->DR = 0x13;
+					PRINTER_PDL.RS232._WriteChar(0x13);
+				}
+			}
+			#ifndef TYPE_485
+			//SET_H_BUSY_S;
+			PRINTER_PDL.RS232._SetBusy();
+			#endif
+		}
+		if(Receive_count < 1000)
+		{
+			if(FlowFlag & 0x40)
+			{
+				if(PRINTER_PDL.RS232._GetBusy() != 0)
+				{
+					//USART1->DR = 0x11;
+					PRINTER_PDL.RS232._WriteChar(0x11);
+				}
+			}
+			PRINTER_PDL.RS232._ClearBusy();
+		}
+   }
+	 
+
+#endif
+}
+#endif
+
+
+void TTL_USART_Handler( unsigned char data)       //串口1 中断服务程序
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA002U;
+    TsplReceive_Byte(data);
+#else // legacy flow
+
+
+
+   //读取串口状态
+	g_ReturnEp = 0xA002;
+  // if(PRINTER_PDL.TTL._RxInterruptStatus()) // read interrupt
+   {
+		//data = PRINTER_PDL.TTL._ReceivedChar();
+		 if((FlowFlag & 0x30) == 0x30)
+		 {
+			 data &= 0x7F;
+		 }
+		if(s_PrintrConfig.m_PrintEnCode == 0xA123)	
+		{
+			data = DecodeReceiveDat(data);
+		}
+		g_judgeData = (g_judgeData << 8) | data;
+		g_ProTe485 = (g_ProTe485 << 8) | data;
+
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(data);
+			return;
+		}
+
+
+
+#ifdef PRINTER_PROTOCOL
+		
+#ifdef PRINTER_PROTOCOL_9A9A		
+		if(g_judgeData == 0x9A9A)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_judgeData == 0x9D9D)
+		{
+			g_receiveFlage = 0;
+		}
+#endif
+#ifdef PRINTER_PROTOCOL_0355		
+		
+		if(g_judgeData == 0x0355)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_judgeData == 0x03AA)
+		{
+			g_receiveFlage = 0;
+		}
+#endif	
+
+
+#ifdef PRINTER_PROTOCOL_1B392A3030		
+		
+		if(g_ProTe485 == 0x392A3030)
+		{
+			g_receiveFlage = 0xAAAA;
+			data = 0;
+		}
+		if(g_ProTe485 == 0x392A3131)
+		{
+			g_receiveFlage = 0;
+		}
+#endif	
+
+
+
+
+
+		
+		if(g_receiveFlage == 0xAAAA)
+#endif
+		{
+		//	Receive_count++;
+		//	receive_bufer[g_Receive_count++] = data;
+		//	g_Receive_count = g_Receive_count & MASK_DATA;
+
+			(*p_REAndSAcount)++;//缓冲区得到的数据个数
+			receive_bufer[(*p_SaveDrREcount)++] = data;
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+		}
+
+		if (Receive_count > PRINTER_RECEIVE_L )
+		{
+			if(FlowFlag & 0x40)
+			{
+			//	if(GET_BUSY_S == 0)
+				{
+					//USART1->DR = 0x13;
+					PRINTER_PDL.TTL._WriteChar(0x13);
+				}
+			}
+
+		}
+		if(Receive_count < 1000)
+		{
+			if(FlowFlag & 0x40)
+			{
+				if(PRINTER_PDL.TTL._GetBusy() != 0)
+				{
+					//USART1->DR = 0x11;
+					PRINTER_PDL.TTL._WriteChar(0x11);
+				}
+			}
+			PRINTER_PDL.TTL._ClearBusy();
+		}
+   }
+
+#endif
+}
+
+
+#endif
+
+
+//USB
+	#ifdef PRINTER_AND_USB
+
+unsigned char UsbBufer[2];
+
+#ifdef BT_NACK
+unsigned short PUSB_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA003U;
+    return TsplReceive_Bytes(dataBuffer, len);
+#else // legacy flow
+
+	unsigned short i;
+	g_ReturnEp = 0xA003;
+	for(i=0;i<len;i++)
+	{
+		Receive_count++;
+		receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+	//	MyPrintf("%02X ",dataBuffer[i]);
+			
+	}
+	g_ReceiveBusyFlag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+             //NACK for USb buffer
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		if(g_usb_overflow_nack_sent == 0) {
+		extern void MyPrintf(char *format, ...);	
+		MyPrintf("DEBUG: USB Buffer Overflow Detected!\r\n");
+		g_usb_overflow_nack_sent = 1;
+		}
+		g_ReceiveBusyFlag = 0xAAAA;
+	}
+	else if (Receive_count < (PRINTER_RECEIVE_L - 1024))
+	{
+		// Reset flag when drains to a safe level
+		 g_usb_overflow_nack_sent = 0;
+	}
+		
+	return g_ReceiveBusyFlag;
+	
+
+#endif
+}
+
+unsigned short PUSB_Dump_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+	unsigned short i;
+	g_ReturnEp = 0xA003;
+	for(i=0;i<len;i++)
+	{
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(dataBuffer[i]);
+		}
+	}
+	g_ReceiveBusyFlag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+//usb buffer
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		if(g_usb_overflow_nack_sent == 0) {
+		extern void MyPrintf(char *format, ...);	
+		MyPrintf("DEBUG: USB Buffer Overflow Detected!\r\n");
+		g_usb_overflow_nack_sent = 1;
+		}
+		g_ReceiveBusyFlag = 0xAAAA;
+	}
+	else if (Receive_count < (PRINTER_RECEIVE_L - 1024))
+	{
+		// Reset flag when drains to a safe level
+		 g_usb_overflow_nack_sent = 0;
+	}
+	
+	return g_ReceiveBusyFlag;
+	
+}
+#else
+unsigned short PUSB_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA003U;
+    return TsplReceive_Bytes(dataBuffer, len);
+#else // legacy flow
+
+	unsigned short i;
+	g_ReturnEp = 0xA003;
+	for(i=0;i<len;i++)
+	{
+		Receive_count++;
+		receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+	//	MyPrintf("%02X ",dataBuffer[i]);
+			
+	}
+	g_ReceiveBusyFlag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		
+		g_ReceiveBusyFlag = 0xAAAA;
+	}
+	return g_ReceiveBusyFlag;
+	
+
+#endif
+}
+
+
+
+unsigned short PUSB_Dump_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+	unsigned short i;
+	g_ReturnEp = 0xA003;
+	for(i=0;i<len;i++)
+	{
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(dataBuffer[i]);
+		}
+	}
+	g_ReceiveBusyFlag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		
+		g_ReceiveBusyFlag = 0xAAAA;
+	}
+	return g_ReceiveBusyFlag;
+	
+}
+#endif
+unsigned int sendcountfl;
+
+void returnstatus(unsigned char flag)
+{
+  return;
+//	if(flag)
+//	{
+//		if(sendcountfl & 0x200)
+//		{
+//			sendcountfl = 0;
+//		}
+//		else
+//		{
+//			return;
+//		}
+//	}
+
+
+}
+#endif
+	#ifdef RD_TYPE_BT
+unsigned short g_BTreceiveflag;
+unsigned short g_BTJudge;
+
+#ifdef BT_NACK
+/**
+* @FuncName  BT_ReceiveNBytes
+* @param     unsigned char *dataBuffer - Pointer to incoming raw Bluetooth data byte array
+*            unsigned short len        - Length of incoming data buffer in bytes
+* @retval    unsigned short            - Number of data bytes processed into print buffer (returns 0 if commandintercepted)
+* @LocalVar  unsigned short i   - Loop index iterator
+*            unsigned char data - Temporary byte reader holder
+* @GlobalVar Get_Label_Size_cmd, label_length_mm, Receive_count, receive_bufer,
+*            p_SaveDrREcount, MASK_DATA, g_BTJudge
+* @Description Processes incoming Bluetooth serial stream bytes into the print receive buffer
+*              
+*
+*              
+*/
+unsigned short BT_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA004U;
+    return TsplReceive_Bytes(dataBuffer, len);
+#else // legacy flow
+
+	unsigned short i;
+	unsigned char data2,data;
+	
+#ifdef BT_CMD_REQ
+		if ((len == strlen(Get_Label_Size_cmd)) && (MyMemCmp(dataBuffer, Get_Label_Size_cmd, strlen(Get_Label_Size_cmd)) == 0))
+    {
+       // MyPrintf("T1_LH\r\n");
+			
+       if(g_PaperType == 0)
+        Get_Label_Size_BT_Response(label_length_mm);
+			else
+				Get_Label_Size_BT_Response(0);
+
+        /* Do not process this as print data */
+        return 0;
+    }
+#endif
+
+//#ifdef TEMP_STATUS_ACK_TO_SOFTWARE_APP    //Used later
+//        if ((len == strlen(Get_Printer_Temp_cmd)) && (MyMemCmp(dataBuffer, Get_Printer_Temp_cmd,strlen(Get_Printer_Temp_cmd)) == 0))
+//        {
+//            /* Respond with current thermal head temperature on demand */
+//            Get_Temperature_BT_Response("QUERY", current_temp);
+//            return 0;   /* Do not process this as print data */
+//        }
+//#endif
+
+#ifdef LID_OPEN_MEDIA_ABSENT_AVOID_GARBAGE_PRINT				
+	if(LID_Detection_Flag == 1)
+	{
+		MyPrintf("****\r\n");
+		for(i=0;i<len;i++)
+		{
+			MyPrintf("IRQ\r\n");
+			Receive_count = 0;
+			dataBuffer[i] = 0;
+			receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+		//	(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+			
+	//		if((*p_SaveDrREcount) > BUUFER_MAX_LEN)
+	//		{
+	//			(*p_SaveDrREcount) = 0;
+	//		}
+			g_BTJudge = 0;
+			//g_BTJudge |= dataBuffer[i];
+//			if(g_BTJudge == 0x1B76)
+//			{
+//				data2 = 0;
+//				if(g_LPSStatus < g_PE_Standard)
+//				{
+//					data2 |= 1; //????1?????
+//				}
+//				if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+//				{
+//					data2 |= 2;//=2????????????????
+//				}
+//				data = data2 | g_ReturnBusy;
+//				PRINTER_PDL.BT._ReturnNBytes(&data,1);
+//			}
+		}
+		s_PrinterMOTOPar.m_PrintEnd = ENABLE_VAR;
+		s_PrinterMOTOPar.m_In_printing = DISABLE_VAR;
+		//LID_Detection_Flag = 0;
+		return 0;
+	}
+	else
+	{
+		//LID_Detection_Flag = 0;
+		for(i=0;i<len;i++)
+		{
+			Receive_count++;
+			receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+	//		if((*p_SaveDrREcount) > BUUFER_MAX_LEN)
+	//		{
+	//			(*p_SaveDrREcount) = 0;
+	//		}
+			g_BTJudge = g_BTJudge << 8;
+			g_BTJudge |= dataBuffer[i];
+			if(g_BTJudge == 0x1B76)
+			{
+				data2 = 0;
+				if(g_LPSStatus < g_PE_Standard)
+				{
+					data2 |= 1; //????1?????
+				}
+				if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+				{
+					data2 |= 2;//=2????????????????
+				}
+				data = data2 | g_ReturnBusy;
+				PRINTER_PDL.BT._ReturnNBytes(&data,1);
+			}
+		
+		}
+	}
+#else	
+		for(i=0;i<len;i++)
+		{
+			//MyPrintf("BT");
+			Receive_count++;
+			receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+	//		if((*p_SaveDrREcount) > BUUFER_MAX_LEN)
+	//		{
+	//			(*p_SaveDrREcount) = 0;
+	//		}
+			g_BTJudge = g_BTJudge << 8;
+			g_BTJudge |= dataBuffer[i];
+			if(g_BTJudge == 0x1B76)
+			{
+				data2 = 0;
+				if(g_LPSStatus < g_PE_Standard)
+				{
+					data2 |= 1; //????1?????
+				}
+				if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+				{
+					data2 |= 2;//=2????????????????
+				}
+				data = data2 | g_ReturnBusy;
+				PRINTER_PDL.BT._ReturnNBytes(&data,1);
+			}
+		
+		}
+#endif
+	g_BTreceiveflag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+// NACK for bt buffer
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		if(g_bt_overflow_nack_sent == 0) {
+			extern  void BT_SendNACK(BT_NACK_Reason);
+			BT_SendNACK(BT_NACK_BUFFER_OVERFLOW);
+			g_bt_overflow_nack_sent = 1;
+		}
+		g_BTreceiveflag = 0xAAAA;
+	}
+	else if (Receive_count < (PRINTER_RECEIVE_L - 1024))
+	{
+		// reset falg when buffer drains to safe level
+		g_bt_overflow_nack_sent = 0;
+	}
+
+	return g_BTreceiveflag;
+	
+
+#endif
+}
+
+unsigned short BT_ReceiveDumpNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+	unsigned short i;
+	unsigned char data2,data;
+	for(i=0;i<len;i++)
+	{
+		
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(dataBuffer[i]);
+		}
+		
+//		Receive_count++;
+//		receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+//		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+		
+		g_BTJudge = g_BTJudge << 8;
+		g_BTJudge |= dataBuffer[i];
+		if(g_BTJudge == 0x1B76)
+		{
+			data2 = 0;
+			if(g_LPSStatus < g_PE_Standard)
+			{
+				data2 |= 1; //????1?????
+			}
+			if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+			{
+				data2 |= 2;//=2????????????????
+			}
+			data = data2 | g_ReturnBusy;
+			PRINTER_PDL.BT._ReturnNBytes(&data,1);
+		}
+	
+	}
+	g_BTreceiveflag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+ //bt buff
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+			if(g_bt_overflow_nack_sent == 0) {
+			extern  void BT_SendNACK(BT_NACK_Reason);
+			BT_SendNACK(BT_NACK_BUFFER_OVERFLOW);
+			g_bt_overflow_nack_sent = 1;
+		}
+		g_BTreceiveflag = 0xAAAA;
+	}
+	else if (Receive_count < (PRINTER_RECEIVE_L - 1024))
+	{
+		//Reset flag when buffer drains to a safe
+		g_bt_overflow_nack_sent = 0;
+	}
+	
+	return g_BTreceiveflag;
+	
+}
+
+#else
+unsigned short BT_ReceiveNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+#ifdef PSF20_R002_TSPL_PROTOCOL
+    g_ReturnEp = 0xA004U;
+    return TsplReceive_Bytes(dataBuffer, len);
+#else // legacy flow
+
+	unsigned short i;
+	unsigned char data2,data;
+	for(i=0;i<len;i++)
+	{
+		Receive_count++;
+		receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+//		if((*p_SaveDrREcount) > BUUFER_MAX_LEN)
+//		{
+//			(*p_SaveDrREcount) = 0;
+//		}
+		g_BTJudge = g_BTJudge << 8;
+		g_BTJudge |= dataBuffer[i];
+		if(g_BTJudge == 0x1B76)
+		{
+			data2 = 0;
+			if(g_LPSStatus < g_PE_Standard)
+			{
+				data2 |= 1; //等于1表示缺纸
+			}
+			if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+			{
+				data2 |= 2;//=2表示打印机正在运行
+			}
+			data = data2 | g_ReturnBusy;
+			PRINTER_PDL.BT._ReturnNBytes(&data,1);
+		}
+	
+	}
+	g_BTreceiveflag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		
+		g_BTreceiveflag = 0xAAAA;
+	}
+	return g_BTreceiveflag;
+	
+
+#endif
+}
+
+
+unsigned short BT_ReceiveDumpNBytes (unsigned char *dataBuffer,unsigned short len) 
+{
+	unsigned short i;
+	unsigned char data2,data;
+	for(i=0;i<len;i++)
+	{
+		
+		if(g_DumpReceiveFlage == 0xAAAA)
+		{
+			DumpProReceiveData(dataBuffer[i]);
+		}
+		
+		
+		
+//		Receive_count++;
+//		receive_bufer[(*p_SaveDrREcount)++] = dataBuffer[i];
+//		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+
+		
+		g_BTJudge = g_BTJudge << 8;
+		g_BTJudge |= dataBuffer[i];
+		if(g_BTJudge == 0x1B76)
+		{
+			data2 = 0;
+			if(g_LPSStatus < g_PE_Standard)
+			{
+				data2 |= 1; //等于1表示缺纸
+			}
+			if(s_PrinterMOTOPar.m_PrintEnd != ENABLE_VAR)
+			{
+				data2 |= 2;//=2表示打印机正在运行
+			}
+			data = data2 | g_ReturnBusy;
+			PRINTER_PDL.BT._ReturnNBytes(&data,1);
+		}
+	
+	}
+	g_BTreceiveflag = 0;
+	//if (Receive_count > BUUFER_MAX_REC )
+	if (Receive_count > PRINTER_RECEIVE_L )
+	{
+		
+		g_BTreceiveflag = 0xAAAA;
+	}
+	return g_BTreceiveflag;
+	
+}
+#endif
+
+
+#endif
+#define WORKE_TYPE_CONTINUE		1//
+#define WORKE_TYPE_CON_LAB		0//
+const char MODDE_PR1[]={"Work Mode:Continue\r\n\r\n\r\n\r\n"};
+const char MODDE_PR2[]={"Work Mode:Label\r\n\r\n\r\n\r\n"};
+
+void SetprinterType(unsigned short mtypedd)
+{
+	char * psetr;
+	short i;
+	
+
+	
+	switch(mtypedd & 1 )
+		{
+			
+			case WORKE_TYPE_CONTINUE:
+						psetr = (char *)MODDE_PR1;
+				break;
+			case WORKE_TYPE_CON_LAB:
+					psetr = (char *)MODDE_PR2;
+				break;
+		}	
+
+		i = 0;
+		while(psetr[i])
+		{
+			(*p_REAndSAcount)++;//缓冲区得到的数据个数
+			receive_bufer[(*p_SaveDrREcount)++] = psetr[i++];
+			(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;
+		}	
+	
+	
+}
+
+/*
+4.13v     800    3,32
+4.04v     900    3,132
+3.99v			900
+3.94v			900
+3.89v			1000	3,232
+3.84v			1000
+3.80v			1000
+3.75v			1000
+3.72v			1000
+3.68v			1000
+3.66v			1100		4,76
+3.64v			1100
+3.61v			1100
+3.60v			1100
+3.59v			1300		5,20
+3.57v			1300
+3.55v			1400		5,120
+3.53v			1500		5,220
+3.52v			1500
+3.49v			1500
+3.47v			1500
+3.44v			1500
+3.41v			1600		6,64
+3.35v			1800		7,8
+3.33v			2400    9,96
+
+
+3.95 以上 百分之66% -- 100% 显示3格
+3.74 以上  百分之33% -- 66%  显示 2格
+3.62  以上 百分之0% ---- 33%  显示 1格
+3.62  以下 闪烁提示
+3.44   以下 自动关机
+
+
+ 
+*/	
+extern unsigned short g_PowerVol;
+
+/*
+3.50v  0x2000
+4.00v  0x1000
+4.50v  0xB00
+5.00v  0x680
+5.50v  0x400		
+6.00v  0x280		
+6.50v  0x200		
+7.00v  0x180
+7.50v  0x140
+8.00v  0x110
+8.50v  0x0F0
+*/	
+
+unsigned short CalStbTime1(void)
+{
+	//输出固定电压为5.7V
+	return 0x300;
+}
+
+/*
+3.50v  0x2000
+4.00v  0x1000
+4.50v  0xB00
+5.00v  0x680
+5.50v  0x400		
+6.00v  0x280		
+6.50v  0x200		
+7.00v  0x180
+7.50v  0x140
+8.00v  0x110
+8.50v  0x0F0
+*/	
+
+unsigned short CalStbTime(void)
+{
+#ifdef USB_CHANGING_DATALOSS_ISSUE_SOLUTION
+	unsigned short m_Qj = 0;
+  unsigned short m_ORg = 0x0F0, m_PowerVol;
+  unsigned int sum = 0;
+  unsigned short calculated_stb;	
+	
+#else	
+	unsigned short m_Qj;
+	unsigned short m_ORg,m_PowerVol;
+	unsigned int sum;
+#endif	
+	
+	m_PowerVol = PRINTER_PDL.ADC._GetDriveVoltage();
+#ifdef MY_DEBUG_ENABLE	
+	printf("m_PowerVol:%d\r\n",m_PowerVol);
+#endif
+
+#ifdef USB_CHANGING_DATALOSS_ISSUE_SOLUTION		
+		if (m_PowerVol > 8500)
+		{
+				m_PowerVol = 8500;
+		}	
+#endif
+		
+	if(m_PowerVol	 < 3500)
+	{
+		return 0x2000;	
+	}	
+	else if(m_PowerVol	 < 4000)
+	{
+		m_ORg = 0x1000;
+		m_Qj = 0x2000 - 0x1000;
+		sum = 4000 - m_PowerVol;	
+	}		
+	else if(m_PowerVol	 < 4500)
+	{
+		m_ORg = 0xB00;
+		m_Qj = 0x1000 - 0xB00;
+		sum = 4500 - m_PowerVol;
+	}
+	else if(m_PowerVol	 < 5000)
+	{
+		m_ORg = 0x680;
+		m_Qj = 0xC00 - 0x680;
+		sum = 5000 - m_PowerVol;
+	}
+	else if(m_PowerVol	 < 5500)
+	{
+		m_ORg = 0x400;
+		m_Qj = 0x680 - 0x400;
+		sum = 5500 - m_PowerVol;
+	}
+	else if(m_PowerVol	 < 6000)
+	{
+		m_ORg = 0x280;
+		m_Qj = 0x400 - 0x280;
+		sum = 6000 - m_PowerVol;
+	}	
+	else if(m_PowerVol	 < 6500)
+	{
+		m_ORg = 0x200;
+		m_Qj = 0x280 - 0x200;
+		sum = 6500 - m_PowerVol;
+	}		
+	else if(m_PowerVol	 < 7000)
+	{
+		m_ORg = 0x180;
+		m_Qj = 0x200 - 0x180;
+		sum = 7000 - m_PowerVol;
+	}	
+	else if(m_PowerVol	 < 7500)
+	{
+		m_ORg = 0x140;
+		m_Qj = 0x180 - 0x140;
+		sum = 7500 - m_PowerVol;
+	}	
+	else if(m_PowerVol	 < 8000)
+	{
+		m_ORg = 0x110;
+		m_Qj = 0x140 - 0x110;
+		sum = 8000 - m_PowerVol;
+	}		
+	else if(m_PowerVol	 < 8500)
+	{
+		m_ORg = 0x0F0;
+		m_Qj = 0x110 - 0x0F0;
+		sum = 8500 - m_PowerVol;
+	}
+#ifdef USB_CHANGING_DATALOSS_ISSUE_SOLUTION	
+	else
+	{
+		/* Fallback for >= 8500mV: assign minimum calibrated strobe offset */
+			m_ORg = 0x0F0;
+			m_Qj = 0;
+			sum = 0;
+	}
+	m_ORg += (sum*m_Qj)/500;
+	calculated_stb = (unsigned short)(m_ORg * 1.2);
+
+	/* Mechanical safety floor: motor step rate must never exceed safe pull-in torque limit.
+	 * A value >= 250us ensures step timing (g_RunLTime) never causes motor stall. */
+	if (calculated_stb < 250)
+	{
+			calculated_stb = 250;
+	}
+	return calculated_stb;
+#else	
+	m_ORg += (sum*m_Qj)/500;
+	return m_ORg * 1.2;	
+#endif		
+}
+
+/****************************************************************************
+* 函数名：unsigned char PrinterCore()
+* 功  能：取数据.等待数据,缺纸,按键走纸
+*
+* 说  明：返回得到的缓冲区的数据
+*			unsigned char GetdataPos   从缓冲区取数据还是从别的特定的地方取数据
+*			pSpecialposition 得到特别数据的缓冲区
+
+PRO_PRINT_END_TYPE,PRO_PRINT_HEAD_TYPE
+****************************************************************************/
+extern void SetSelftestData(void);
+extern void SetDisplay(unsigned  short mdis);
+extern unsigned short g_CurrentVol,g_TMIndex;
+extern unsigned int g_PowerOffCount;
+extern unsigned short  g_KeyTimeOutFlag;
+
+extern unsigned short g_PaperOutAD,g_PaperGapAD;
+unsigned char g_ProHeadBuf[2048];
+extern unsigned int g_SetModel1ms;
+extern unsigned short g_SetModelFlag;
+unsigned int gTimer_Print;
+extern	unsigned short g_pinrtStb;
+	unsigned short g_waitflag = 0;
+extern void ReadKeyMenu(void);
+
+extern unsigned short g_OptionStatus ;
+unsigned short g_LowChargeFlage=0xAA	;
+
+
+extern unsigned int g_PowerOffCount;
+extern unsigned int g_PowerOffTimeOut;
+
+
+unsigned char PrinterCore_RAM(void)
+{
+	//unsigned int VoltagCalTemp;
+	unsigned short count,m_w;
+	U8	m_OrderData,m_KeyValue;
+//	unsigned int SendAddr;	
+	char m_buf[100];
+
+
+PrinterCore_loop:
+//	PrinterLPS();	
+	if (s_PrintOrderstr.m_GetdataPos == 0)
+	{
+		
+		s_PrintOrderstr.m_DataFlag = 0;
+		if(Receive_count == 0)
+		{
+
+			PRINTER_PDL.SERVICE._PrinterIdle();
+
+			PRINTER_PDL.SYS._LED_Stauts_OFF();
+
+			#ifdef RD_TYPE_SERIAL
+			if((FlowFlag & 0x40) != 0)
+			{
+				//SendChar(0x11);
+				PRINTER_PDL.RS232._SendChar(0x11);
+				PRINTER_PDL.TTL._SendChar(0x11);
+			}
+			#endif
+
+			m_KeyValue = 0;
+
+			
+			g_waitflag = 0xAA11;
+			g_LowChargeFlage=0xAA;
+			//*****************************
+			while(Receive_count == 0)
+			{
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+                BatteryLowCharge_Service();
+#endif				
+				
+				count = count;
+//				count++;
+//				Delay1ms(10);		
+//				
+//				if(count > 100)
+//				{
+//							count = 0;
+//					memset(m_buf,0,100);
+//					sprintf(m_buf,"%d",g_PowerOffCount);
+//					DisplayStr6x8(m_buf,0,14);
+//					memset(m_buf,0,100);
+//					sprintf(m_buf,"%d",g_PowerOffTimeOut);
+//					DisplayStr6x8(m_buf,0,24);
+//					
+//					DisplayBufEn();							
+//					
+//					
+//				}
+				
+			
+				
+				#ifdef PRINTER_AND_USB
+				if(g_ReceiveBusyFlag == 0xAAAA)
+				{
+					g_ReceiveBusyFlag = 0;
+					PRINTER_PDL.USB._ReceiveEPValid();
+				}
+				#endif
+				
+
+				if(s_PrinterMOTOPar.m_StopPrint == ENABLE_VAR)
+				{
+					PRINTER_PDL.SYS._Drive_Power_DIS();
+
+					if(g_PowerOffCount > 10000)
+					{
+						//大于10s开始检测电压
+						//检测当前电压
+						g_CurrentVol = PRINTER_PDL.SYS._GetCurVoltageLevel();	
+					}
+					
+#ifdef AUTO_SHUTDOWN_INDICATION_HANDLING
+					if(g_PowerVol <= BATTERY_POWER_00)
+					{
+						/* Guarded foreground shutdown owns the warning after confirmation. */
+					}
+#else
+					if(g_PowerVol <= BATTERY_POWER_00)
+					{
+						if(g_LowChargeFlage == 0xAA)
+						{
+							m_w = GetStr8x16Wide((char*)"Low charge",1);
+							DisplayStr8x16char("Low charge",(128-m_w)/2,14,1);
+						}
+					}
+#endif
+					else
+					{						
+						if(g_waitflag == 0xAA11)
+						{
+							g_waitflag = 0;
+#ifdef BT_NACK
+						if (g_DiscardPrinting == 0)
+						{
+							if(g_PowerOffCount > 1000)
+							{
+								oled_ClearMap(0,16,128);
+								oled_ClearMap(0,24,128);	
+								SetDisplay(0);
+#ifdef POSIFLOW_LOGO_AND_NAME
+							m_w = GetStr8x16Wide((char*)PRODUCT_NAME,1);
+							DisplayStr8x16char((char*)PRODUCT_NAME,(128-m_w)/2,14,1);
+							DisplayBufEn();
+#else							
+							m_w = GetStr8x16Wide((char*)"SR20",1);
+							DisplayStr8x16char("SR20",(128-m_w)/2,14,1);
+							DisplayBufEn();
+#endif
+						}
+						else
+						{
+							g_waitflag = 0xAA11;
+						}
+					}
+#else
+							oled_ClearMap(0,16,128);
+							oled_ClearMap(0,24,128);	
+							SetDisplay(0);
+							m_w = GetStr8x16Wide((char*)PRODUCT_NAME,1);
+							DisplayStr8x16char(PRODUCT_NAME,(128-m_w)/2,14,1);
+							DisplayBufEn();
+#endif
+						}		
+					}
+				}
+				//g_PaperOutAD = PRINTER_PDL.ADC._GetRefPhotoelectric();
+#ifdef DISPLAY_FREEZE_ISSUE_SOLUTION				//This logic is the potential root of display freeze & auto power off by indicating "Low Charge" as this g_g_PowerVol set to 0 after reading voltage from ADC which set the "g_BatteryLowChargeShutdownRequest = 1;" in SysTickProFun()(Modify:Kajal 15 Oct 2026) 
+				g_PowerVol = PRINTER_PDL.ADC._GetDriveVoltage();
+#endif				
+				g_PaperOutAD = PRINTER_PDL.SYS._PaperOutDet();
+				g_PaperGapAD = PRINTER_PDL.SYS._PaperGapDet();			
+#ifdef DUMMY_FLAGS_SET_TO_CREATE_ISSUE
+			//	MyPrintf("*g_PwrVol:%d\r\n",g_PowerVol);
+#endif			
+				
+				loop:
+#ifdef BT_NACK //BT UI Flickering
+				if (g_DiscardPrinting == 0)
+				{
+					DisplayBTPro();
+					DisplayBatty(DIS_BAT_X,DIS_BAT_Y);	
+					/* Add the head-temperature readout to this Bluetooth status refresh only when protection is enabled. */
+					#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+					DisplayTemp(DIS_TEMP_X, DIS_TEMP_Y);
+					#endif
+				}
+#else				
+				DisplayBTPro();
+				DisplayBatty(DIS_BAT_X,DIS_BAT_Y);
+				/* Add the head-temperature readout to the normal Bluetooth status refresh only when protection is enabled. */
+				#ifdef PSF20_R002_TEMPERATURE_SAFE_PRINTING
+				DisplayTemp(DIS_TEMP_X, DIS_TEMP_Y);
+				#endif
+#endif			
+				
+#ifndef EMS_TEST_CODE			 //EMS Vendor test code	 (Modification:Kajal 2 april 2026)
+				ReadKeyMenu();
+#endif
+					
+				if(g_OptionStatus)
+				{
+					g_waitflag = 0xAA11;
+					goto loop;
+				}
+				
+				#ifdef PRINTER_AND_USB
+				returnstatus(1);
+				#endif
+				PrinterLPS();
+				PRINTER_PDL.SYS._WDG_ReloadCounter(); //reload the watchdog 重装载看门狗定时器
+				if(g_DumpReceiveFlage == 0xAAAA)
+				{
+					ProKeySetModel();
+					continue;
+				}
+				else
+				{
+					#ifdef PRINTER_LABEL
+					if((PRINTER_PDL.SYS._Get_Plus_LF() & 1) == 1)
+					{
+						m_KeyValue++;
+#ifdef PWR_USER_BTN_KEY_AUDIO_EN
+				 if(g_KeySoundEnable)
+				 {
+						Audio_Beep_Custom(1, 30, 0);
+				 }
+#endif						
+	         //printf("lf\r\n");   //Desable debug
+						__SETPRIMASK();
+						g_SetModel1ms = 0;
+						g_KeyTimeOutFlag = 0;
+						__RESETPRIMASK();
+					}
+					if(g_SetModel1ms > 8000)
+					{
+						if(g_SetModelFlag)
+						{
+							g_SetModelFlag = 0;
+						}
+					}
+					if(PRINTER_PDL.SYS._GetKey_LF()== 0)
+					{
+						g_KeyTimeOutFlag = 0;
+					}
+					if(PRINTER_PDL.SYS._GetKey_LF())
+					{
+						//表示按键抬起来了
+						if(g_KeyTimeOutFlag > 500)
+						{
+							if((m_KeyValue == 1) && (g_SetModelFlag != 0xA578))
+							{
+								m_KeyValue = 0;
+								
+								if(g_PaperType)
+								{
+								//	while(PRINTER_PDL.SYS._GetKey_LF() == 0)
+									{
+										PRINTER_PDL.SYS._WDG_ReloadCounter(); //reload the watchdog 重装载看门狗定时器
+										{//普通打印走纸模式
+												PRINTER_PDL.SYS._Drive_Power_EN();
+												PRINTER_PDL.MOTO._MotoRun_RW(&g_MotoAll,320);
+#ifndef EMS_TEST_CODE											
+												PRINTER_PDL.SYS._Drive_Power_DIS();
+#endif
+										}
+									}						
+								}
+								else
+								{
+										RunFeedLabPaper();
+								}
+							}
+#ifdef MULTIPLE_USER_BUTTON_PRESS							
+							#if PRINTER_LABEL
+							else if((m_KeyValue == 1) && (g_SetModelFlag == 0xA578))
+							{
+
+								switch(s_PrintrConfig.m_InterFace & 1)
+								{
+									
+									case WORKE_TYPE_CONTINUE:
+											s_PrintrConfig.m_InterFace = WORKE_TYPE_CON_LAB;
+										break;
+									case WORKE_TYPE_CON_LAB:
+											s_PrintrConfig.m_InterFace = WORKE_TYPE_CONTINUE;
+										break;
+								}
+								SavePrinterConfig();		
+								SetprinterType(s_PrintrConfig.m_InterFace);
+								g_PaperType = s_PrintrConfig.m_InterFace;
+								m_KeyValue = 0;
+							}							
+							else if(m_KeyValue == 3)
+							{
+								//标定
+								m_KeyValue = 0;
+								GetLabPaperSta();
+							}								
+							else if(m_KeyValue == 5)
+							{
+								//切换标签模式
+								m_KeyValue = 0;
+								g_SetModelFlag = 0xA578;
+								SetprinterType(s_PrintrConfig.m_InterFace);
+							}									
+							#endif
+#endif							
+							m_KeyValue = 0;
+						}
+					}
+#ifdef DOUBLE_TAP_SELFTEST_PRINT					
+					else if(g_K2_Event == K2_EVT_DOUBLE_TAP)
+					{
+						
+						g_K2_Event = K2_EVT_NONE;
+						SetSelftestData(); 
+					} 
+#endif					
+					#else
+					//========================================
+					count = 0;
+					if(PRINTER_PDL.SYS._GetKey_LF() == 0)
+					{
+						PRINTER_PDL.SYS._WDG_ReloadCounter(); //reload the watchdog 重装载看门狗定时器
+					
+
+						{//普通打印走纸模式
+		printf("lf\r\n");
+								PRINTER_PDL.SYS._Drive_Power_EN();
+								while(PRINTER_PDL.SYS._GetKey_LF() == 0)
+								{
+									PRINTER_PDL.MOTO._MotoRun_RW(&g_MotoAll,50);
+								}
+								PRINTER_PDL.SYS._Drive_Power_DIS();
+
+						}
+//						count++;
+//						if(count > 4)
+//						{
+//							SetSelftestData();
+//							break;
+//						}						
+						
+					}
+					#endif
+				}
+				if(s_PrinterMOTOPar.m_StopPrint == ENABLE_VAR)
+				{
+					PRINTER_PDL.SYS._STB_ALL_CLEAR();//清加热线
+				
+				}
+			}
+
+	//		printf("Vol-1:%d\r\n",g_CurrentVol);	
+	//		printf("Vol-2:%d\r\n",g_CurrentVol);
+#ifndef DISPLAY_FREEZE_ISSUE_SOLUTION	
+			//MyPrintf("**g_PwrVol:%d & IF:%d\r\n",g_PowerVol,g_Display_freeze_issue_flag);		
+  if(g_Display_freeze_issue_flag	== 1)
+	{			
+		g_pinrtStb =	CalStbTime();
+//    MyPrintf("**g_PwrVol:%d\r\n",g_PowerVol);		
+	}
+	MyPrintf("**g_PwrVol:%d\r\n",g_PowerVol);
+	
+#else	
+	g_pinrtStb =	CalStbTime();
+#endif			
+		
+			g_CurrentVol = PRINTER_PDL.SYS._GetCurVoltageLevel();	
+//			s_PrintParameters.m_CurMotoRunTime = VolRUNTime[g_CurrentVol] - 100;//得到当前电压电机运行时间
+//			s_PrintParameters.m_PrHeadHottime = VolTHSTB[g_CurrentVol] - 100;//得到加热值
+//			if(s_PrintrConfig.m_SoftwarePart == 2)
+//			{
+//				s_PrintParameters.m_PrHeadHottime = VolTHSTB_2[g_CurrentVol];//得到加热值
+//			}	
+#ifdef MY_DEBUG_ENABLE	
+			printf("g_pinrtStb:%d\r\n",g_pinrtStb);	
+			printf("g_CurrentVol:%d\r\n",g_CurrentVol);
+#endif			
+			s_PrintParameters.m_CurMotoPWM = VolRUNPWM[g_CurrentVol] - 100;//得到当前电压电机PWM值
+			s_PrintParameters.m_CurFreeTime = VolFreeTime[g_CurrentVol];//得到当前电压空走纸步进时间
+			//*****************************
+			g_PowerOffCount = 0; //接收到数据关机时间清零
+#ifdef BT_NACK // analyzing or printing
+			if (g_waitflag == 0 && g_DiscardPrinting == 0)
+			{
+				DisplayStr8x16char("               ",20,14,0);
+					m_w = GetStr8x16Wide((char*)"printing",1);
+				DisplayStr8x16char("printing",(128-m_w)/2,14,1);
+				DisplayBufEn();
+			}
+			else if (g_SelfTestStartFlag == 1)
+			{
+				g_SelfTestStartFlag = 0;
+				DisplayStr8x16char("               ",20,14,0);
+				m_w = GetStr8x16Wide((char*)"Selftest",1);
+				DisplayStr8x16char("Selftest",(128-m_w)/2,14,1);
+				DisplayBufEn();
+			}
+#else
+				DisplayStr8x16char("          ",20,14,0);
+					m_w = GetStr8x16Wide((char*)"printing",1);
+				DisplayStr8x16char("printing",(128-m_w)/2,14,1);
+				DisplayBufEn();
+#endif
+			
+#ifdef BATTERY_LOW_CHARGE_LABEL_SHUTDOWN
+            BatteryLowCharge_PrintWarning();
+#endif
+			
+			g_waitflag = 0xAA11;
+			PRINTER_PDL.SYS._POWER_EN();
+			for(m_OrderData=0;m_OrderData<0xFF;m_OrderData++)
+			{
+				PRINTER_PDL.SYS._Drive_Power_Trig();
+			}
+	
+			//Delay1ms(20);			
+			#ifdef PRO_PRINT_HEAD_TYPE 
+			if(s_PrintOrderstr.m_GetdataPos)
+			{
+				goto PrinterCore_loop;
+			}
+			
+			#endif
+	
+		}
+//	SaveDataToFlash();
+		if(Receive_count != 0)
+		{
+			__SETPRIMASK();   // 使能串口1中断
+			Receive_count--;
+			__RESETPRIMASK();//禁止串口1中断
+
+			m_OrderData = receive_bufer[g_Order_count++];
+			g_Order_count &= MASK_DATA;
+
+		//	UART_SendData(UART0,	m_OrderData);
+			g_ReturnBusy =0;
+			if(Receive_count < PRINTER_RECEIVE_L)
+			{
+				g_ReturnBusy &= 0xFB;
+				
+				#ifdef PRINTER_AND_USB
+				if(g_ReceiveBusyFlag == 0xAAAA)
+				{
+					g_ReceiveBusyFlag = 0;
+					PRINTER_PDL.USB._ReceiveEPValid();
+				}
+				#endif		
+
+
+
+				
+			}
+		}
+		else
+		{
+			goto PrinterCore_loop;
+		}
+	}
+	else
+	{
+		m_OrderData = *s_PrintOrderstr.pSpecialposition++;
+		s_PrintOrderstr.m_GetdataPos--;
+		s_PrintOrderstr.m_DataFlag = 0xff;
+		
+	}
+	return m_OrderData;
+}
+
+
+extern unsigned short gTimer_1ms;
+unsigned char PrinterCore_USART1(unsigned char * ScanDat)
+{
+	PRINTER_PDL.SYS._WDG_ReloadCounter();
+	if (Receive_count == 0)
+	{
+		if(g_ReceiveBusyFlag == 0xAAAA)
+		{
+			g_ReceiveBusyFlag = 0;
+			PRINTER_PDL.USB._ReceiveEPValid();
+		}	
+		return 0;
+	}
+	if(Receive_count != 0)
+	{
+		__SETPRIMASK();
+		Receive_count--;
+		__RESETPRIMASK();
+		*ScanDat = receive_bufer[g_Order_count++];
+		g_Order_count &= MASK_DATA;
+
+		 if(Receive_count < 1000)
+		 {
+				if(g_ReceiveBusyFlag == 0xAAAA)
+				{
+					g_ReceiveBusyFlag = 0;
+					PRINTER_PDL.USB._ReceiveEPValid();
+				}	
+
+		 }
+	}
+	else
+	{
+		return 0;
+	}
+	return 1;
+}
+unsigned char GetUpdata(unsigned char * p_dat)
+{
+	unsigned char i;
+	__SETPRIMASK();
+	gTimer_1ms = 0;
+	__RESETPRIMASK();
+	while(gTimer_1ms < 1000)
+	{
+		i = PrinterCore_USART1(p_dat);
+		if(i)
+		{
+			break;
+		}
+	}
+	return i;
+}
+
+
+/****************************************************************************
+* 函数名：unsigned char PrinterCore()
+* 功  能：取数据.等待数据,缺纸,按键走纸
+*
+* 说  明：返回得到的缓冲区的数据
+*			unsigned char GetdataPos   从缓冲区取数据还是从别的特定的地方取数据
+*			pSpecialposition 得到特别数据的缓冲区
+****************************************************************************/
+unsigned char PrinterCore_Flash(void)
+{
+
+	U8	m_OrderData;
+
+	unsigned short i;
+PrinterCore_loop:
+	PrinterLPS();
+	if (s_PrintOrderstr.m_GetdataPos == 0)
+	{
+
+		s_PrintOrderstr.m_DataFlag = 0;
+		if (((*p_REAndSAcount) == 0) && (Receive_count == 0))
+		{
+
+			PRINTER_PDL.SERVICE._PrinterIdle();
+
+			PRINTER_PDL.SYS._LED_Stauts_OFF();
+	
+			#ifdef RD_TYPE_SERIAL
+			if((FlowFlag & 0x40) != 0)
+			{
+				//SendChar(0x11);
+				PRINTER_PDL.RS232._SendChar(0x11);
+				PRINTER_PDL.TTL._SendChar(0x11);
+			}
+			#endif
+			//*****************************
+			while(((*p_REAndSAcount) == 0) && (Receive_count == 0))
+			{
+				#ifdef PRINTER_AND_USB
+				if(g_ReceiveBusyFlag == 0xAAAA)
+				{
+					g_ReceiveBusyFlag = 0;
+						PRINTER_PDL.USB._ReceiveEPValid();
+				}
+				#endif
+				#ifdef RD_OEMPRINTER
+				if(s_PrinterMOTOPar.m_StopPrint == ENABLE_VAR)
+				{
+					SET_L_POWER;//关闭驱动电源
+				}
+				#endif
+				#ifdef RD_INDEP_CONTROL
+				if(s_PrinterMOTOPar.m_StopPrint == ENABLE_VAR)
+				{
+					SET_L_POWER;//关闭驱动电源
+				}
+				#endif
+				PrinterLPS();
+				PRINTER_PDL.SYS._WDG_ReloadCounter(); //reload the watchdog 重装载看门狗定时器
+				#ifdef PRINTER_AND_USB
+				returnstatus(1);
+				#endif
+				if(g_DumpReceiveFlage == 0xAAAA)
+				{
+					ProKeySetModel();
+					continue;
+				}
+				else
+
+				{
+					while(PRINTER_PDL.SYS._GetKey_LF() == 0)
+					{
+						PRINTER_PDL.SYS._WDG_ReloadCounter(); //reload the watchdog 重装载看门狗定时器
+						if(s_PrintrConfig.m_PrintLabFlage == LABEL_PR_EN)
+						{//标签打印模式
+								#ifdef PRINTER_LABEL
+							if(g_PaperType == 0)
+							{
+								RunFeedLabPaper();
+							}
+							else
+								#endif
+							{
+								PRINTER_PDL.SYS._Drive_Power_EN();
+								PRINTER_PDL.MOTO._MotoRun_RW(&g_MotoAll,100);
+								PRINTER_PDL.SYS._Drive_Power_DIS();
+							}
+						}
+						else
+						{//普通打印走纸模式
+							PRINTER_PDL.SYS._Drive_Power_EN();
+							PRINTER_PDL.MOTO._MotoRun_RW(&g_MotoAll,100);
+							PRINTER_PDL.SYS._Drive_Power_DIS();
+						}
+					}
+				}
+				if(s_PrinterMOTOPar.m_StopPrint == ENABLE_VAR)
+				{
+					PRINTER_PDL.SYS._STB_ALL_CLEAR();//清加热线
+				
+				}
+			}
+			i = PRINTER_PDL.SYS._GetCurVoltageLevel();
+									
+			s_PrintParameters.m_CurMotoRunTime = VolRUNTime[i] - 100;//得到当前电压电机运行时间
+			s_PrintParameters.m_PrHeadHottime = VolTHSTB[i] - 200;//得到加热值
+			if(s_PrintrConfig.m_SoftwarePart == 2)
+			{
+				s_PrintParameters.m_PrHeadHottime = VolTHSTB_2[i];//得到加热值
+			}
+			s_PrintParameters.m_CurMotoPWM = VolRUNPWM[i] - 100;//得到当前电压电机PWM值
+			s_PrintParameters.m_CurFreeTime = VolFreeTime[i];//得到当前电压空走纸步进时间
+			//*****************************
+			for(m_OrderData=0;m_OrderData<0xFF;m_OrderData++)
+			{
+				PRINTER_PDL.SYS._Drive_Power_Trig();
+			}
+
+		}
+		SaveDataToFlash();
+		if(Receive_count != 0)
+		{
+			__SETPRIMASK();   // 使能串口1中断
+			Receive_count--;
+			__RESETPRIMASK();//禁止串口1中断
+			//m_OrderData = receive_bufer[g_Order_count++];
+			//g_Order_count &= MASK_DATA;
+			m_OrderData = ReadByte((*p_OcAndGDAdr));
+			(*p_OcAndGDAdr)++;
+			(*p_OcAndGDAdr) &= ADDRPRO_AND;
+			(*p_OcAndGDAdr) |= ADDRPRO_OR;
+
+			g_ReturnBusy =0;
+			if(Receive_count < PRINTER_RECEIVE_L)
+			{
+				g_ReturnBusy &= 0xFB;
+			}
+		}
+		else
+		{
+			goto PrinterCore_loop;
+		}
+	}
+	else
+	{
+		m_OrderData = *s_PrintOrderstr.pSpecialposition++;
+		s_PrintOrderstr.m_GetdataPos--;
+		s_PrintOrderstr.m_DataFlag = 0xff;
+	}
+	return m_OrderData;
+}
+/*********************************************************************************************************
+** Function name:    unsigned short SaveDataToFlash(void)
+** Descriptions:     根据端口接收到的数据多少存储数据到flash,每次最多写一页的数据到flash中
+** input parameters:    无
+** output parameters:   无
+** Returned value:      无
+*********************************************************************************************************/
+unsigned short SaveDataToFlash(void)
+{
+	unsigned short temp,com;
+	if(s_PrintParameters.m_ReceiveBuffrWor != RECEIVE_FLASH)
+	{
+		return 0;//无数据返回
+	}
+	if((*p_REAndSAcount) == 0)
+	{
+		PRINTER_PDL.SERVICE._PrinterIdle();
+		return 0;//无数据返回
+	}
+	temp = (*p_REAndSAcount);
+	if(temp > 255)
+	{
+		//写一页数据到flash中
+		temp = 256;
+	}
+
+	com = 256 - (g_SaveDataToFlashAddr & 0xFF);//剩余可写入的字节数
+
+	if(temp <= com)
+	{
+		AT91F_WritenOrderBytes(g_SaveDataToFlashAddr,receive_bufer,temp);
+
+		g_SaveDataToFlashAddr += temp;
+
+		g_SaveDataToFlashAddr &= ADDRPRO_AND;
+		g_SaveDataToFlashAddr |= ADDRPRO_OR;
+	}
+	else
+	{
+		AT91F_WritenOrderBytes(g_SaveDataToFlashAddr,receive_bufer,com);
+
+		g_SaveDataToFlashAddr += com;
+
+		g_SaveDataToFlashAddr &= ADDRPRO_AND;
+		g_SaveDataToFlashAddr |= ADDRPRO_OR;
+
+		AT91F_WritenOrderBytes(g_SaveDataToFlashAddr,receive_bufer,temp - com);
+
+		g_SaveDataToFlashAddr += (temp - com);
+
+		g_SaveDataToFlashAddr &= ADDRPRO_AND;
+		g_SaveDataToFlashAddr |= ADDRPRO_OR;
+	}
+	//
+	Receive_count += temp;
+	__SETPRIMASK();
+	(*p_REAndSAcount) -= temp;
+	__RESETPRIMASK();//禁止串口1中断
+
+	return temp;
+
+}
+
+
+
+
+
+extern unsigned short g_PowerVol;
+char TempStr[][4]=
+{
+"75"
+"70",	
+"65",	
+"60",	
+"55",	
+"50",	
+"45",	
+"40",	
+"35",	
+"30",	
+"25",	
+"20",	
+"15",	
+"10",	
+"5",		
+"0",		
+"-5",	
+"-10",	
+"-15",	
+"-20",	
+"-20",
+"-20",
+"-20",
+"-20",
+"-20",
+};
+
+
+
+void SetTestData(void)
+{
+	char buffer[512];
+	char Temp[128];
+	unsigned short i,len;
+	memset(buffer,0,512);
+	
+	
+
+	
+	strcpy(buffer,"\r\n***************Star*************\r\n");
+	memset(Temp,0,128);
+	sprintf(Temp,"当前电压:%d mV\r\n",g_PowerVol);
+	strcat(buffer,Temp);
+	
+	memset(Temp,0,128);
+	sprintf(Temp,"温度索引:%d \r\n",g_TMIndex);
+	strcat(buffer,Temp);
+	
+	memset(Temp,0,128);
+	sprintf(Temp,"当前温度: < %s 度\r\n",TempStr[g_TMIndex]);
+	strcat(buffer,Temp);
+	
+	strcat(buffer,"**************END***************\r\n\r\n\r\n\r\n");
+	
+	len = strlen(buffer);
+	for(i=0;i<len;i++)
+	{
+		(*p_REAndSAcount)++;
+		receive_bufer[(*p_SaveDrREcount)++] = buffer[i];
+		(*p_SaveDrREcount) = (*p_SaveDrREcount) & MASK_DATA;						
+	}	
+
+}
+
+
+#ifdef BT_CMD_REQ
+/**
+* @FuncName  Get_Label_Size_BT_Response
+* @param     uint16_t Media_Height - Calibrated label height value in millimeters
+* @retval    void
+* @LocalVar  char TxBuffer_NACK[64] - Formatted Bluetooth response  buffer
+* @GlobalVar PRINTER_PDL
+* @Description Formats and transmits label height telemetry back to the host application
+*              over the active Bluetooth connection.
+*
+*              Execution Breakdown:
+*              - Formats string: `"SRS20_HEIGHT:<Media_Height>\r\n"`.
+*              - Transmits payload to host via `PRINTER_PDL.BT._ReturnNBytes()`.
+*/
+void Get_Label_Size_BT_Response(uint16_t Media_Height)//void Get_Label_Size_BT_Response(char *Media_Type,uint16_t Media_Height)
+{
+	char TxBuffer_NACK[64];
+	
+	sprintf(TxBuffer_NACK,"SRS20_HEIGHT:%d\r\n",Media_Height);
+#ifdef MY_DEBUG_ENABLE_O
+	MyPrintf("%s\n", TxBuffer_NACK);
+#endif
+	PRINTER_PDL.BT._ReturnNBytes((unsigned char *)TxBuffer_NACK, strlen(TxBuffer_NACK));
+
+}
+/**
+* @FuncName  Get_Media_Detect_BT_Response
+* @param     char *Media_Availability - Media status text string (e.g. "PRESENT", "ABSENT", "LID_OPEN")
+* @retval    void
+* @LocalVar  char TxBuffer_NACK[64] - Formatted Bluetooth response payload buffer
+* @GlobalVar PRINTER_PDL
+* @Description Formats and transmits real-time media detection event status to the connected
+*              Bluetooth host application.
+*
+*              Execution Breakdown:
+*              - Formats string: `"SRS20_EVENT:<Media_Availability>\r\n"`.
+*              - Transmits payload over Bluetooth connection via `PRINTER_PDL.BT._ReturnNBytes()`.
+*/
+void Get_Media_Detect_BT_Response(char * Media_Availability)//void Get_Label_Size_BT_Response(char *Media_Type,uint16_t Media_Height)
+{
+	char TxBuffer_NACK[64];
+	
+	sprintf(TxBuffer_NACK,"SRS20_EVENT:%s\r\n",Media_Availability);
+//	MyPrintf("%s\n", TxBuffer_NACK);
+	PRINTER_PDL.BT._ReturnNBytes((unsigned char *)TxBuffer_NACK, strlen(TxBuffer_NACK));
+
+}
+/**
+* @FuncName  Get_Oversize_Detection_BT_Response
+* @param     uint16_t Received_Label_Size   - Height dimension of incoming print bitmap payload in millimeters
+*            uint16_t Calculated_Label_Size - Calibrated physical height of the loaded label media in millimeters
+* @retval    void
+* @LocalVar  char TxBuffer_NACK[64] - Formatted output response text buffer
+* @GlobalVar PRINTER_PDL
+* @Description Formats and transmits a Bluetooth oversize error notification event payload back to the
+*              connected host application when an incoming print job's bitmap height exceeds physical label dimensions.
+*
+*              Execution Breakdown:
+*              - Formats event payload string: `"SRS20_EVENT:OVERSIZE,<Calculated_Label_Size>,<Received_Label_Size>\r\n"`.
+*              - Outputs debug message via `MyPrintf()`.
+*              - Transmits payload over Bluetooth link via `PRINTER_PDL.BT._ReturnNBytes()`.
+*/
+void Get_Oversize_Detection_BT_Response(uint16_t Received_Label_Size, uint16_t Calculated_Label_Size)//void Get_Label_Size_BT_Response(char *Media_Type,uint16_t Media_Height)
+{
+	char TxBuffer_NACK[64];
+	
+	sprintf(TxBuffer_NACK,"SRS20_EVENT:OVERSIZE,<%d>,<%d>\r\n",Calculated_Label_Size,Received_Label_Size);
+//	MyPrintf("%s\n", TxBuffer_NACK);
+	PRINTER_PDL.BT._ReturnNBytes((unsigned char *)TxBuffer_NACK, strlen(TxBuffer_NACK));
+
+}
+// byte-by-byte memory comparison between two memory locations of Incoming and stored commands
+int MyMemCmp(const void *ptr1, const void *ptr2, unsigned int len)
+{
+    const unsigned char *p1 = (const unsigned char *)ptr1;
+    const unsigned char *p2 = (const unsigned char *)ptr2;
+
+    while (len--)
+    {
+        if (*p1 != *p2)
+        {
+            return (*p1 - *p2);
+        }
+
+        p1++;
+        p2++;
+    }
+
+    return 0;   // Buffers are identical
+}
+#endif
+
+
+#ifdef TEMP_STATUS_ACK_TO_SOFTWARE_APP
+/**
+ * @FuncName    Get_Temperature_BT_Response
+ * @param       char *Status_State      - State string: "PAUSED", "COOLING", or "RESUMED" or "QUERY"
+ *              uint16_t Current_Temp   - Current thermal head temperature in Celsius
+ * @retval      void
+ * @Description Formats and transmits thermal head overheat/cooling event status
+ *              over Bluetooth using PRINTER_PDL.BT._ReturnNBytes().
+ */
+void Get_Temperature_BT_Response(char *Status_State, uint16_t Current_Temp)
+{
+    
+        char TxBuffer_NACK[64];
+
+        /* Only transmit if Bluetooth is actively connected */
+        if (PRINTER_PDL.BT._GetConnect() != 0)
+        {
+            /* Example output: "SRS20_EVENT:OVERHEAT,PAUSED,<49>\r\n" */
+            sprintf(TxBuffer_NACK, "SRS20_EVENT:PRINT,%s,<%d>\r\n", Status_State, Current_Temp);
+						MyPrintf("%s\n", TxBuffer_NACK);
+            PRINTER_PDL.BT._ReturnNBytes((unsigned char *)TxBuffer_NACK, strlen(TxBuffer_NACK));
+						
+        }
+
+}
+
+#endif
+
+
+
+
+
+
+
+

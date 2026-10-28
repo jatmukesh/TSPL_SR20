@@ -1,0 +1,10 @@
+.\objects\yc_timer.o: ..\Librarier\sdk\yc_timer.c
+.\objects\yc_timer.o: ..\Librarier\sdk\yc_timer.h
+.\objects\yc_timer.o: ..\Librarier\core\yc3121.h
+.\objects\yc_timer.o: ..\Librarier\core\type.h
+.\objects\yc_timer.o: ..\Librarier\core\system.h
+.\objects\yc_timer.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\yc_timer.o: ..\Librarier\sdk\yc_uart.h
+.\objects\yc_timer.o: ..\Librarier\core\yc3121.h
+.\objects\yc_timer.o: ..\Librarier\core\rom_api.h
+.\objects\yc_timer.o: ..\Librarier\sdk\yc_gpio.h

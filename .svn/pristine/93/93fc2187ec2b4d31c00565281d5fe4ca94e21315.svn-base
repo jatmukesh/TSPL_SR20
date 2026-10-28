@@ -1,0 +1,121 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;******************** (C) COPYRIGHT 2008 STMicroelectron
+                       ics ********************
+    2 00000000         ;* File Name          : cortexm3_macro.s
+    3 00000000         ;* Author             : MCD Application Team
+    4 00000000         ;* Version            : V2.0.1
+    5 00000000         ;* Date               : 06/13/2008
+    6 00000000         ;* Description        : Instruction wrappers for special
+                        Cortex-M3 instructions
+    7 00000000         ;*                      to be used with RVMDK toolchain.
+                       
+    8 00000000         ;*******************************************************
+                       ************************
+    9 00000000         ; THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS A
+                       T PROVIDING CUSTOMERS
+   10 00000000         ; WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN OR
+                       DER FOR THEM TO SAVE TIME.
+   11 00000000         ; AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIAB
+                       LE FOR ANY DIRECT,
+   12 00000000         ; INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY 
+                       CLAIMS ARISING FROM THE
+   13 00000000         ; CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOM
+                       ERS OF THE CODING
+   14 00000000         ; INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR 
+                       PRODUCTS.
+   15 00000000         ;*******************************************************
+                       ************************
+   16 00000000         
+   17 00000000                 THUMB
+   18 00000000                 REQUIRE8
+   19 00000000                 PRESERVE8
+   20 00000000         
+   21 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   22 00000000         
+   23 00000000         ; Exported functions
+   24 00000000         
+   25 00000000         
+   26 00000000                 EXPORT           __RESETPRIMASK
+   27 00000000                 EXPORT           __SETPRIMASK
+   28 00000000         
+   29 00000000         
+   30 00000000         
+   31 00000000         ;*******************************************************
+                       ************************
+   32 00000000         ; Function Name  : __RESETPRIMASK
+   33 00000000         ; Description    : Assembler function to reset the PRIMA
+                       SK.
+   34 00000000         ; Input          : None 
+   35 00000000         ; Return         : None
+   36 00000000         ;*******************************************************
+                       ************************
+   37 00000000         __RESETPRIMASK
+   38 00000000         
+   39 00000000 B662            CPSIE            i
+   40 00000002 4770            BX               r14
+   41 00000004         
+   42 00000004         ;*******************************************************
+                       ************************
+   43 00000004         ; Function Name  : __SETPRIMASK
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   44 00000004         ; Description    : Assembler function to set the PRIMASK
+                       .
+   45 00000004         ; Input          : None 
+   46 00000004         ; Return         : None
+   47 00000004         ;*******************************************************
+                       ************************
+   48 00000004         __SETPRIMASK
+   49 00000004         
+   50 00000004 B672            CPSID            i
+   51 00000006 4770            BX               r14
+   52 00000008                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
+ork --depend=.\objects\cortexm3_macro.d -o.\objects\cortexm3_macro.o -IC:\Users
+\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARMCM0\Include -IC:\Use
+rs\PC\AppData\Local\Arm\Packs\ARM\Cortex_DFP\1.1.0\Device\ARM\ARMCM0\Include --
+predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 534" --predef
+ine="ARMCM0 SETA 1" --list=.\listings\cortexm3_macro.lst ..\Librarier\core\cort
+exm3_macro.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 21 in file ..\Librarier\core\cortexm3_macro.s
+   Uses
+      None
+Comment: .text unused
+__RESETPRIMASK 00000000
+
+Symbol: __RESETPRIMASK
+   Definitions
+      At line 37 in file ..\Librarier\core\cortexm3_macro.s
+   Uses
+      At line 26 in file ..\Librarier\core\cortexm3_macro.s
+Comment: __RESETPRIMASK used once
+__SETPRIMASK 00000004
+
+Symbol: __SETPRIMASK
+   Definitions
+      At line 48 in file ..\Librarier\core\cortexm3_macro.s
+   Uses
+      At line 27 in file ..\Librarier\core\cortexm3_macro.s
+Comment: __SETPRIMASK used once
+3 symbols
+336 symbols in table
